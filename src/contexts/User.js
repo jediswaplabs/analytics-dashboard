@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
 import { useAllPairData, usePairData } from './PairData'
-import { client, stakingClient } from '../apollo/client'
+import {jediSwapClient} from '../apollo/client'
 import {
   USER_TRANSACTIONS,
   USER_POSITIONS,
   USER_HISTORY,
-  PAIR_DAY_DATA_BULK,
-  MINING_POSITIONS,
+  PAIR_DAY_DATA_BULK
 } from '../apollo/queries'
 import { useTimeframe, useStartTimestamp } from './Application'
 import dayjs from 'dayjs'
@@ -14,6 +13,7 @@ import utc from 'dayjs/plugin/utc'
 import { useEthPrice } from './GlobalData'
 import { getLPReturnsOnPair, getHistoricalPairReturns } from '../utils/returns'
 import { timeframeOptions } from '../constants'
+import {convertDateToUnixFormat} from "../utils";
 
 dayjs.extend(utc)
 
@@ -166,7 +166,7 @@ export function useUserTransactions(account) {
   useEffect(() => {
     async function fetchData(account) {
       try {
-        let result = await client.query({
+        let result = await jediSwapClient.query({
           query: USER_TRANSACTIONS,
           variables: {
             user: account,
@@ -204,16 +204,23 @@ export function useUserSnapshots(account) {
         let allResults = []
         let found = false
         while (!found) {
-          let result = await client.query({
+          let result = await jediSwapClient.query({
             query: USER_HISTORY,
             variables: {
               skip: skip,
               user: account,
             },
-            fetchPolicy: 'cache-first',
+            fetchPolicy: 'no-cache',
           })
-          allResults = allResults.concat(result.data.liquidityPositionSnapshots)
-          if (result.data.liquidityPositionSnapshots.length < 1000) {
+          const data = result.data.liquidityPositionSnapshots.map((position) => {
+            const timestamp = convertDateToUnixFormat(position.timestamp);
+            return {
+              ...position,
+              timestamp
+            }
+          })
+          allResults = allResults.concat(data)
+          if (data.length < 1000) {
             found = true
           } else {
             skip += 1000
@@ -361,10 +368,15 @@ export function useUserLiquidityChart(account) {
       }, [])
 
       // get all day datas where date is in this list, and pair is in pair list
-      let {
-        data: { pairDayDatas },
-      } = await client.query({
+      let { data: { pairDayDatas } } = await jediSwapClient.query({
         query: PAIR_DAY_DATA_BULK(pairs, startDateTimestamp),
+      })
+
+      pairDayDatas = pairDayDatas.map((data) => {
+        return {
+          ...data,
+          date: convertDateToUnixFormat(data.date),
+        }
       })
 
       const formattedHistory = []
@@ -400,7 +412,7 @@ export function useUserLiquidityChart(account) {
         const relavantDayDatas = Object.keys(ownershipPerPair).map((pairAddress) => {
           // find last day data after timestamp update
           const dayDatasForThisPair = pairDayDatas.filter((dayData) => {
-            return dayData.pairAddress === pairAddress
+            return dayData.pairId === pairAddress
           })
           // find the most recent reference to pair liquidity data
           let mostRecent = dayDatasForThisPair[0]
@@ -419,7 +431,7 @@ export function useUserLiquidityChart(account) {
             return (totalUSD =
               totalUSD +
               (ownershipPerPair[dayData.pairAddress]
-                ? (parseFloat(ownershipPerPair[dayData.pairAddress].lpTokenBalance) / parseFloat(dayData.totalSupply)) *
+                ? (parseFloat(ownershipPerPair[dayData.pairId].lpTokenBalance) / parseFloat(dayData.totalSupply)) *
                   parseFloat(dayData.reserveUSD)
                 : 0))
           } else {
@@ -453,7 +465,7 @@ export function useUserPositions(account) {
   useEffect(() => {
     async function fetchData(account) {
       try {
-        let result = await client.query({
+        let result = await jediSwapClient.query({
           query: USER_POSITIONS,
           variables: {
             user: account,
@@ -482,40 +494,4 @@ export function useUserPositions(account) {
   }, [account, positions, updatePositions, ethPrice, snapshots])
 
   return positions
-}
-
-export function useMiningPositions(account) {
-  const [state, { updateMiningPositions }] = useUserContext()
-  const allPairData = useAllPairData()
-  const miningPositions = state?.[account]?.[MINING_POSITIONS_KEY]
-
-  const snapshots = useUserSnapshots(account)
-
-  useEffect(() => {
-    async function fetchData(account) {
-      try {
-        let miningPositionData = []
-        let result = await stakingClient.query({
-          query: MINING_POSITIONS(account),
-          fetchPolicy: 'no-cache',
-        })
-        if (!result?.data?.user?.miningPosition) {
-          return
-        }
-        miningPositionData = result.data.user.miningPosition
-        for (const miningPosition of miningPositionData) {
-          const pairAddress = miningPosition.miningPool.pair.id
-          miningPosition.pairData = allPairData[pairAddress]
-        }
-        updateMiningPositions(account, miningPositionData)
-      } catch (e) {
-        console.log(e)
-      }
-    }
-
-    if (!miningPositions && account && snapshots) {
-      fetchData(account)
-    }
-  }, [account, miningPositions, updateMiningPositions, snapshots, allPairData])
-  return miningPositions
 }

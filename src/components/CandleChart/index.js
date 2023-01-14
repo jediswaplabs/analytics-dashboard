@@ -35,7 +35,7 @@ const CandleStickChart = ({
 }) => {
   // reference for DOM element to create with chart
   const ref = useRef()
-
+  console.log(data);
   const formattedData = data?.map((entry) => {
     return {
       time: parseFloat(entry.timestamp),

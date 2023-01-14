@@ -3,8 +3,8 @@ import { timeframeOptions, SUPPORTED_LIST_URLS__NO_ENS } from '../constants'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import getTokenList from '../utils/tokenLists'
-import { healthClient } from '../apollo/client'
-import { SUBGRAPH_HEALTH } from '../apollo/queries'
+import {jediSwapClient} from '../apollo/client'
+import {GET_LATEST_BLOCK} from '../apollo/queries'
 dayjs.extend(utc)
 
 const UPDATE = 'UPDATE'
@@ -167,23 +167,20 @@ export default function Provider({ children }) {
 }
 
 export function useLatestBlocks() {
-  const [state, { updateLatestBlock, updateHeadBlock }] = useApplicationContext()
+  const [state, { updateLatestBlock }] = useApplicationContext()
 
   const latestBlock = state?.[LATEST_BLOCK]
-  const headBlock = state?.[HEAD_BLOCK]
 
   useEffect(() => {
     async function fetch() {
-      healthClient
+      jediSwapClient
         .query({
-          query: SUBGRAPH_HEALTH,
+          query: GET_LATEST_BLOCK,
         })
         .then((res) => {
-          const syncedBlock = res.data.indexingStatusForCurrentVersion.chains[0].latestBlock.number
-          const headBlock = res.data.indexingStatusForCurrentVersion.chains[0].chainHeadBlock.number
-          if (syncedBlock && headBlock) {
-            updateLatestBlock(syncedBlock)
-            updateHeadBlock(headBlock)
+          const block = res?.data?.blocks?.[0];
+          if (block) {
+            updateLatestBlock(block)
           }
         })
         .catch((e) => {
@@ -193,9 +190,9 @@ export function useLatestBlocks() {
     if (!latestBlock) {
       fetch()
     }
-  }, [latestBlock, updateHeadBlock, updateLatestBlock])
+  }, [latestBlock, updateLatestBlock])
 
-  return [latestBlock, headBlock]
+  return [latestBlock]
 }
 
 export function useCurrentCurrency() {
