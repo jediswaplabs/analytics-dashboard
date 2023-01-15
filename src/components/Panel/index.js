@@ -27,8 +27,13 @@ const Panel = styled(RebassBox)`
   flex-direction: column;
   justify-content: flex-start;
   border-radius: 8px;
+  box-shadow: rgb(255 255 255 / 50%) 0px 30.0211px 43.1072px -27.7118px inset,
+    rgb(255 255 255) 0px 5.38841px 8.46749px -3.07909px inset,
+    rgb(96 68 145 / 30%) 0px -63.1213px 52.3445px -49.2654px inset,
+    rgb(202 172 255 / 30%) 0px 75.4377px 76.9772px -36.9491px inset,
+    rgb(154 146 210 / 30%) 0px 3.07909px 13.8559px inset, rgb(227 222 255 / 20%) 0px 0.769772px 30.7909px inset;
   border: 1px solid ${({ theme }) => theme.bg3};
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.05); /* box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.01), 0px 16px 24px rgba(0, 0, 0, 0.01), 0px 24px 32px rgba(0, 0, 0, 0.01); */
+
   :hover {
     cursor: ${({ hover }) => hover && 'pointer'};
     border: ${({ hover, theme }) => hover && '1px solid' + theme.bg5};
