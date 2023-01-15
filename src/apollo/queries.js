@@ -73,12 +73,11 @@ export const HOURLY_PAIR_RATES = (pairAddress, blocks) => {
   return gql(queryString)
 }
 
-//TODO
 export const SHARE_VALUE = (pairAddress, blocks) => {
   let queryString = 'query blocks {'
   queryString += blocks.map(
     (block) => `
-      t${block.timestamp}:pair(id:"${pairAddress}", block: { number: ${block.number} }) { 
+      t${block.timestamp}:pairs(where: {id: "${pairAddress}"}, block: { number: ${block.number} }) { 
         reserve0
         reserve1
         reserveUSD
@@ -104,7 +103,6 @@ export const SHARE_VALUE = (pairAddress, blocks) => {
     `
   )
   queryString += '}'
-  console.log(queryString);
   return gql(queryString)
 }
 

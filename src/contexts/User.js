@@ -346,7 +346,6 @@ export function useUserLiquidityChart(account) {
     async function fetchData() {
       let dayIndex = parseInt(startDateTimestamp / 86400) // get unique day bucket unix
       const currentDayIndex = parseInt(dayjs.utc().unix() / 86400)
-
       // sort snapshots in order
       let sortedPositions = history.sort((a, b) => {
         return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1
@@ -430,7 +429,7 @@ export function useUserLiquidityChart(account) {
           if (dayData) {
             return (totalUSD =
               totalUSD +
-              (ownershipPerPair[dayData.pairAddress]
+              (ownershipPerPair[dayData.pairId]
                 ? (parseFloat(ownershipPerPair[dayData.pairId].lpTokenBalance) / parseFloat(dayData.totalSupply)) *
                   parseFloat(dayData.reserveUSD)
                 : 0))
