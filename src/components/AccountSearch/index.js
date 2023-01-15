@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 import { ButtonLight, ButtonFaded } from '../ButtonStyled'
 import { AutoRow, RowBetween } from '../Row'
-import {isStarknetAddress, shortenStraknetAddress} from '../../utils'
+import { isAddress } from '../../utils'
 import { useSavedAccounts } from '../../contexts/LocalStorage'
 import { AutoColumn } from '../Column'
 import { TYPE } from '../../Theme'
@@ -78,7 +78,7 @@ function AccountSearch({ history, small }) {
   const [savedAccounts, addAccount, removeAccount] = useSavedAccounts()
 
   function handleAccountSearch() {
-    if (isStarknetAddress(accountValue)) {
+    if (isAddress(accountValue)) {
       history.push('/account/' + accountValue)
       if (!savedAccounts.includes(accountValue)) {
         addAccount(accountValue)
@@ -120,7 +120,7 @@ function AccountSearch({ history, small }) {
                       justifyContent="space-between"
                       onClick={() => history.push('/account/' + account)}
                     >
-                      <AccountLink>{account}</AccountLink>
+                      <AccountLink>{account?.slice(0, 42)}</AccountLink>
                       <Hover
                         onClick={(e) => {
                           e.stopPropagation()
@@ -150,9 +150,9 @@ function AccountSearch({ history, small }) {
                   <RowBetween key={account}>
                     <ButtonFaded onClick={() => history.push('/account/' + account)}>
                       {small ? (
-                        <TYPE.header>{shortenStraknetAddress(account)}</TYPE.header>
+                        <TYPE.header>{account?.slice(0, 6) + '...' + account?.slice(38, 42)}</TYPE.header>
                       ) : (
-                        <AccountLink>{account}</AccountLink>
+                        <AccountLink>{account?.slice(0, 42)}</AccountLink>
                       )}
                     </ButtonFaded>
                     <Hover onClick={() => removeAccount(account)}>

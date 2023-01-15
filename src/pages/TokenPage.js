@@ -15,7 +15,7 @@ import TxnList from '../components/TxnList'
 import TokenChart from '../components/TokenChart'
 import { BasicLink } from '../components/Link'
 import Search from '../components/Search'
-import {formattedNum, formattedPercent, getPoolLink, getSwapLink, localNumber, urls} from '../utils'
+import { formattedNum, formattedPercent, getPoolLink, getSwapLink, localNumber } from '../utils'
 import { useTokenData, useTokenTransactions, useTokenPairs } from '../contexts/TokenData'
 import { TYPE, ThemedBackground } from '../Theme'
 import { transparentize } from 'polished'
@@ -34,7 +34,7 @@ import HoverText from '../components/HoverText'
 import { UNTRACKED_COPY, TOKEN_BLACKLIST, BLOCKED_WARNINGS } from '../constants'
 import QuestionHelper from '../components/QuestionHelper'
 import Checkbox from '../components/Checkbox'
-import { shortenStraknetAddress } from '../utils'
+import { shortenAddress } from '../utils'
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -179,7 +179,7 @@ function TokenPage({ address, history }) {
             <TYPE.light style={{ textAlign: 'center' }}>
               {BLOCKED_WARNINGS[address] ?? `This token is not supported.`}
             </TYPE.light>
-            <Link external={true} href={urls.showAddress(address)}>{`More about ${shortenStraknetAddress(
+            <Link external={true} href={'https://etherscan.io/address/' + address}>{`More about ${shortenAddress(
               address
             )}`}</Link>
           </AutoColumn>
@@ -207,10 +207,10 @@ function TokenPage({ address, history }) {
               style={{ width: 'fit-content' }}
               color={backgroundColor}
               external
-              href={urls.showAddress(address)}
+              href={'https://etherscan.io/address/' + address}
             >
               <Text style={{ marginLeft: '.15rem' }} fontSize={'14px'} fontWeight={400}>
-                ({shortenStraknetAddress(address)})
+                ({address.slice(0, 8) + '...' + address.slice(36, 42)})
               </Text>
             </Link>
           </AutoRow>
@@ -227,7 +227,7 @@ function TokenPage({ address, history }) {
             >
               <RowFixed style={{ flexWrap: 'wrap' }}>
                 <RowFixed style={{ alignItems: 'baseline' }}>
-                  <TokenLogo address={address} symbol={symbol} size="32px" style={{ alignSelf: 'center' }} />
+                  <TokenLogo address={address} size="32px" style={{ alignSelf: 'center' }} />
                   <TYPE.main fontSize={below1080 ? '1.5rem' : '2rem'} fontWeight={500} style={{ margin: '0 1rem' }}>
                     <RowFixed gap="6px">
                       <FormattedName text={name ? name + ' ' : ''} maxCharacters={16} style={{ marginRight: '6px' }} />{' '}
@@ -414,14 +414,14 @@ function TokenPage({ address, history }) {
                     <TYPE.main>Address</TYPE.main>
                     <AutoRow align="flex-end">
                       <TYPE.main style={{ marginTop: '.5rem' }} fontSize={24} fontWeight="500">
-                        {shortenStraknetAddress(address)}
+                        {address.slice(0, 8) + '...' + address.slice(36, 42)}
                       </TYPE.main>
                       <CopyHelper toCopy={address} />
                     </AutoRow>
                   </Column>
                   <ButtonLight color={backgroundColor}>
-                    <Link color={backgroundColor} external href={urls.showAddress(address)}>
-                      View on Starkscan ↗
+                    <Link color={backgroundColor} external href={'https://etherscan.io/address/' + address}>
+                      View on Etherscan ↗
                     </Link>
                   </ButtonLight>
                 </TokenDetailsLayout>

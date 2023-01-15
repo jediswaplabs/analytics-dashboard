@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
-import {jediSwapClient} from '../apollo/client'
+import { client } from '../apollo/client'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useTimeframe } from './Application'
@@ -9,7 +9,6 @@ import {
   getBlocksFromTimestamps,
   get2DayPercentChange,
   getTimeframe,
-  convertDateToUnixFormat,
 } from '../utils'
 import {
   GLOBAL_DATA,
@@ -242,37 +241,38 @@ async function getGlobalData(ethPrice, oldEthPrice) {
       utcOneWeekBack,
       utcTwoWeeksBack,
     ])
+
     // fetch the global data
-    let result = await jediSwapClient.query({
+    let result = await client.query({
       query: GLOBAL_DATA(),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
-    data = result.data.jediswapFactories[0]
+    data = result.data.uniswapFactories[0]
 
     // fetch the historical data
-    let oneDayResult = await jediSwapClient.query({
+    let oneDayResult = await client.query({
       query: GLOBAL_DATA(oneDayBlock?.number),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
-    oneDayData = oneDayResult.data.jediswapFactories[0]
+    oneDayData = oneDayResult.data.uniswapFactories[0]
 
-    let twoDayResult = await jediSwapClient.query({
+    let twoDayResult = await client.query({
       query: GLOBAL_DATA(twoDayBlock?.number),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
-    twoDayData = twoDayResult.data.jediswapFactories[0]
+    twoDayData = twoDayResult.data.uniswapFactories[0]
 
-    let oneWeekResult = await jediSwapClient.query({
+    let oneWeekResult = await client.query({
       query: GLOBAL_DATA(oneWeekBlock?.number),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
-    const oneWeekData = oneWeekResult.data.jediswapFactories[0]
+    const oneWeekData = oneWeekResult.data.uniswapFactories[0]
 
-    let twoWeekResult = await jediSwapClient.query({
+    let twoWeekResult = await client.query({
       query: GLOBAL_DATA(twoWeekBlock?.number),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
-    const twoWeekData = twoWeekResult.data.jediswapFactories[0]
+    const twoWeekData = twoWeekResult.data.uniswapFactories[0]
 
     if (data && oneDayData && twoDayData && twoWeekData) {
       let [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
@@ -333,27 +333,19 @@ const getChartData = async (oldestDateToFetch, offsetData) => {
 
   try {
     while (!allFound) {
-        let result = await jediSwapClient.query({
+      let result = await client.query({
         query: GLOBAL_CHART,
         variables: {
           startTime: oldestDateToFetch,
           skip,
         },
-        fetchPolicy: "no-cache"
+        fetchPolicy: 'cache-first',
       })
       skip += 1000
-      data = data.concat(result.data.exchangeDayDatas)
-      if (result.data.exchangeDayDatas.length < 1000) {
+      data = data.concat(result.data.uniswapDayDatas)
+      if (result.data.uniswapDayDatas.length < 1000) {
         allFound = true
       }
-      data = data.map((item) => {
-        item.date = convertDateToUnixFormat(item.date);
-        item.totalLiquidityETH = parseFloat(item.totalLiquidityETH);
-        item.totalLiquidityUSD = parseFloat(item.totalLiquidityUSD);
-        item.dailyVolumeETH = parseFloat(item.dailyVolumeETH);
-        item.dailyVolumeUSD = parseFloat(item.dailyVolumeUSD);
-        return item;
-      })
     }
 
     if (data) {
@@ -371,7 +363,7 @@ const getChartData = async (oldestDateToFetch, offsetData) => {
 
       // fill in empty days ( there will be no day datas if no trades made that day )
       let timestamp = data[0].date ? data[0].date : oldestDateToFetch
-      let latestLiquidityUSD = parseFloat(data[0].totalLiquidityUSD)
+      let latestLiquidityUSD = data[0].totalLiquidityUSD
       let latestDayDats = data[0].mostLiquidTokens
       let index = 1
       while (timestamp < utcEndTime.unix() - oneDay) {
@@ -386,7 +378,7 @@ const getChartData = async (oldestDateToFetch, offsetData) => {
             mostLiquidTokens: latestDayDats,
           })
         } else {
-          latestLiquidityUSD = parseFloat(dayIndexArray[index].totalLiquidityUSD)
+          latestLiquidityUSD = dayIndexArray[index].totalLiquidityUSD
           latestDayDats = dayIndexArray[index].mostLiquidTokens
           index = index + 1
         }
@@ -439,26 +431,26 @@ const getGlobalTransactions = async () => {
   let transactions = {}
 
   try {
-    let result = await jediSwapClient.query({
+    let result = await client.query({
       query: GLOBAL_TXNS,
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     transactions.mints = []
     transactions.burns = []
     transactions.swaps = []
     result?.data?.transactions &&
       result.data.transactions.map((transaction) => {
-        if (transaction?.mints.length > 0) {
+        if (transaction.mints.length > 0) {
           transaction.mints.map((mint) => {
             return transactions.mints.push(mint)
           })
         }
-        if (transaction?.burns.length > 0) {
+        if (transaction.burns.length > 0) {
           transaction.burns.map((burn) => {
             return transactions.burns.push(burn)
           })
         }
-        if (transaction?.swaps.length > 0) {
+        if (transaction.swaps.length > 0) {
           transaction.swaps.map((swap) => {
             return transactions.swaps.push(swap)
           })
@@ -485,16 +477,16 @@ const getEthPrice = async () => {
 
   try {
     let oneDayBlock = await getBlockFromTimestamp(utcOneDayBack)
-    let result = await jediSwapClient.query({
+    let result = await client.query({
       query: ETH_PRICE(),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
-    let resultOneDay = await jediSwapClient.query({
+    let resultOneDay = await client.query({
       query: ETH_PRICE(oneDayBlock),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
-    const currentPrice = result?.data?.pairs[0].token1Price
-    const oneDayBackPrice = resultOneDay?.data?.pairs[0].token1Price
+    const currentPrice = result?.data?.bundles[0]?.ethPrice
+    const oneDayBackPrice = resultOneDay?.data?.bundles[0]?.ethPrice
     priceChangeETH = getPercentChange(currentPrice, oneDayBackPrice)
     ethPrice = currentPrice
     ethPriceOneDay = oneDayBackPrice
@@ -511,18 +503,18 @@ const TOKENS_TO_FETCH = 500
 /**
  * Loop through every pair on uniswap, used for search
  */
-async function getAllPairsOnJediswap() {
+async function getAllPairsOnUniswap() {
   try {
     let allFound = false
     let pairs = []
     let skipCount = 0
     while (!allFound) {
-      let result = await jediSwapClient.query({
+      let result = await client.query({
         query: ALL_PAIRS,
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
       skipCount = skipCount + PAIRS_TO_FETCH
       pairs = pairs.concat(result?.data?.pairs)
@@ -539,18 +531,18 @@ async function getAllPairsOnJediswap() {
 /**
  * Loop through every token on uniswap, used for search
  */
-async function getAllTokensOnJediswap() {
+async function getAllTokensOnUniswap() {
   try {
     let allFound = false
     let skipCount = 0
     let tokens = []
     while (!allFound) {
-      let result = await jediSwapClient.query({
+      let result = await client.query({
         query: ALL_TOKENS,
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
       tokens = tokens.concat(result?.data?.tokens)
       if (result?.data?.tokens?.length < TOKENS_TO_FETCH || tokens.length > TOKENS_TO_FETCH) {
@@ -581,10 +573,10 @@ export function useGlobalData() {
 
       globalData && update(globalData)
 
-      let allPairs = await getAllPairsOnJediswap()
+      let allPairs = await getAllPairsOnUniswap()
       updateAllPairsInUniswap(allPairs)
 
-      let allTokens = await getAllTokensOnJediswap()
+      let allTokens = await getAllTokensOnUniswap()
       updateAllTokensInUniswap(allTokens)
     }
     if (!data && ethPrice && oldEthPrice) {
@@ -670,14 +662,14 @@ export function useEthPrice() {
   return [ethPrice, ethPriceOld]
 }
 
-export function useAllPairsInJediswap() {
+export function useAllPairsInUniswap() {
   const [state] = useGlobalDataContext()
   let allPairs = state?.allPairs
 
   return allPairs || []
 }
 
-export function useAllTokensInJediswap() {
+export function useAllTokensInUniswap() {
   const [state] = useGlobalDataContext()
   let allTokens = state?.allTokens
 
@@ -706,12 +698,12 @@ export function useTopLps() {
         topPairs.map(async (pair) => {
           // for each one, fetch top LPs
           try {
-            const { data: results } = await jediSwapClient.query({
+            const { data: results } = await client.query({
               query: TOP_LPS_PER_PAIRS,
               variables: {
                 pair: pair.toString(),
               },
-              fetchPolicy: 'no-cache',
+              fetchPolicy: 'cache-first',
             })
             if (results) {
               return results.liquidityPositions

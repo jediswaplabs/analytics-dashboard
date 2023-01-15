@@ -3,12 +3,9 @@ import { timeframeOptions, SUPPORTED_LIST_URLS__NO_ENS } from '../constants'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import getTokenList from '../utils/tokenLists'
-import {jediSwapClient} from '../apollo/client'
-import {GET_LATEST_BLOCK} from '../apollo/queries'
-import {convertDateToUnixFormat} from "../utils";
+import { healthClient } from '../apollo/client'
+import { SUBGRAPH_HEALTH } from '../apollo/queries'
 dayjs.extend(utc)
-
-const LATEST_STARKNET_BLOCK_FEEDER_URL = 'https://alpha-mainnet.starknet.io/feeder_gateway/get_block?blockNumber=latest';
 
 const UPDATE = 'UPDATE'
 const UPDATE_TIMEFRAME = 'UPDATE_TIMEFRAME'
@@ -176,27 +173,14 @@ export function useLatestBlocks() {
   const headBlock = state?.[HEAD_BLOCK]
 
   useEffect(() => {
-    async function fetchData() {
-      const getLatestBlockPromise = jediSwapClient
+    async function fetch() {
+      healthClient
         .query({
-          query: GET_LATEST_BLOCK,
-        });
-
-      const getLatestHeadBlockPromise = fetch(LATEST_STARKNET_BLOCK_FEEDER_URL)
-
-      Promise.all([getLatestBlockPromise, getLatestHeadBlockPromise])
-        .then(async ([latestBlockRes, headBlockRes]) => {
-          const parsedHeadBlockResult = await headBlockRes.json();
-          const syncedBlockResult = latestBlockRes?.data?.blocks?.[0];
-          const syncedBlock = syncedBlockResult ? {
-            ...syncedBlockResult,
-            timestamp: convertDateToUnixFormat(syncedBlockResult.timestamp)
-          } : null;
-          const headBlock = parsedHeadBlockResult ? {
-            id: parsedHeadBlockResult.block_hash,
-            number: parsedHeadBlockResult.block_number,
-            timestamp: parsedHeadBlockResult.timestamp,
-          } : null;
+          query: SUBGRAPH_HEALTH,
+        })
+        .then((res) => {
+          const syncedBlock = res.data.indexingStatusForCurrentVersion.chains[0].latestBlock.number
+          const headBlock = res.data.indexingStatusForCurrentVersion.chains[0].chainHeadBlock.number
           if (syncedBlock && headBlock) {
             updateLatestBlock(syncedBlock)
             updateHeadBlock(headBlock)
@@ -207,7 +191,7 @@ export function useLatestBlocks() {
         })
     }
     if (!latestBlock) {
-      fetchData()
+      fetch()
     }
   }, [latestBlock, updateHeadBlock, updateLatestBlock])
 

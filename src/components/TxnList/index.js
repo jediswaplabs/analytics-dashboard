@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 
-import {formatTime, formattedNum, urls, convertDateToUnixFormat} from '../../utils'
+import { formatTime, formattedNum, urls } from '../../utils'
 import { useMedia } from 'react-use'
 import { useCurrentCurrency } from '../../contexts/Application'
 import { RowFixed, RowBetween } from '../Row'
@@ -187,8 +187,8 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
       if (transactions.mints.length > 0) {
         transactions.mints.map((mint) => {
           let newTxn = {}
-          newTxn.hash = mint.transactionHash
-          newTxn.timestamp = mint.timestamp
+          newTxn.hash = mint.transaction.id
+          newTxn.timestamp = mint.transaction.timestamp
           newTxn.type = TXN_TYPE.ADD
           newTxn.token0Amount = mint.amount0
           newTxn.token1Amount = mint.amount1
@@ -202,8 +202,8 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
       if (transactions.burns.length > 0) {
         transactions.burns.map((burn) => {
           let newTxn = {}
-          newTxn.hash = burn.transactionHash
-          newTxn.timestamp = burn.timestamp
+          newTxn.hash = burn.transaction.id
+          newTxn.timestamp = burn.transaction.timestamp
           newTxn.type = TXN_TYPE.REMOVE
           newTxn.token0Amount = burn.amount0
           newTxn.token1Amount = burn.amount1
@@ -233,8 +233,8 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
             newTxn.token1Amount = Math.abs(netToken0)
           }
 
-          newTxn.hash = swap.transactionHash
-          newTxn.timestamp = swap.timestamp
+          newTxn.hash = swap.transaction.id
+          newTxn.timestamp = swap.transaction.timestamp
           newTxn.type = TXN_TYPE.SWAP
 
           newTxn.amountUSD = swap.amountUSD
@@ -270,15 +270,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
     filteredItems &&
     filteredItems
       .sort((a, b) => {
-        let valueA = a[sortedColumn];
-        let valueB = b[sortedColumn];
-
-        if (sortedColumn === SORT_FIELD.TIMESTAMP) {
-          valueA = convertDateToUnixFormat(a[sortedColumn]);
-          valueB = convertDateToUnixFormat(b[sortedColumn]);
-        }
-
-        return parseFloat(valueA) > parseFloat(valueB)
+        return parseFloat(a[sortedColumn]) > parseFloat(b[sortedColumn])
           ? (sortDirection ? -1 : 1) * 1
           : (sortDirection ? -1 : 1) * -1
       })
@@ -312,12 +304,12 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
         )}
         {!below1080 && (
           <DataText area="account">
-            <Link color={color} external href={urls.showAddress(item.account)}>
+            <Link color={color} external href={'https://etherscan.io/address/' + item.account}>
               {item.account && item.account.slice(0, 6) + '...' + item.account.slice(38, 42)}
             </Link>
           </DataText>
         )}
-        <DataText area="time">{formatTime(convertDateToUnixFormat(item.timestamp))}</DataText>
+        <DataText area="time">{formatTime(item.timestamp)}</DataText>
       </DashGrid>
     )
   }
@@ -384,12 +376,12 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
               area="amountToken"
               color="textDim"
               onClick={() => {
-                setSortedColumn(SORT_FIELD.AMOUNT1)
-                setSortDirection(sortedColumn !== SORT_FIELD.AMOUNT1 ? true : !sortDirection)
+                setSortedColumn(SORT_FIELD.AMOUNT0)
+                setSortDirection(sortedColumn !== SORT_FIELD.AMOUNT0 ? true : !sortDirection)
               }}
             >
-              {symbol1Override ? symbol1Override + ' Amount' : 'Token Amount'}{' '}
-              {sortedColumn === SORT_FIELD.AMOUNT1 ? (sortDirection ? '↑' : '↓') : ''}
+              {symbol0Override ? symbol0Override + ' Amount' : 'Token Amount'}{' '}
+              {sortedColumn === SORT_FIELD.AMOUNT0 ? (sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -400,12 +392,12 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
                 area="amountOther"
                 color="textDim"
                 onClick={() => {
-                  setSortedColumn(SORT_FIELD.AMOUNT0)
-                  setSortDirection(sortedColumn !== SORT_FIELD.AMOUNT0 ? true : !sortDirection)
+                  setSortedColumn(SORT_FIELD.AMOUNT1)
+                  setSortDirection(sortedColumn !== SORT_FIELD.AMOUNT1 ? true : !sortDirection)
                 }}
               >
-                {symbol0Override ? symbol0Override + ' Amount' : 'Token Amount'}{' '}
-                {sortedColumn === SORT_FIELD.AMOUNT0 ? (sortDirection ? '↑' : '↓') : ''}
+                {symbol1Override ? symbol1Override + ' Amount' : 'Token Amount'}{' '}
+                {sortedColumn === SORT_FIELD.AMOUNT1 ? (sortDirection ? '↑' : '↓') : ''}
               </ClickableText>
             </Flex>
           )}

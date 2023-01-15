@@ -19,14 +19,7 @@ import TxnList from '../components/TxnList'
 import Loader from '../components/LocalLoader'
 import { BasicLink } from '../components/Link'
 import Search from '../components/Search'
-import {
-  formattedNum,
-  formattedPercent,
-  getPoolLink,
-  getSwapLink,
-  shortenStraknetAddress,
-  urls
-} from '../utils'
+import { formattedNum, formattedPercent, getPoolLink, getSwapLink, shortenAddress } from '../utils'
 import { useColor } from '../hooks'
 import { usePairData, usePairTransactions } from '../contexts/PairData'
 import { TYPE, ThemedBackground } from '../Theme'
@@ -210,7 +203,7 @@ function PairPage({ pairAddress, history }) {
             <TYPE.light style={{ textAlign: 'center' }}>
               {BLOCKED_WARNINGS[pairAddress] ?? `This pair is not supported.`}
             </TYPE.light>
-            <Link external={true} href={urls.showAddress(pairAddress)}>{`More about ${shortenStraknetAddress(
+            <Link external={true} href={'https://etherscan.io/address/' + pairAddress}>{`More about ${shortenAddress(
               pairAddress
             )}`}</Link>
           </AutoColumn>
@@ -487,7 +480,7 @@ function PairPage({ pairAddress, history }) {
                     </TYPE.main>
                     <AutoRow align="flex-end">
                       <TYPE.main style={{ marginTop: '.5rem' }}>
-                        {token0?.id && shortenStraknetAddress(token0.id)}
+                        {token0 && token0.id.slice(0, 6) + '...' + token0.id.slice(38, 42)}
                       </TYPE.main>
                       <CopyHelper toCopy={token0?.id} />
                     </AutoRow>
@@ -501,14 +494,14 @@ function PairPage({ pairAddress, history }) {
                     </TYPE.main>
                     <AutoRow align="flex-end">
                       <TYPE.main style={{ marginTop: '.5rem' }} fontSize={16}>
-                        {token1?.id && shortenStraknetAddress(token1.id)}
+                        {token1 && token1.id.slice(0, 6) + '...' + token1.id.slice(38, 42)}
                       </TYPE.main>
                       <CopyHelper toCopy={token1?.id} />
                     </AutoRow>
                   </Column>
                   <ButtonLight color={backgroundColor}>
-                    <Link color={backgroundColor} external href={urls.showAddress(pairAddress)}>
-                      View on Starkscan ↗
+                    <Link color={backgroundColor} external href={'https://etherscan.io/address/' + pairAddress}>
+                      View on Etherscan ↗
                     </Link>
                   </ButtonLight>
                 </TokenDetailsLayout>
