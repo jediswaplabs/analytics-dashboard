@@ -36,7 +36,6 @@ const CHART_VIEW = {
 
 const PairReturnsChart = ({ account, position }) => {
   let data = useUserPositionChart(position, account)
-
   const [timeWindow, setTimeWindow] = useTimeframe()
 
   const below600 = useMedia('(max-width: 600px)')

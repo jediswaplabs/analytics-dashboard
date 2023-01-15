@@ -3,13 +3,14 @@ import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import utc from 'dayjs/plugin/utc'
-import { client, blockClient } from '../apollo/client'
-import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from '../apollo/queries'
+import {jediSwapClient} from '../apollo/client'
+import {GET_BLOCK, GET_BLOCKS, SHARE_VALUE} from '../apollo/queries'
 import { Text } from 'rebass'
 import _Decimal from 'decimal.js-light'
 import toFormat from 'toformat'
 import { timeframeOptions } from '../constants'
 import Numeral from 'numeral'
+import { validateAndParseAddress } from 'starknet'
 
 // format libraries
 const Decimal = toFormat(_Decimal)
@@ -40,16 +41,16 @@ export function getTimeframe(timeWindow) {
 export function getPoolLink(token0Address, token1Address = null, remove = false) {
   if (!token1Address) {
     return (
-      `https://app.uniswap.org/#/` +
+      `https://app.jediswap.xyz/#/` +
       (remove ? `remove` : `add`) +
-      `/v2/${token0Address === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' ? 'ETH' : token0Address}/${'ETH'}`
+      `/${token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address}/${'ETH'}`
     )
   } else {
     return (
-      `https://app.uniswap.org/#/` +
+      `https://app.jediswap.xyz/#/` +
       (remove ? `remove` : `add`) +
-      `/v2/${token0Address === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' ? 'ETH' : token0Address}/${
-        token1Address === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' ? 'ETH' : token1Address
+      `/${token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address}/${
+        token1Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token1Address
       }`
     )
   }
@@ -57,16 +58,12 @@ export function getPoolLink(token0Address, token1Address = null, remove = false)
 
 export function getSwapLink(token0Address, token1Address = null) {
   if (!token1Address) {
-    return `https://app.uniswap.org/#/swap?inputCurrency=${token0Address}`
+    return `https://app.jediswap.xyz/#/swap?inputCurrency=${token0Address}`
   } else {
-    return `https://app.uniswap.org/#/swap?inputCurrency=${
-      token0Address === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' ? 'ETH' : token0Address
-    }&outputCurrency=${token1Address === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' ? 'ETH' : token1Address}`
+    return `https://app.jediswap.xyz/#/swap?inputCurrency=${
+      token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address
+    }&outputCurrency=${token1Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token1Address}`
   }
-}
-
-export function getMiningPoolLink(token0Address) {
-  return `https://app.uniswap.org/#/uni/ETH/${token0Address}`
 }
 
 export function getUniswapAppLink(linkVariable) {
@@ -94,6 +91,14 @@ export function shortenAddress(address, chars = 4) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
   return `${parsed.substring(0, chars + 2)}...${parsed.substring(42 - chars)}`
+}
+// shorten the checksummed version of the input address to have 0x + 4 characters at start and end
+export function shortenStraknetAddress(address, chars = 4) {
+  const parsed = isStarknetAddress(address)
+  if (!parsed) {
+    throw Error(`Invalid 'address' parameter '${address}'.`)
+  }
+  return `${parsed.substring(0, chars + 2)}...${parsed.substring(66 - chars)}`
 }
 
 export const toWeeklyDate = (date) => {
@@ -149,7 +154,7 @@ export async function splitQuery(query, localClient, vars, list, skipCount = 100
  * @param {Int} timestamp in seconds
  */
 export async function getBlockFromTimestamp(timestamp) {
-  let result = await blockClient.query({
+  let result = await jediSwapClient.query({
     query: GET_BLOCK,
     variables: {
       timestampFrom: timestamp,
@@ -157,7 +162,7 @@ export async function getBlockFromTimestamp(timestamp) {
     },
     fetchPolicy: 'cache-first',
   })
-  return result?.data?.blocks?.[0]?.number
+  return result?.data?.blocks?.[0]?.number || 18109
 }
 
 /**
@@ -172,7 +177,7 @@ export async function getBlocksFromTimestamps(timestamps, skipCount = 500) {
     return []
   }
 
-  let fetchedData = await splitQuery(GET_BLOCKS, blockClient, [], timestamps, skipCount)
+  let fetchedData = await splitQuery(GET_BLOCKS, jediSwapClient, [], timestamps, skipCount)
 
   let blocks = []
   if (fetchedData) {
@@ -187,6 +192,9 @@ export async function getBlocksFromTimestamps(timestamps, skipCount = 500) {
   }
   return blocks
 }
+
+export const convertDateToUnixFormat = (date) => Math.floor(new Date(date).getTime() / 1000);
+
 
 // export async function getLiquidityTokenBalanceOvertime(account, timestamps) {
 //   // get blocks based on timestamps
@@ -227,9 +235,9 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
   const blocks = await getBlocksFromTimestamps(timestamps)
 
   // get historical share values with time travel queries
-  let result = await client.query({
+  let result = await jediSwapClient.query({
     query: SHARE_VALUE(pairAddress, blocks),
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'no-cache',
   })
 
   let values = []
@@ -259,9 +267,9 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
   for (var brow in result?.data) {
     let timestamp = brow.split('b')[1]
     if (timestamp) {
-      values[index].ethPrice = result.data[brow].ethPrice
-      values[index].token0PriceUSD = result.data[brow].ethPrice * values[index].token0DerivedETH
-      values[index].token1PriceUSD = result.data[brow].ethPrice * values[index].token1DerivedETH
+      values[index].ethPrice = result.data[brow].token1Price
+      values[index].token0PriceUSD = result.data[brow].token1Price * values[index].token0DerivedETH
+      values[index].token1PriceUSD = result.data[brow].token1Price * values[index].token1DerivedETH
       index += 1
     }
   }
@@ -294,6 +302,15 @@ export const isAddress = (value) => {
   }
 }
 
+export const isStarknetAddress = (value) => {
+  if (!value) { return false }
+  try {
+    return validateAndParseAddress(value.toLowerCase())
+  } catch {
+    return false
+  }
+}
+
 export const toK = (num) => {
   return Numeral(num).format('0.[00]a')
 }
@@ -303,10 +320,10 @@ export const setThemeColor = (theme) => document.documentElement.style.setProper
 export const Big = (number) => new BigNumber(number)
 
 export const urls = {
-  showTransaction: (tx) => `https://etherscan.io/tx/${tx}/`,
-  showAddress: (address) => `https://www.etherscan.io/address/${address}/`,
-  showToken: (address) => `https://www.etherscan.io/token/${address}/`,
-  showBlock: (block) => `https://etherscan.io/block/${block}/`,
+  showTransaction: (tx) => `https://starkscan.co/tx/${tx}/`,
+  showAddress: (address) => `https://starkscan.co/contract/${address}/`,
+  showToken: (address) => `https://starkscan.co/contract/${address}/`,
+  showBlock: (block) => `https://starkscan.co/block/${block}/`,
 }
 
 export const formatTime = (unix) => {

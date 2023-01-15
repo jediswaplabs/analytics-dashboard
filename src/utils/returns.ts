@@ -1,7 +1,7 @@
 import { USER_MINTS_BUNRS_PER_PAIR } from '../apollo/queries'
-import { client } from '../apollo/client'
+import {jediSwapClient} from '../apollo/client'
 import dayjs from 'dayjs'
-import { getShareValueOverTime } from '.'
+import {convertDateToUnixFormat, getShareValueOverTime} from '.'
 
 export const priceOverrides = [
   '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
@@ -24,8 +24,8 @@ interface Position {
   reserve0: number
   reserve1: number
   reserveUSD: number
-  token0PriceUSD: number
-  token1PriceUSD: number
+  token0PriceUsd: number
+  token1PriceUsd: number
 }
 
 const PRICE_DISCOVERY_START_TIMESTAMP = 1589747086
@@ -33,17 +33,17 @@ const PRICE_DISCOVERY_START_TIMESTAMP = 1589747086
 function formatPricesForEarlyTimestamps(position): Position {
   if (position.timestamp < PRICE_DISCOVERY_START_TIMESTAMP) {
     if (priceOverrides.includes(position?.pair?.token0.id)) {
-      position.token0PriceUSD = 1
+      position.token0PriceUsd = 1
     }
     if (priceOverrides.includes(position?.pair?.token1.id)) {
-      position.token1PriceUSD = 1
+      position.token1PriceUsd = 1
     }
     // WETH price
-    if (position.pair?.token0.id === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2') {
-      position.token0PriceUSD = 203
+    if (position.pair?.token0.id === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') {
+      position.token0PriceUsd = 203
     }
-    if (position.pair?.token1.id === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2') {
-      position.token1PriceUSD = 203
+    if (position.pair?.token1.id === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') {
+      position.token1PriceUsd = 203
     }
   }
   return position
@@ -54,7 +54,7 @@ async function getPrincipalForUserPerPair(user: string, pairAddress: string) {
   let amount0 = 0
   let amount1 = 0
   // get all minst and burns to get principal amounts
-  const results = await client.query({
+  const results = await jediSwapClient.query({
     query: USER_MINTS_BUNRS_PER_PAIR,
     variables: {
       user,
@@ -62,7 +62,8 @@ async function getPrincipalForUserPerPair(user: string, pairAddress: string) {
     },
   })
   for (const index in results.data.mints) {
-    const mint = results.data.mints[index]
+    const mint = results.data.mints[index];
+    mint.timestamp = convertDateToUnixFormat(mint.timestamp);
     const mintToken0 = mint.pair.token0.id
     const mintToken1 = mint.pair.token1.id
 
@@ -79,7 +80,8 @@ async function getPrincipalForUserPerPair(user: string, pairAddress: string) {
   }
 
   for (const index in results.data.burns) {
-    const burn = results.data.burns[index]
+    const burn = results.data.mints[index];
+    burn.timestamp = convertDateToUnixFormat(burn.timestamp);
     const burnToken0 = burn.pair.token0.id
     const burnToken1 = burn.pair.token1.id
 
@@ -123,29 +125,29 @@ export function getMetricsForPositionWindow(positionT0: Position, positionT1: Po
   // calculate squares to find imp loss and fee differences
   const sqrK_t0 = Math.sqrt(token0_amount_t0 * token1_amount_t0)
   // eslint-disable-next-line eqeqeq
-  const priceRatioT1 = positionT1.token0PriceUSD != 0 ? positionT1.token1PriceUSD / positionT1.token0PriceUSD : 0
+  const priceRatioT1 = positionT1.token0PriceUsd != 0 ? positionT1.token1PriceUsd / positionT1.token0PriceUsd : 0
 
-  const token0_amount_no_fees = positionT1.token1PriceUSD && priceRatioT1 ? sqrK_t0 * Math.sqrt(priceRatioT1) : 0
+  const token0_amount_no_fees = positionT1.token1PriceUsd && priceRatioT1 ? sqrK_t0 * Math.sqrt(priceRatioT1) : 0
   const token1_amount_no_fees =
-    Number(positionT1.token1PriceUSD) && priceRatioT1 ? sqrK_t0 / Math.sqrt(priceRatioT1) : 0
+    Number(positionT1.token1PriceUsd) && priceRatioT1 ? sqrK_t0 / Math.sqrt(priceRatioT1) : 0
   const no_fees_usd =
-    token0_amount_no_fees * positionT1.token0PriceUSD + token1_amount_no_fees * positionT1.token1PriceUSD
+    token0_amount_no_fees * positionT1.token0PriceUsd + token1_amount_no_fees * positionT1.token1PriceUsd
 
   const difference_fees_token0 = token0_amount_t1 - token0_amount_no_fees
   const difference_fees_token1 = token1_amount_t1 - token1_amount_no_fees
   const difference_fees_usd =
-    difference_fees_token0 * positionT1.token0PriceUSD + difference_fees_token1 * positionT1.token1PriceUSD
+    difference_fees_token0 * positionT1.token0PriceUsd + difference_fees_token1 * positionT1.token1PriceUsd
 
   // calculate USD value at t0 and t1 using initial token deposit amounts for asset return
-  const assetValueT0 = token0_amount_t0 * positionT0.token0PriceUSD + token1_amount_t0 * positionT0.token1PriceUSD
-  const assetValueT1 = token0_amount_t0 * positionT1.token0PriceUSD + token1_amount_t0 * positionT1.token1PriceUSD
+  const assetValueT0 = token0_amount_t0 * positionT0.token0PriceUsd + token1_amount_t0 * positionT0.token1PriceUsd
+  const assetValueT1 = token0_amount_t0 * positionT1.token0PriceUsd + token1_amount_t0 * positionT1.token1PriceUsd
 
   const imp_loss_usd = no_fees_usd - assetValueT1
   const uniswap_return = difference_fees_usd + imp_loss_usd
 
   // get net value change for combined data
-  const netValueT0 = t0Ownership * positionT0.reserveUSD
-  const netValueT1 = t1Ownership * positionT1.reserveUSD
+  const netValueT0 = t0Ownership * positionT0.pair.reserveUSD
+  const netValueT1 = t1Ownership * positionT1.pair.reserveUSD
 
   return {
     hodleReturn: assetValueT1 - assetValueT0,
@@ -173,7 +175,8 @@ export async function getHistoricalPairReturns(startDateTimestamp, currentPairDa
   const sortedPositions = pairSnapshots.sort((a, b) => {
     return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1
   })
-  if (sortedPositions[0].timestamp > startDateTimestamp) {
+
+  if (sortedPositions?.[0]?.timestamp > startDateTimestamp) {
     dayIndex = Math.round(sortedPositions[0].timestamp / 86400)
   }
 
@@ -224,8 +227,8 @@ export async function getHistoricalPairReturns(startDateTimestamp, currentPairDa
         reserve0: currentPairData.reserve0,
         reserve1: currentPairData.reserve1,
         reserveUSD: currentPairData.reserveUSD,
-        token0PriceUSD: currentPairData.token0.derivedETH * currentETHPrice,
-        token1PriceUSD: currentPairData.token1.derivedETH * currentETHPrice,
+        token0PriceUsd: currentPairData.token0.derivedETH * currentETHPrice,
+        token1PriceUsd: currentPairData.token1.derivedETH * currentETHPrice,
       }
     }
 
@@ -262,7 +265,6 @@ export async function getLPReturnsOnPair(user: string, pair, ethPrice: number, s
   let netReturn = 0
   let uniswapReturn = 0
   let fees = 0
-
   snapshots = snapshots.filter((entry) => {
     return entry.pair.id === pair.id
   })
@@ -275,15 +277,13 @@ export async function getLPReturnsOnPair(user: string, pair, ethPrice: number, s
     reserve0: pair.reserve0,
     reserve1: pair.reserve1,
     reserveUSD: pair.reserveUSD,
-    token0PriceUSD: pair.token0.derivedETH * ethPrice,
-    token1PriceUSD: pair.token1.derivedETH * ethPrice,
+    token0PriceUsd: pair.token0.derivedETH * ethPrice,
+    token1PriceUsd: pair.token1.derivedETH * ethPrice,
   }
-
   for (const index in snapshots) {
     // get positions at both bounds of the window
     const positionT0 = snapshots[index]
     const positionT1 = parseInt(index) === snapshots.length - 1 ? currentPosition : snapshots[parseInt(index) + 1]
-
     const results = getMetricsForPositionWindow(positionT0, positionT1)
     hodlReturn = hodlReturn + results.hodleReturn
     netReturn = netReturn + results.netReturn
