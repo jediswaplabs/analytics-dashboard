@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { ApolloProvider } from 'react-apollo'
-import {jediSwapClient} from './apollo/client'
+import { client } from './apollo/client'
 import { Route, Switch, BrowserRouter, Redirect } from 'react-router-dom'
 import GlobalPage from './pages/GlobalPage'
 import TokenPage from './pages/TokenPage'
 import PairPage from './pages/PairPage'
 import { useGlobalData, useGlobalChartData } from './contexts/GlobalData'
-import { isStarknetAddress } from './utils'
+import { isAddress } from './utils'
 import AccountPage from './pages/AccountPage'
 import AllTokensPage from './pages/AllTokensPage'
 import AllPairsPage from './pages/AllPairsPage'
@@ -19,7 +19,6 @@ import LocalLoader from './components/LocalLoader'
 import { useLatestBlocks } from './contexts/Application'
 import GoogleAnalyticsReporter from './components/analytics/GoogleAnalyticsReporter'
 import { PAIR_BLACKLIST, TOKEN_BLACKLIST } from './constants'
-import dayjs from "dayjs";
 
 const AppWrapper = styled.div`
   position: relative;
@@ -94,25 +93,25 @@ const LayoutWrapper = ({ children, savedOpen, setSavedOpen }) => {
   )
 }
 
-
-const BLOCK_DIFFERENCE_THRESHOLD = 2;
+const BLOCK_DIFFERENCE_THRESHOLD = 30
 
 function App() {
   const [savedOpen, setSavedOpen] = useState(false)
 
   const globalData = useGlobalData()
   const globalChartData = useGlobalChartData()
-  const [latestBlock, headBlock] = useLatestBlocks();
+  const [latestBlock, headBlock] = useLatestBlocks()
 
-  const showWarning = headBlock && latestBlock ? headBlock.number - latestBlock.number > BLOCK_DIFFERENCE_THRESHOLD : false;
+  // show warning
+  const showWarning = headBlock && latestBlock ? headBlock - latestBlock > BLOCK_DIFFERENCE_THRESHOLD : false
 
   return (
-    <ApolloProvider client={jediSwapClient}>
+    <ApolloProvider client={client}>
       <AppWrapper>
         {showWarning && (
           <WarningWrapper>
             <WarningBanner>
-              {`Warning: The data on this site has only synced to Starknet block ${latestBlock.number} (was produced on ${dayjs.unix(latestBlock.timestamp).format('YYYY-MM-DDTHH:mm:ss')}). Please check back soon.`}
+              {`Warning: The data on this site has only synced to Ethereum block ${latestBlock} (out of ${headBlock}). Please check back soon.`}
             </WarningBanner>
           </WarningWrapper>
         )}
@@ -129,7 +128,7 @@ function App() {
                 path="/token/:tokenAddress"
                 render={({ match }) => {
                   if (
-                    isStarknetAddress(match.params.tokenAddress.toLowerCase()) &&
+                    isAddress(match.params.tokenAddress.toLowerCase()) &&
                     !Object.keys(TOKEN_BLACKLIST).includes(match.params.tokenAddress.toLowerCase())
                   ) {
                     return (
@@ -148,7 +147,7 @@ function App() {
                 path="/pair/:pairAddress"
                 render={({ match }) => {
                   if (
-                      isStarknetAddress(match.params.pairAddress.toLowerCase()) &&
+                    isAddress(match.params.pairAddress.toLowerCase()) &&
                     !Object.keys(PAIR_BLACKLIST).includes(match.params.pairAddress.toLowerCase())
                   ) {
                     return (
@@ -166,7 +165,7 @@ function App() {
                 strict
                 path="/account/:accountAddress"
                 render={({ match }) => {
-                  if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
+                  if (isAddress(match.params.accountAddress.toLowerCase())) {
                     return (
                       <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
                         <AccountPage account={match.params.accountAddress.toLowerCase()} />

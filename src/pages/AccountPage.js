@@ -1,14 +1,17 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
-import { useUserTransactions, useUserPositions } from '../contexts/User'
+import { useUserTransactions, useUserPositions, useMiningPositions } from '../contexts/User'
 import TxnList from '../components/TxnList'
 import Panel from '../components/Panel'
-import {formattedNum, shortenStraknetAddress, urls} from '../utils'
+import { formattedNum } from '../utils'
 import Row, { AutoRow, RowFixed, RowBetween } from '../components/Row'
 import { AutoColumn } from '../components/Column'
+import UserChart from '../components/UserChart'
+import PairReturnsChart from '../components/PairReturnsChart'
 import PositionList from '../components/PositionList'
+import MiningPositionList from '../components/MiningPositionList'
 import { TYPE } from '../Theme'
-import { ButtonDropdown } from '../components/ButtonStyled'
+import { ButtonDropdown, ButtonLight } from '../components/ButtonStyled'
 import { PageWrapper, ContentWrapper, StyledIcon } from '../components'
 import DoubleTokenLogo from '../components/DoubleLogo'
 import { Bookmark, Activity } from 'react-feather'
@@ -18,8 +21,6 @@ import { BasicLink } from '../components/Link'
 import { useMedia } from 'react-use'
 import Search from '../components/Search'
 import { useSavedAccounts } from '../contexts/LocalStorage'
-import PairReturnsChart from "../components/PairReturnsChart";
-import UserChart from "../components/UserChart";
 
 const AccountWrapper = styled.div`
   background-color: rgba(255, 255, 255, 0.2);
@@ -91,6 +92,7 @@ function AccountPage({ account }) {
   // get data for this account
   const transactions = useUserTransactions(account)
   const positions = useUserPositions(account)
+  const miningPositions = useMiningPositions(account)
 
   // get data for user stats
   const transactionCount = transactions?.swaps?.length + transactions?.burns?.length + transactions?.mints?.length
@@ -164,7 +166,7 @@ function AccountPage({ account }) {
         <RowBetween>
           <TYPE.body>
             <BasicLink to="/accounts">{'Accounts '}</BasicLink>→{' '}
-            <Link lineHeight={'145.23%'} href={urls.showAddress(account)} target="_blank">
+            <Link lineHeight={'145.23%'} href={'https://etherscan.io/address/' + account} target="_blank">
               {' '}
               {account?.slice(0, 42)}{' '}
             </Link>
@@ -174,9 +176,9 @@ function AccountPage({ account }) {
         <Header>
           <RowBetween>
             <span>
-              <TYPE.header fontSize={24}>{shortenStraknetAddress(account)}</TYPE.header>
-              <Link lineHeight={'145.23%'} href={urls.showAddress(account)} target="_blank">
-                <TYPE.main fontSize={14}>View on Starkscan</TYPE.main>
+              <TYPE.header fontSize={24}>{account?.slice(0, 6) + '...' + account?.slice(38, 42)}</TYPE.header>
+              <Link lineHeight={'145.23%'} href={'https://etherscan.io/address/' + account} target="_blank">
+                <TYPE.main fontSize={14}>View on Etherscan</TYPE.main>
               </Link>
             </span>
             <AccountWrapper>
@@ -311,24 +313,24 @@ function AccountPage({ account }) {
           >
             <PositionList positions={positions} />
           </Panel>
-          {/*<TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>*/}
-          {/*  Liquidity Mining Pools*/}
-          {/*</TYPE.main>*/}
-          {/*<Panel*/}
-          {/*  style={{*/}
-          {/*    marginTop: '1.5rem',*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  {miningPositions && <MiningPositionList miningPositions={miningPositions} />}*/}
-          {/*  {!miningPositions && (*/}
-          {/*    <AutoColumn gap="8px" justify="flex-start">*/}
-          {/*      <TYPE.main>No Staked Liquidity.</TYPE.main>*/}
-          {/*      <AutoRow gap="8px" justify="flex-start">*/}
-          {/*        <ButtonLight style={{ padding: '4px 6px', borderRadius: '4px' }}>Learn More</ButtonLight>{' '}*/}
-          {/*      </AutoRow>{' '}*/}
-          {/*    </AutoColumn>*/}
-          {/*  )}*/}
-          {/*</Panel>*/}
+          <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
+            Liquidity Mining Pools
+          </TYPE.main>
+          <Panel
+            style={{
+              marginTop: '1.5rem',
+            }}
+          >
+            {miningPositions && <MiningPositionList miningPositions={miningPositions} />}
+            {!miningPositions && (
+              <AutoColumn gap="8px" justify="flex-start">
+                <TYPE.main>No Staked Liquidity.</TYPE.main>
+                <AutoRow gap="8px" justify="flex-start">
+                  <ButtonLight style={{ padding: '4px 6px', borderRadius: '4px' }}>Learn More</ButtonLight>{' '}
+                </AutoRow>{' '}
+              </AutoColumn>
+            )}
+          </Panel>
           <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
             Transactions
           </TYPE.main>{' '}
