@@ -7,7 +7,7 @@ import GlobalPage from './pages/GlobalPage'
 import TokenPage from './pages/TokenPage'
 import PairPage from './pages/PairPage'
 import { useGlobalData, useGlobalChartData } from './contexts/GlobalData'
-import {convertDateToUnixFormat, isAddress, isStarknetAddress} from './utils'
+import { isStarknetAddress } from './utils'
 import AccountPage from './pages/AccountPage'
 import AllTokensPage from './pages/AllTokensPage'
 import AllPairsPage from './pages/AllPairsPage'
@@ -95,17 +95,16 @@ const LayoutWrapper = ({ children, savedOpen, setSavedOpen }) => {
 }
 
 
-const BLOCK_DIFFERENCE_THRESHOLD = 30*60; // m * s
+const BLOCK_DIFFERENCE_THRESHOLD = 2;
 
 function App() {
   const [savedOpen, setSavedOpen] = useState(false)
 
   const globalData = useGlobalData()
   const globalChartData = useGlobalChartData()
-  const [latestBlock] = useLatestBlocks();
-  const utcCurrentTime = dayjs();
+  const [latestBlock, headBlock] = useLatestBlocks();
 
-  const showWarning = latestBlock ? utcCurrentTime.unix() - convertDateToUnixFormat(latestBlock.timestamp) > BLOCK_DIFFERENCE_THRESHOLD : false
+  const showWarning = headBlock && latestBlock ? headBlock.number - latestBlock.number > BLOCK_DIFFERENCE_THRESHOLD : false;
 
   return (
     <ApolloProvider client={jediSwapClient}>
@@ -113,7 +112,7 @@ function App() {
         {showWarning && (
           <WarningWrapper>
             <WarningBanner>
-              {`Warning: The data on this site has only synced to Starknet block ${latestBlock.number}. Please check back soon.`}
+              {`Warning: The data on this site has only synced to Starknet block ${latestBlock.number} (was produced on ${dayjs.unix(latestBlock.timestamp).format('YYYY-MM-DDTHH:mm:ss')}). Please check back soon.`}
             </WarningBanner>
           </WarningWrapper>
         )}

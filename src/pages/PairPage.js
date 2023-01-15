@@ -24,7 +24,6 @@ import {
   formattedPercent,
   getPoolLink,
   getSwapLink,
-  shortenAddress,
   shortenStraknetAddress,
   urls
 } from '../utils'

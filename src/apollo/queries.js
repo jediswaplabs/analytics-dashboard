@@ -1,5 +1,4 @@
 import gql from 'graphql-tag'
-import { FACTORY_ADDRESS, BUNDLE_ID } from '../constants'
 
 const ETH_USDC_PAIR_ADDRESS = '0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a';
 

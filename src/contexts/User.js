@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
-import { useAllPairData, usePairData } from './PairData'
+import { usePairData } from './PairData'
 import {jediSwapClient} from '../apollo/client'
 import {
   USER_TRANSACTIONS,

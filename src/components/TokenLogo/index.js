@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import {isAddress, isStarknetAddress} from '../../utils/index.js'
+import {isStarknetAddress} from '../../utils'
 import EthereumLogo from '../../assets/eth.png'
 
 const BAD_IMAGES = {}

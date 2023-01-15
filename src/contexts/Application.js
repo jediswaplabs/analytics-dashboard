@@ -5,7 +5,10 @@ import utc from 'dayjs/plugin/utc'
 import getTokenList from '../utils/tokenLists'
 import {jediSwapClient} from '../apollo/client'
 import {GET_LATEST_BLOCK} from '../apollo/queries'
+import {convertDateToUnixFormat} from "../utils";
 dayjs.extend(utc)
+
+const LATEST_STARKNET_BLOCK_FEEDER_URL = 'https://alpha-mainnet.starknet.io/feeder_gateway/get_block?blockNumber=latest';
 
 const UPDATE = 'UPDATE'
 const UPDATE_TIMEFRAME = 'UPDATE_TIMEFRAME'
@@ -167,20 +170,36 @@ export default function Provider({ children }) {
 }
 
 export function useLatestBlocks() {
-  const [state, { updateLatestBlock }] = useApplicationContext()
+  const [state, { updateLatestBlock, updateHeadBlock }] = useApplicationContext()
 
   const latestBlock = state?.[LATEST_BLOCK]
+  const headBlock = state?.[HEAD_BLOCK]
 
   useEffect(() => {
-    async function fetch() {
-      jediSwapClient
+    async function fetchData() {
+      const getLatestBlockPromise = jediSwapClient
         .query({
           query: GET_LATEST_BLOCK,
-        })
-        .then((res) => {
-          const block = res?.data?.blocks?.[0];
-          if (block) {
-            updateLatestBlock(block)
+        });
+
+      const getLatestHeadBlockPromise = fetch(LATEST_STARKNET_BLOCK_FEEDER_URL)
+
+      Promise.all([getLatestBlockPromise, getLatestHeadBlockPromise])
+        .then(async ([latestBlockRes, headBlockRes]) => {
+          const parsedHeadBlockResult = await headBlockRes.json();
+          const syncedBlockResult = latestBlockRes?.data?.blocks?.[0];
+          const syncedBlock = syncedBlockResult ? {
+            ...syncedBlockResult,
+            timestamp: convertDateToUnixFormat(syncedBlockResult.timestamp)
+          } : null;
+          const headBlock = parsedHeadBlockResult ? {
+            id: parsedHeadBlockResult.block_hash,
+            number: parsedHeadBlockResult.block_number,
+            timestamp: parsedHeadBlockResult.timestamp,
+          } : null;
+          if (syncedBlock && headBlock) {
+            updateLatestBlock(syncedBlock)
+            updateHeadBlock(headBlock)
           }
         })
         .catch((e) => {
@@ -188,11 +207,11 @@ export function useLatestBlocks() {
         })
     }
     if (!latestBlock) {
-      fetch()
+      fetchData()
     }
-  }, [latestBlock, updateLatestBlock])
+  }, [latestBlock, updateHeadBlock, updateLatestBlock])
 
-  return [latestBlock]
+  return [latestBlock, headBlock]
 }
 
 export function useCurrentCurrency() {
