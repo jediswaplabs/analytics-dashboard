@@ -109,6 +109,7 @@ export const SubNavEl = styled.li`
   padding-bottom: 0.5rem;
   margin-right: 1rem;
   font-weight: ${({ isActive }) => (isActive ? 600 : 500)};
+
   border-bottom: 1px solid rgba(0, 0, 0, 0);
 
   :hover {

@@ -39,6 +39,7 @@ const Input = styled.input`
   background-color: ${({ theme }) => theme.bg1};
   font-size: 16px;
   margin-right: 1rem;
+
   border: 1px solid ${({ theme }) => theme.bg3};
 
   ::placeholder {
