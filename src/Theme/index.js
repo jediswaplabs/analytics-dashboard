@@ -22,7 +22,7 @@ const theme = (darkMode, color) => ({
   concreteGray: darkMode ? '#292C2F' : '#FAFAFA',
   inputBackground: darkMode ? '#1F1F1F' : '#FAFAFA',
   shadowColor: darkMode ? '#000' : '#2F80ED',
-  mercuryGray: darkMode ? '#141451' : '#E1E1E1',
+  mercuryGray: darkMode ? ' #141451' : '#E1E1E1',
 
   text1: darkMode ? '#FAFAFA' : '#1F1F1F',
   text2: darkMode ? '#C3C5CB' : '#565A69',
@@ -39,12 +39,12 @@ const theme = (darkMode, color) => ({
   bg3: darkMode ? '#40444F' : '#EDEEF2',
   bg4: darkMode ? '#565A69' : '#CED0D9',
   bg5: darkMode ? '#565A69' : '#888D9B',
-  bg6: darkMode ? '#141451' : '#FFFFFF',
+  bg6: darkMode ? '#000508' : '#FFFFFF',
 
   //specialty colors
   modalBG: darkMode ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.6)',
   advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.4)',
-  onlyLight: darkMode ? '#22242a' : 'transparent',
+  onlyLight: darkMode ? '#252323' : 'transparent',
   divider: darkMode ? 'rgba(43, 43, 43, 0.435)' : 'rgba(43, 43, 43, 0.035)',
 
   //primary colors
@@ -70,7 +70,7 @@ const theme = (darkMode, color) => ({
   yellow1: '#FFE270',
   yellow2: '#F3841E',
   link: '#2172E5',
-  blue: '2f80ed',
+  blue: '#2f80ed',
 
   background: darkMode ? 'black' : `radial-gradient(50% 50% at 50% 50%, #ff007a30 0%, #fff 0%)`,
 })
