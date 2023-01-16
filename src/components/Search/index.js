@@ -10,11 +10,11 @@ import { useAllTokenData, useTokenData } from '../../contexts/TokenData'
 import { useAllPairData, usePairData } from '../../contexts/PairData'
 import DoubleTokenLogo from '../DoubleLogo'
 import { useMedia } from 'react-use'
-import { useAllPairsInUniswap, useAllTokensInUniswap } from '../../contexts/GlobalData'
+import { useAllPairsInJediswap, useAllTokensInJediswap } from '../../contexts/GlobalData'
 import { TOKEN_BLACKLIST, PAIR_BLACKLIST } from '../../constants'
 
 import { transparentize } from 'polished'
-import { client } from '../../apollo/client'
+import {jediSwapClient} from '../../apollo/client'
 import { PAIR_SEARCH, TOKEN_SEARCH } from '../../apollo/queries'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
@@ -150,10 +150,10 @@ const Blue = styled.span`
 `
 
 export const Search = ({ small = false }) => {
-  let allTokens = useAllTokensInUniswap()
+  let allTokens = useAllTokensInJediswap()
   const allTokenData = useAllTokenData()
 
-  let allPairs = useAllPairsInUniswap()
+  let allPairs = useAllPairsInJediswap()
   const allPairData = useAllPairData()
 
   const [showMenu, toggleMenu] = useState(false)
@@ -184,7 +184,7 @@ export const Search = ({ small = false }) => {
     async function fetchData() {
       try {
         if (value?.length > 0) {
-          let tokens = await client.query({
+          let tokens = await jediSwapClient.query({
             query: TOKEN_SEARCH,
             variables: {
               value: value ? value.toUpperCase() : '',
@@ -192,7 +192,7 @@ export const Search = ({ small = false }) => {
             },
           })
 
-          let pairs = await client.query({
+          let pairs = await jediSwapClient.query({
             query: PAIR_SEARCH,
             variables: {
               tokens: tokens.data.asSymbol?.map((t) => t.id),

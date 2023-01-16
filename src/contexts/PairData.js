@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
 
-import { client } from '../apollo/client'
+import {jediSwapClient} from '../apollo/client'
 import {
   PAIR_DATA,
   PAIR_CHART,
@@ -22,7 +22,7 @@ import {
   isAddress,
   getBlocksFromTimestamps,
   getTimestampsForChanges,
-  splitQuery,
+  splitQuery, convertDateToUnixFormat,
 } from '../utils'
 import { timeframeOptions, TRACKED_OVERRIDES_PAIRS, TRACKED_OVERRIDES_TOKENS } from '../constants'
 import { useLatestBlocks } from './Application'
@@ -187,19 +187,15 @@ async function getBulkPairData(pairList, ethPrice) {
   let [{ number: b1 }, { number: b2 }, { number: bWeek }] = await getBlocksFromTimestamps([t1, t2, tWeek])
 
   try {
-    let current = await client.query({
-      query: PAIRS_BULK,
-      variables: {
-        allPairs: pairList,
-      },
-      fetchPolicy: 'cache-first',
+    let current = await jediSwapClient.query({
+      query: PAIRS_BULK(pairList),
+      fetchPolicy: 'no-cache',
     })
-
     let [oneDayResult, twoDayResult, oneWeekResult] = await Promise.all(
       [b1, b2, bWeek].map(async (block) => {
-        let result = client.query({
+        let result = jediSwapClient.query({
           query: PAIRS_HISTORICAL_BULK(block, pairList),
-          fetchPolicy: 'cache-first',
+          fetchPolicy: 'no-cache',
         })
         return result
       })
@@ -223,25 +219,25 @@ async function getBulkPairData(pairList, ethPrice) {
           let data = pair
           let oneDayHistory = oneDayData?.[pair.id]
           if (!oneDayHistory) {
-            let newData = await client.query({
+            let newData = await jediSwapClient.query({
               query: PAIR_DATA(pair.id, b1),
-              fetchPolicy: 'cache-first',
+              fetchPolicy: 'no-cache',
             })
             oneDayHistory = newData.data.pairs[0]
           }
           let twoDayHistory = twoDayData?.[pair.id]
           if (!twoDayHistory) {
-            let newData = await client.query({
+            let newData = await jediSwapClient.query({
               query: PAIR_DATA(pair.id, b2),
-              fetchPolicy: 'cache-first',
+              fetchPolicy: 'no-cache',
             })
             twoDayHistory = newData.data.pairs[0]
           }
           let oneWeekHistory = oneWeekData?.[pair.id]
           if (!oneWeekHistory) {
-            let newData = await client.query({
+            let newData = await jediSwapClient.query({
               query: PAIR_DATA(pair.id, bWeek),
-              fetchPolicy: 'cache-first',
+              fetchPolicy: 'no-cache',
             })
             oneWeekHistory = newData.data.pairs[0]
           }
@@ -320,7 +316,7 @@ const getPairTransactions = async (pairAddress) => {
   const transactions = {}
 
   try {
-    let result = await client.query({
+    let result = await jediSwapClient.query({
       query: FILTERED_TRANSACTIONS,
       variables: {
         allPairs: [pairAddress],
@@ -347,16 +343,28 @@ const getPairChartData = async (pairAddress) => {
     let allFound = false
     let skip = 0
     while (!allFound) {
-      let result = await client.query({
+      let result = await jediSwapClient.query({
         query: PAIR_CHART,
         variables: {
           pairAddress: pairAddress,
           skip,
         },
-        fetchPolicy: 'cache-first',
+        fetchPolicy: 'no-cache',
       })
       skip += 1000
+
+
       data = data.concat(result.data.pairDayDatas)
+
+      data = data.map((item) => {
+        item.date = convertDateToUnixFormat(item.date);
+        item.dailyVolumeToken0 = parseFloat(item.dailyVolumeToken0);
+        item.dailyVolumeToken1 = parseFloat(item.dailyVolumeToken1);
+        item.dailyVolumeUSD = parseFloat(item.dailyVolumeUSD);
+        item.reserveUSD = parseFloat(item.reserveUSD);
+        return item;
+      })
+
       if (result.data.pairDayDatas.length < 1000) {
         allFound = true
       }
@@ -437,7 +445,7 @@ const getHourlyRateData = async (pairAddress, startTime, latestBlock) => {
       })
     }
 
-    const result = await splitQuery(HOURLY_PAIR_RATES, client, [pairAddress], blocks, 100)
+    const result = await splitQuery(HOURLY_PAIR_RATES, jediSwapClient, [pairAddress], blocks, 100)
 
     // format token ETH price results
     let values = []
@@ -446,8 +454,8 @@ const getHourlyRateData = async (pairAddress, startTime, latestBlock) => {
       if (timestamp) {
         values.push({
           timestamp,
-          rate0: parseFloat(result[row]?.token0Price),
-          rate1: parseFloat(result[row]?.token1Price),
+          rate0: parseFloat(result[row]?.[0].token0Price),
+          rate1: parseFloat(result[row]?.[0].token1Price),
         })
       }
     }
@@ -484,9 +492,9 @@ export function Updater() {
       // get top pairs by reserves
       let {
         data: { pairs },
-      } = await client.query({
+      } = await jediSwapClient.query({
         query: PAIRS_CURRENT,
-        fetchPolicy: 'cache-first',
+        fetchPolicy: 'no-cache',
       })
 
       // format as array of addresses
@@ -515,7 +523,7 @@ export function useHourlyRateData(pairAddress, timeWindow) {
       timeWindow === timeframeOptions.ALL_TIME ? 1589760000 : currentTime.subtract(1, windowSize).startOf('hour').unix()
 
     async function fetch() {
-      let data = await getHourlyRateData(pairAddress, startTime, latestBlock)
+      let data = await getHourlyRateData(pairAddress, startTime, latestBlock.number)
       updateHourlyData(pairAddress, data, timeWindow)
     }
     if (!chartData) {
@@ -559,12 +567,12 @@ export function useDataForList(pairList) {
         }
       })
 
-      let newPairData = await getBulkPairData(
+      let newPairData = unfetched?.length ? await getBulkPairData(
         unfetched.map((pair) => {
           return pair
         }),
         ethPrice
-      )
+      ) : [];
       setFetched(newFetched.concat(newPairData))
     }
     if (ethPrice && pairList && pairList.length > 0 && !fetched && !stale) {
