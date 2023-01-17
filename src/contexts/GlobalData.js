@@ -245,32 +245,32 @@ async function getGlobalData(ethPrice, oldEthPrice) {
     // fetch the global data
     let result = await jediSwapClient.query({
       query: GLOBAL_DATA(),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     data = result.data.jediswapFactories[0]
 
     // fetch the historical data
     let oneDayResult = await jediSwapClient.query({
       query: GLOBAL_DATA(oneDayBlock?.number),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     oneDayData = oneDayResult.data.jediswapFactories[0]
 
     let twoDayResult = await jediSwapClient.query({
       query: GLOBAL_DATA(twoDayBlock?.number),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     twoDayData = twoDayResult.data.jediswapFactories[0]
 
     let oneWeekResult = await jediSwapClient.query({
       query: GLOBAL_DATA(oneWeekBlock?.number),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     const oneWeekData = oneWeekResult.data.jediswapFactories[0]
 
     let twoWeekResult = await jediSwapClient.query({
       query: GLOBAL_DATA(twoWeekBlock?.number),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     const twoWeekData = twoWeekResult.data.jediswapFactories[0]
 
@@ -339,7 +339,7 @@ const getChartData = async (oldestDateToFetch, offsetData) => {
           startTime: oldestDateToFetch,
           skip,
         },
-        fetchPolicy: "no-cache"
+        fetchPolicy: "cache-first"
       })
       skip += 1000
       data = data.concat(result.data.exchangeDayDatas)
@@ -441,7 +441,7 @@ const getGlobalTransactions = async () => {
   try {
     let result = await jediSwapClient.query({
       query: GLOBAL_TXNS,
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     transactions.mints = []
     transactions.burns = []
@@ -487,11 +487,11 @@ const getEthPrice = async () => {
     let oneDayBlock = await getBlockFromTimestamp(utcOneDayBack)
     let result = await jediSwapClient.query({
       query: ETH_PRICE(),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     let resultOneDay = await jediSwapClient.query({
       query: ETH_PRICE(oneDayBlock),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     const currentPrice = result?.data?.pairs[0].token1Price
     const oneDayBackPrice = resultOneDay?.data?.pairs[0].token1Price
@@ -522,7 +522,7 @@ async function getAllPairsOnJediswap() {
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
       skipCount = skipCount + PAIRS_TO_FETCH
       pairs = pairs.concat(result?.data?.pairs)
@@ -550,7 +550,7 @@ async function getAllTokensOnJediswap() {
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
       tokens = tokens.concat(result?.data?.tokens)
       if (result?.data?.tokens?.length < TOKENS_TO_FETCH || tokens.length > TOKENS_TO_FETCH) {
@@ -711,7 +711,7 @@ export function useTopLps() {
               variables: {
                 pair: pair.toString(),
               },
-              fetchPolicy: 'no-cache',
+              fetchPolicy: 'cache-first',
             })
             if (results) {
               return results.liquidityPositions

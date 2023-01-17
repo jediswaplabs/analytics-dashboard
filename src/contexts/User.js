@@ -210,7 +210,7 @@ export function useUserSnapshots(account) {
               skip: skip,
               user: account,
             },
-            fetchPolicy: 'no-cache',
+            fetchPolicy: 'cache-first',
           })
           const data = result.data.liquidityPositionSnapshots.map((position) => {
             const timestamp = convertDateToUnixFormat(position.timestamp);
@@ -469,7 +469,7 @@ export function useUserPositions(account) {
           variables: {
             user: account,
           },
-          fetchPolicy: 'no-cache',
+          fetchPolicy: 'cache-first',
         })
         if (result?.data?.liquidityPositions) {
           let formattedPositions = await Promise.all(

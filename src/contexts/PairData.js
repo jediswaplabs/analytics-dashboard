@@ -189,13 +189,13 @@ async function getBulkPairData(pairList, ethPrice) {
   try {
     let current = await jediSwapClient.query({
       query: PAIRS_BULK(pairList),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     let [oneDayResult, twoDayResult, oneWeekResult] = await Promise.all(
       [b1, b2, bWeek].map(async (block) => {
         let result = jediSwapClient.query({
           query: PAIRS_HISTORICAL_BULK(block, pairList),
-          fetchPolicy: 'no-cache',
+          fetchPolicy: 'cache-first',
         })
         return result
       })
@@ -221,7 +221,7 @@ async function getBulkPairData(pairList, ethPrice) {
           if (!oneDayHistory) {
             let newData = await jediSwapClient.query({
               query: PAIR_DATA(pair.id, b1),
-              fetchPolicy: 'no-cache',
+              fetchPolicy: 'cache-first',
             })
             oneDayHistory = newData.data.pairs[0]
           }
@@ -229,7 +229,7 @@ async function getBulkPairData(pairList, ethPrice) {
           if (!twoDayHistory) {
             let newData = await jediSwapClient.query({
               query: PAIR_DATA(pair.id, b2),
-              fetchPolicy: 'no-cache',
+              fetchPolicy: 'cache-first',
             })
             twoDayHistory = newData.data.pairs[0]
           }
@@ -237,7 +237,7 @@ async function getBulkPairData(pairList, ethPrice) {
           if (!oneWeekHistory) {
             let newData = await jediSwapClient.query({
               query: PAIR_DATA(pair.id, bWeek),
-              fetchPolicy: 'no-cache',
+              fetchPolicy: 'cache-first',
             })
             oneWeekHistory = newData.data.pairs[0]
           }
@@ -321,7 +321,7 @@ const getPairTransactions = async (pairAddress) => {
       variables: {
         allPairs: [pairAddress],
       },
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     transactions.mints = result.data.mints
     transactions.burns = result.data.burns
@@ -349,7 +349,7 @@ const getPairChartData = async (pairAddress) => {
           pairAddress: pairAddress,
           skip,
         },
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
       skip += 1000
 
@@ -494,7 +494,7 @@ export function Updater() {
         data: { pairs },
       } = await jediSwapClient.query({
         query: PAIRS_CURRENT,
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
 
       // format as array of addresses

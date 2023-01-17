@@ -162,7 +162,7 @@ export async function getBlockFromTimestamp(timestamp) {
     },
     fetchPolicy: 'cache-first',
   })
-  return result?.data?.blocks?.[0]?.number || 18109
+  return result?.data?.blocks?.[0]?.number
 }
 
 /**
@@ -237,7 +237,7 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
   // get historical share values with time travel queries
   let result = await jediSwapClient.query({
     query: SHARE_VALUE(pairAddress, blocks),
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-first',
   })
 
   let values = []

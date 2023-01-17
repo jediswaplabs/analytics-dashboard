@@ -236,17 +236,17 @@ const getTopTokens = async (ethPrice, ethPriceOld) => {
 
     let current = await jediSwapClient.query({
       query: TOKENS_HISTORICAL_BULK(ids),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
 
     let oneDayResult = await jediSwapClient.query({
       query: TOKENS_HISTORICAL_BULK(ids, oneDayBlock),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
 
     let twoDayResult = await jediSwapClient.query({
       query: TOKENS_HISTORICAL_BULK(ids, twoDayBlock),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
 
     let oneDayData = oneDayResult?.data?.tokens.reduce((obj, cur, i) => {
@@ -271,14 +271,14 @@ const getTopTokens = async (ethPrice, ethPriceOld) => {
           if (!oneDayHistory) {
             let oneDayResult = await jediSwapClient.query({
               query: TOKEN_DATA(token.id, oneDayBlock),
-              fetchPolicy: 'no-cache',
+              fetchPolicy: 'cache-first',
             })
             oneDayHistory = oneDayResult.data.tokens[0]
           }
           if (!twoDayHistory) {
             let twoDayResult = await jediSwapClient.query({
               query: TOKEN_DATA(token.id, twoDayBlock),
-              fetchPolicy: 'no-cache',
+              fetchPolicy: 'cache-first',
             })
             twoDayHistory = twoDayResult.data.tokens[0]
           }
@@ -357,21 +357,21 @@ const getTokenData = async (address, ethPrice, ethPriceOld) => {
     // fetch all current and historical data
     let result = await jediSwapClient.query({
       query: TOKEN_DATA(address),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     data = result?.data?.tokens?.[0]
 
     // get results from 24 hours in past
     let oneDayResult = await jediSwapClient.query({
       query: TOKEN_DATA(address, oneDayBlock),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     oneDayData = oneDayResult.data.tokens[0]
 
     // get results from 48 hours in past
     let twoDayResult = await jediSwapClient.query({
       query: TOKEN_DATA(address, twoDayBlock),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     twoDayData = twoDayResult.data.tokens[0]
 
@@ -379,14 +379,14 @@ const getTokenData = async (address, ethPrice, ethPriceOld) => {
     if (!oneDayData) {
       let oneDayResult = await jediSwapClient.query({
         query: TOKEN_DATA(address, oneDayBlock),
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
       oneDayData = oneDayResult.data.tokens[0]
     }
     if (!twoDayData) {
       let twoDayResult = await jediSwapClient.query({
         query: TOKEN_DATA(address, twoDayBlock),
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
       twoDayData = twoDayResult.data.tokens[0]
     }
@@ -462,7 +462,7 @@ const getTokenTransactions = async (allPairsFormatted) => {
       variables: {
         allPairs: allPairsFormatted,
       },
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     transactions.mints = result.data.mints
     transactions.burns = result.data.burns
@@ -478,7 +478,7 @@ const getTokenPairs = async (tokenAddress) => {
     // fetch all current and historical data
     let result = await jediSwapClient.query({
       query: TOKEN_DATA(tokenAddress),
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-first',
     })
     return result.data?.['pairs0'].concat(result.data?.['pairs1'])
   } catch (e) {
@@ -580,7 +580,7 @@ const getTokenChartData = async (tokenAddress) => {
           tokenAddr: tokenAddress,
           skip,
         },
-        fetchPolicy: 'no-cache',
+        fetchPolicy: 'cache-first',
       })
       if (result.data.tokenDayDatas.length < 1000) {
         allFound = true
