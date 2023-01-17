@@ -59,6 +59,7 @@ const Center = styled.div`
   z-index: 9999;
   transition: width 0.25s ease;
   background-color: ${({ theme }) => theme.onlyLight};
+  background: linear-gradient(-258.58deg, #3c0a3d 0%, #000508 36.65%, #141451 71.08%) 0% 0% / cover no-repeat;
 `
 
 const WarningWrapper = styled.div`
