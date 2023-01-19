@@ -46,7 +46,7 @@ export const GET_BLOCKS = (timestamps) => {
 
 export const TOP_LPS_PER_PAIRS = gql`
   query lps($pair: String!) {
-    liquidityPositions(where: { pair: $pair }, orderBy: "liquidityTokenBalance", orderByDirection: "desc", first: 10) {
+    liquidityPositions(where: { pair: $pair }, orderBy: "liquidity_token_balance", orderByDirection: "desc", first: 10) {
       user {
         id
       }
@@ -420,7 +420,7 @@ export const GLOBAL_TXNS = gql`
 
 export const ALL_TOKENS = gql`
   query tokens($skip: Int!) {
-    tokens(first: 500, skip: $skip) {
+    tokens(first: 100, skip: $skip) {
       id
       name
       symbol
@@ -431,19 +431,19 @@ export const ALL_TOKENS = gql`
 
 export const TOKEN_SEARCH = gql`
   query tokens($value: String, $id: String) {
-    asSymbol: tokens(where: { symbolContains: $value }, orderBy: "totalLiquidity", orderByDirection: "desc") {
+    asSymbol: tokens(where: { symbolContains: $value }, orderBy: "total_liquidity", orderByDirection: "desc") {
       id
       symbol
       name
       totalLiquidity
     }
-    asName: tokens(where: { nameContains: $value }, orderBy: "totalLiquidity", orderByDirection: "desc") {
+    asName: tokens(where: { nameContains: $value }, orderBy: "total_liquidity", orderByDirection: "desc") {
       id
       symbol
       name
       totalLiquidity
     }
-    asAddress: tokens(where: { id: $id }, orderBy: "totalLiquidity", orderByDirection: "desc") {
+    asAddress: tokens(where: { id: $id }, orderBy: "total_liquidity", orderByDirection: "desc") {
       id
       symbol
       name
@@ -498,7 +498,7 @@ export const PAIR_SEARCH = gql`
 
 export const ALL_PAIRS = gql`
   query pairs($skip: Int!) {
-    pairs(first: 500, skip: $skip, orderBy: "trackedReserveETH", orderByDirection: "desc") {
+    pairs(first: 100, skip: $skip, orderBy: "tracked_reserve_eth", orderByDirection: "desc") {
       id
       token0 {
         id
@@ -548,7 +548,7 @@ const PairFields = `
 
 export const PAIRS_CURRENT = gql`
   query pairs {
-    pairs(first: 200, orderBy: "reserveUSD", orderByDirection: "desc") {
+    pairs(first: 200, orderBy: "reserve_usd", orderByDirection: "desc") {
       id
     }
   }
@@ -575,7 +575,7 @@ export const PAIRS_BULK = (pairs) => {
   const queryString = `
     ${PairFields}
     query pairs {
-      pairs(first: 500, where: { idIn: ${pairsString} }, orderBy: "trackedReserveETH", orderByDirection: "desc") {
+      pairs(first: 100, where: { idIn: ${pairsString} }, orderBy: "tracked_reserve_eth", orderByDirection: "desc") {
         ...PairFields
       }
     }
@@ -591,7 +591,7 @@ export const PAIRS_HISTORICAL_BULK = (block, pairs) => {
   pairsString += ']'
   let queryString = `
   query pairs {
-    pairs(first: 200, where: {idIn: ${pairsString}}, block: {number: ${block}}, orderBy: "trackedReserveETH", orderByDirection: "desc") {
+    pairs(first: 200, where: {idIn: ${pairsString}}, block: {number: ${block}}, orderBy: "tracked_reserve_eth", orderByDirection: "desc") {
       id
       reserveUSD
       trackedReserveETH
@@ -636,7 +636,7 @@ const TokenFields = `
 // used for getting top tokens by daily volume
 export const TOKEN_TOP_DAY_DATAS = gql`
   query tokenDayDatas($date: Int) {
-    tokenDayDatas(first: 50, orderByDirection: "desc", orderBy: "totalLiquidityUSD", where: {dateGt: $date}) {
+    tokenDayDatas(first: 50, orderByDirection: "desc", orderBy: "total_liquidity_usd", where: {dateGt: $date}) {
       tokenId
       date
     }
@@ -674,10 +674,10 @@ export const TOKEN_DATA = (tokenAddress, block) => {
       tokens(${block ? `block : {number: ${block}}` : ``} where: {id:"${tokenAddress}"}) {
         ...TokenFields
       }
-      pairs0: pairs(where: {token0: "${tokenAddress}"}, first: 50, orderBy: "reserveUSD", orderByDirection: "desc"){
+      pairs0: pairs(where: {token0: "${tokenAddress}"}, first: 50, orderBy: "reserve_usd", orderByDirection: "desc"){
         id
       }
-      pairs1: pairs(where: {token1: "${tokenAddress}"}, first: 50, orderBy: "reserveUSD", orderByDirection: "desc"){
+      pairs1: pairs(where: {token1: "${tokenAddress}"}, first: 50, orderBy: "reserve_usd", orderByDirection: "desc"){
         id
       }
     }
