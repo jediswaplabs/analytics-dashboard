@@ -15,6 +15,7 @@ import { withRouter } from 'react-router-dom'
 import { TOKEN_BLACKLIST } from '../../constants'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
+import { backgrounds, opacify } from 'polished'
 
 dayjs.extend(utc)
 
@@ -212,7 +213,15 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
 
   return (
     <ListWrapper>
-      <DashGrid center={true} style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}>
+      <DashGrid
+        center={true}
+        style={{
+          height: 'fit-content',
+          padding: '1rem 1.125rem 1rem 1.125rem',
+          backgroundColor: '#ffffff33',
+          borderRadius: '5px',
+        }}
+      >
         <Flex alignItems="center" justifyContent="flexStart">
           <ClickableText
             color="text"
@@ -309,7 +318,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
         <div onClick={() => setPage(page === 1 ? page : page - 1)}>
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
-        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
+        <TYPE.body>{page + ' of ' + maxPage}</TYPE.body>
         <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
           <Arrow faded={page === maxPage ? true : false}>→</Arrow>
         </div>

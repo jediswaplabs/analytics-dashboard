@@ -138,7 +138,7 @@ function GlobalPage() {
               <CustomLink to={'/tokens'}>See All</CustomLink>
             </RowBetween>
           </ListOptions>
-          <Panel style={{ marginTop: '6px', padding: '1.125rem 0 ' }}>
+          <Panel style={{ marginTop: '6px', padding: '0rem 0 ' }}>
             <TopTokenList tokens={allTokens} />
           </Panel>
           <ListOptions gap="10px" style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
@@ -157,7 +157,7 @@ function GlobalPage() {
               </AutoRow>
             </RowBetween>
           </ListOptions>
-          <Panel style={{ marginTop: '6px', padding: '1.125rem 0 ' }}>
+          <Panel style={{ marginTop: '6px', padding: '0rem 0 ' }}>
             <PairList pairs={allPairs} useTracked={useTracked} />
           </Panel>
           <span>
@@ -165,7 +165,7 @@ function GlobalPage() {
               Transactions
             </TYPE.main>
           </span>
-          <Panel style={{ margin: '1rem 0' }}>
+          <Panel style={{ margin: '1rem 0', padding: '0rem' }}>
             <TxnList transactions={transactions} />
           </Panel>
         </div>

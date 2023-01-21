@@ -30,6 +30,7 @@ const theme = (darkMode, color) => ({
   text4: darkMode ? '#565A69' : '#C3C5CB',
   text5: darkMode ? '#2C2F36' : '#EDEEF2',
 
+  paginationTest: darkMode ? '#50D5FF' : '#1F1F1F',
   // special case text types
   white: '#FFFFFF',
 
@@ -69,7 +70,7 @@ const theme = (darkMode, color) => ({
   green1: '#27AE60',
   yellow1: '#FFE270',
   yellow2: '#F3841E',
-  link: '#2172E5',
+  link: '#50D5FF',
   blue: '#2f80ed',
 
   background: darkMode ? 'black' : `radial-gradient(50% 50% at 50% 50%, #ff007a30 0%, #fff 0%)`,
@@ -85,7 +86,7 @@ export const TYPE = {
   },
 
   body(props) {
-    return <TextWrapper fontWeight={400} fontSize={14} color={'text1'} {...props} />
+    return <TextWrapper fontWeight={400} fontSize={14} color={'paginationTest'} {...props} />
   },
 
   small(props) {
@@ -156,9 +157,10 @@ export const ThemedBackground = styled.div`
 
 export const GlobalStyle = createGlobalStyle`
   @import url('https://rsms.me/inter/inter.css');
-  html { font-family: 'Inter', sans-serif; }
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap');
+  html { font-family: 'DM Sans', sans-serif; }
   @supports (font-variation-settings: normal) {
-    html { font-family: 'Inter var', sans-serif; }
+    html { font-family: 'DM Sans', sans-serif; }
   }
   
   html,
