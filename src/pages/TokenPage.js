@@ -371,7 +371,7 @@ function TokenPage({ address, history }) {
               rounded
               style={{
                 marginTop: '1.5rem',
-                padding: '1.125rem 0 ',
+                padding: '0rem 0 ',
               }}
             >
               {address && fetchedPairsList ? (
@@ -383,7 +383,13 @@ function TokenPage({ address, history }) {
             <RowBetween mt={40} mb={'1rem'}>
               <TYPE.main fontSize={'1.125rem'}>Transactions</TYPE.main> <div />
             </RowBetween>
-            <Panel rounded>
+            <Panel
+              rounded
+              style={{
+                padding: '0rem 0',
+                borderRadius: '5px',
+              }}
+            >
               {transactions ? <TxnList color={backgroundColor} transactions={transactions} /> : <Loader />}
             </Panel>
             <>

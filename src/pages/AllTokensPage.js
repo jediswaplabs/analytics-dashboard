@@ -34,7 +34,7 @@ function AllTokensPage() {
           <CheckBox checked={useTracked} setChecked={() => setUseTracked(!useTracked)} text={'Hide untracked tokens'} />
           <QuestionHelper text="USD amounts may be inaccurate in low liquiidty pairs or pairs without ETH or stablecoins." />
         </AutoRow> */}
-        <Panel style={{ marginTop: '6px', padding: below600 && '1rem 0 0 0 ' }}>
+        <Panel style={{ marginTop: '6px', padding: '0rem 0', borderRadius: '5px' }}>
           <TopTokenList tokens={allTokens} itemMax={50} />
         </Panel>
       </FullWrapper>
