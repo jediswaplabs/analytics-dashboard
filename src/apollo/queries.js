@@ -3,12 +3,12 @@ import gql from 'graphql-tag'
 const ETH_USDC_PAIR_ADDRESS = '0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a';
 
 export const GET_BLOCK = gql`
-  query blocks($timestampFrom: Int!, $timestampTo: Int!) {
+  query blocks($timestampFrom: Int!) {
     blocks(
       first: 1
       orderBy: "timestamp"
       orderByDirection: "asc"
-      where: { timestampGt: $timestampFrom, timestampLt: $timestampTo }
+      where: { timestampGt: $timestampFrom }
     ) {
       id
       number
@@ -34,9 +34,7 @@ export const GET_LATEST_BLOCK = gql`
 export const GET_BLOCKS = (timestamps) => {
   let queryString = 'query blocks {'
   queryString += timestamps.map((timestamp) => {
-    return `t${timestamp}:blocks(first: 1, orderBy: "timestamp", orderByDirection: "desc", where: { timestampGt: ${timestamp}, timestampLt: ${
-      timestamp + 60 * 10 * 4.5 // seconds
-    } }) {
+    return `t${timestamp}:blocks(first: 1, orderBy: "timestamp", orderByDirection: "asc", where: { timestampGt: ${timestamp} }) {
       number
     }`
   })
@@ -175,6 +173,10 @@ export const USER_HISTORY = gql`
       reserve1
       token0PriceUsd
       token1PriceUsd
+      id
+      user {
+        id
+      }
       pair {
         id
         reserveUSD
@@ -196,6 +198,9 @@ export const USER_HISTORY = gql`
 export const USER_POSITIONS = gql`
   query liquidityPositions($user: String!) {
     liquidityPositions(where: { user: $user }) {
+      user {
+        id
+      }
       pair {
         id
         reserve0
@@ -350,7 +355,7 @@ export const GLOBAL_DATA = (block) => {
 
 export const GLOBAL_TXNS = gql`
   query transactions {
-    transactions(first: 100, orderBy: "block_timestamp", orderByDirection: "desc") {
+    transactions(first: 50, orderBy: "block_timestamp", orderByDirection: "desc") {
       mints {
         transactionHash
         timestamp

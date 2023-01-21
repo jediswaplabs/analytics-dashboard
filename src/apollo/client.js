@@ -7,50 +7,55 @@ export const jediSwapClient = new ApolloClient({
     uri: 'https://api.jediswap.xyz/graphql',
   }),
   cache: new InMemoryCache({
-    typePolicies: {
-      Block: {
-        keyFields: ["id"]
-      },
-      Factory: {
-        keyFields: ["id"]
-      },
-      Token: {
-        keyFields: ["id", "name"]
-      },
-      Pair: {
-        keyFields: ["id"]
-      },
-      User: {
-        keyFields: ["id"]
-      },
-      Transaction: {
-        keyFields: ["id"]
-      },
-      Swap: {
-        keyFields: ["transactionHash", "timestamp"]
-      },
-      Mint: {
-        keyFields: ["transactionHash", "timestamp"]
-      },
-      Burn: {
-        keyFields: ["transactionHash", "timestamp"]
-      },
-      LiquidityPosition: {
-        keyFields: ["id", "user", "pair"]
-      },
-      LiquidityPositionSnapshot: {
-        keyFields: ["id", "user", "pair", "timestamp"]
-      },
-      ExchangeDayData: {
-        keyFields: ["id", "date"]
-      },
-      PairDayData: {
-        keyFields: ["pairId", "date"]
-      },
-      TokenDayData: {
-        keyFields: ["tokenId", "date"]
-      },
-    }
+    dataIdFromObject: (object) => {
+      switch (object.__typename) {
+        // case 'Block': {
+        //   return object.id;
+        // }
+        // case 'Factory': {
+        //   return object.id;
+        // }
+        case 'Token': {
+          return `${object.id}${object.name}`;
+        }
+        // case 'Pair': {
+        //   return object.id;
+        // }
+        // case 'User': {
+        //   return object.id;
+        // }
+        // case 'Transaction': {
+        //   return object.id;
+        // }
+        case 'Swap': {
+          return `${object.transactionHash}${object.timestamp}`;
+        }
+        case 'Mint': {
+          return `${object.transactionHash}${object.timestamp}`;
+        }
+        case 'Burn': {
+          return `${object.transactionHash}${object.timestamp}`;
+        }
+        case 'LiquidityPosition': {
+          return `${object.user.id}${object.pair.id}`;
+        }
+        case 'LiquidityPositionSnapshot': {
+          return `${object.id}${object.user.id}${object.timestamp}`;
+        }
+        case 'ExchangeDayData': {
+          return `${object.id}${object.date}`;
+        }
+        case 'PairDayData': {
+          return `${object.pairId}${object.date}`;
+        }
+        case 'TokenDayData': {
+          return `${object.tokenId}${object.date}`;
+        }
+        default: {
+          return object.id || object._id;
+        }
+      }
+    },
   }),
   shouldBatch: true,
 })

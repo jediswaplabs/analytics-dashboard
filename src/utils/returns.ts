@@ -30,25 +30,6 @@ interface Position {
 
 const PRICE_DISCOVERY_START_TIMESTAMP = 1589747086
 
-function formatPricesForEarlyTimestamps(position): Position {
-  if (position.timestamp < PRICE_DISCOVERY_START_TIMESTAMP) {
-    if (priceOverrides.includes(position?.pair?.token0.id)) {
-      position.token0PriceUsd = 1
-    }
-    if (priceOverrides.includes(position?.pair?.token1.id)) {
-      position.token1PriceUsd = 1
-    }
-    // WETH price
-    if (position.pair?.token0.id === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') {
-      position.token0PriceUsd = 203
-    }
-    if (position.pair?.token1.id === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') {
-      position.token1PriceUsd = 203
-    }
-  }
-  return position
-}
-
 async function getPrincipalForUserPerPair(user: string, pairAddress: string) {
   let usd = 0
   let amount0 = 0
@@ -80,7 +61,7 @@ async function getPrincipalForUserPerPair(user: string, pairAddress: string) {
   }
 
   for (const index in results.data.burns) {
-    const burn = results.data.mints[index];
+    const burn = results.data.burns[index];
     burn.timestamp = convertDateToUnixFormat(burn.timestamp);
     const burnToken0 = burn.pair.token0.id
     const burnToken1 = burn.pair.token1.id
@@ -106,9 +87,9 @@ async function getPrincipalForUserPerPair(user: string, pairAddress: string) {
  * @param positionT0 // users liquidity info and token rates at beginning of window
  * @param positionT1 // '' at the end of the window
  */
-export function getMetricsForPositionWindow(positionT0: Position, positionT1: Position): ReturnMetrics {
-  positionT0 = formatPricesForEarlyTimestamps(positionT0)
-  positionT1 = formatPricesForEarlyTimestamps(positionT1)
+export function getMetricsForPositionWindow(positionT0, positionT1): ReturnMetrics {
+  // positionT0 = formatPricesForEarlyTimestamps(positionT0)
+  // positionT1 = formatPricesForEarlyTimestamps(positionT1)
 
   // calculate ownership at ends of window, for end of window we need original LP token balance / new total supply
   const t0Ownership = positionT0.liquidityTokenBalance / positionT0.liquidityTokenTotalSupply
@@ -146,8 +127,8 @@ export function getMetricsForPositionWindow(positionT0: Position, positionT1: Po
   const uniswap_return = difference_fees_usd + imp_loss_usd
 
   // get net value change for combined data
-  const netValueT0 = t0Ownership * positionT0.pair.reserveUSD
-  const netValueT1 = t1Ownership * positionT1.pair.reserveUSD
+  const netValueT0 = t0Ownership * (positionT0?.pair?.reserveUSD ?? positionT0?.reserveUSD)
+  const netValueT1 = t1Ownership * (positionT1?.pair?.reserveUSD ?? positionT1?.reserveUSD)
 
   return {
     hodleReturn: assetValueT1 - assetValueT0,

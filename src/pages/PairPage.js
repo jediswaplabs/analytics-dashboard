@@ -444,6 +444,8 @@ function PairPage({ pairAddress, history }) {
               <Panel
                 style={{
                   marginTop: '1.5rem',
+                  padding: '0',
+                  borderRadius: '5px',
                 }}
               >
                 {transactions ? <TxnList transactions={transactions} /> : <Loader />}

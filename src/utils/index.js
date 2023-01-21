@@ -158,7 +158,7 @@ export async function getBlockFromTimestamp(timestamp) {
     query: GET_BLOCK,
     variables: {
       timestampFrom: timestamp,
-      timestampTo: timestamp + 600,
+      // timestampTo: timestamp + 600,
     },
     fetchPolicy: 'cache-first',
   })
@@ -193,7 +193,12 @@ export async function getBlocksFromTimestamps(timestamps, skipCount = 500) {
   return blocks
 }
 
-export const convertDateToUnixFormat = (date) => Math.floor(new Date(date).getTime() / 1000);
+export const convertDateToUnixFormat = (date) => {
+  if (!Number.isNaN(Number(date))) {
+    return date;
+  }
+  return Math.floor(new Date(date).getTime() / 1000);
+}
 
 
 // export async function getLiquidityTokenBalanceOvertime(account, timestamps) {
@@ -241,39 +246,42 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
   })
 
   let values = []
-  for (var row in result?.data) {
-    let timestamp = row.split('t')[1]
-    let sharePriceUsd = parseFloat(result.data[row]?.reserveUSD) / parseFloat(result.data[row]?.totalSupply)
+  for (var r in result?.data) {
+    if (!r.includes('t')) {continue};
+    let timestamp = r.split('t')[1]
+    let row = result.data[r][0];
+    let sharePriceUsd = parseFloat(row?.reserveUSD) / parseFloat(row?.totalSupply)
     if (timestamp) {
       values.push({
         timestamp,
         sharePriceUsd,
-        totalSupply: result.data[row].totalSupply,
-        reserve0: result.data[row].reserve0,
-        reserve1: result.data[row].reserve1,
-        reserveUSD: result.data[row].reserveUSD,
-        token0DerivedETH: result.data[row].token0.derivedETH,
-        token1DerivedETH: result.data[row].token1.derivedETH,
+        totalSupply: row.totalSupply,
+        reserve0: row.reserve0,
+        reserve1: row.reserve1,
+        reserveUSD: row.reserveUSD,
+        token0DerivedETH: row.token0.derivedETH,
+        token1DerivedETH: row.token1.derivedETH,
         roiUsd: values && values[0] ? sharePriceUsd / values[0]['sharePriceUsd'] : 1,
         ethPrice: 0,
-        token0PriceUSD: 0,
-        token1PriceUSD: 0,
+        token0PriceUsd: 0,
+        token1PriceUsd: 0,
       })
     }
   }
 
   // add eth prices
   let index = 0
-  for (var brow in result?.data) {
-    let timestamp = brow.split('b')[1]
+  for (var br in result?.data) {
+    if (!r.includes('b')) {continue};
+    let timestamp = br.split('b')[1]
+    let brow = result.data[br][0];
     if (timestamp) {
-      values[index].ethPrice = result.data[brow].token1Price
-      values[index].token0PriceUSD = result.data[brow].token1Price * values[index].token0DerivedETH
-      values[index].token1PriceUSD = result.data[brow].token1Price * values[index].token1DerivedETH
+      values[index].ethPrice = brow.token1Price
+      values[index].token0PriceUsd = brow.token1Price * values[index].token0DerivedETH
+      values[index].token1PriceUsd = brow.token1Price * values[index].token1DerivedETH
       index += 1
     }
   }
-
   return values
 }
 

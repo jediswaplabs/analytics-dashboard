@@ -265,12 +265,16 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
         )
       })
 
+  if (!pairList) {
+    return <LocalLoader />
+  }
+
   return (
     <ListWrapper>
       <DashGrid
         center={true}
         disbaleLinks={disbaleLinks}
-        style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}
+        style={{ height: 'fit-content', padding: '1rem 1.125rem 1rem 1.125rem', backgroundColor: '#ffffff33' }}
       >
         <Flex alignItems="center" justifyContent="flexStart">
           <TYPE.main area="name">Name</TYPE.main>
@@ -340,7 +344,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
         )}
       </DashGrid>
       <Divider />
-      <List p={0}>{!pairList ? <LocalLoader /> : pairList}</List>
+      <List p={0}>{pairList}</List>
       <PageButtons>
         <div
           onClick={(e) => {
@@ -349,7 +353,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
         >
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
-        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
+        <TYPE.body>{page + ' of ' + maxPage}</TYPE.body>
         <div
           onClick={(e) => {
             setPage(page === maxPage ? page : page + 1)

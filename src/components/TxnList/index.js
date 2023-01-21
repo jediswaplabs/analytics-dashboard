@@ -28,7 +28,7 @@ const PageButtons = styled.div`
 `
 
 const Arrow = styled.div`
-  color: #2f80ed;
+  color: #50d5ff;
   opacity: ${(props) => (props.faded ? 0.3 : 1)};
   padding: 0 20px;
   user-select: none;
@@ -39,6 +39,7 @@ const Arrow = styled.div`
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
+  padding: 1.25rem !important;
 `
 
 const DashGrid = styled.div`
@@ -67,7 +68,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 780px) {
-    max-width: 1320px;
+    max-width: 100%;
     grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr;
     grid-template-areas: 'txn value amountToken amountOther time';
 
@@ -79,7 +80,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 1080px) {
-    max-width: 1320px;
+    max-width: 100%;
     grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-areas: 'txn value amountToken amountOther account time';
   }
@@ -322,9 +323,20 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
     )
   }
 
+  if (!filteredList) {
+    return <LocalLoader />
+  }
+
   return (
     <>
-      <DashGrid center={true} style={{ height: 'fit-content', padding: '0 0 1rem 0' }}>
+      <DashGrid
+        center={true}
+        style={{
+          height: 'fit-content',
+          padding: '1rem 1.125rem 1rem 1.125rem',
+          backgroundColor: '#ffffff33',
+        }}
+      >
         {below780 ? (
           <RowBetween area="txn">
             <DropdownSelect options={TXN_TYPE} active={txFilter} setActive={setTxFilter} color={color} />
@@ -430,9 +442,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
       </DashGrid>
       <Divider />
       <List p={0}>
-        {!filteredList ? (
-          <LocalLoader />
-        ) : filteredList.length === 0 ? (
+        {!filteredList.length === 0 ? (
           <EmptyCard>No recent transactions found.</EmptyCard>
         ) : (
           filteredList.map((item, index) => {
@@ -453,7 +463,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
         >
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
-        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
+        <TYPE.body>{page + ' of ' + maxPage}</TYPE.body>
         <div
           onClick={(e) => {
             setPage(page === maxPage ? page : page + 1)
