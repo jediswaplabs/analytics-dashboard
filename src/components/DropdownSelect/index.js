@@ -61,7 +61,7 @@ const DropdownSelect = ({ options, active, setActive, color }) => {
       </RowBetween>
       {showDropdown && (
         <Dropdown>
-          <AutoColumn gap={"20px"} styles={{display: 'flex', flexDirection: 'column'}}>
+          <div styles={{display: 'flex', flexDirection: 'column', gridColumnGap: '20px'}}>
             {Object.keys(options).map((key, index) => {
               let option = options[key]
               return (
@@ -78,7 +78,7 @@ const DropdownSelect = ({ options, active, setActive, color }) => {
                 )
               )
             })}
-          </AutoColumn>
+          </div>
         </Dropdown>
       )}
     </Wrapper>
