@@ -182,9 +182,9 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
         true
       )
 
+      const feeRatio24H = ((pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked) * 0.003 /  (pairData.oneDayVolumeUSD ? pairData.trackedReserveUSD : pairData.reserveUSD));
       const apy = formattedPercent(
-        ((pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked) * 0.003 * 365 * 100) /
-          (pairData.oneDayVolumeUSD ? pairData.trackedReserveUSD : pairData.reserveUSD)
+          ((((1 + feeRatio24H) ** 365) - 1) * 100)
       )
 
       const weekVolume = formattedNum(
@@ -244,8 +244,10 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
         const pairA = pairs[addressA]
         const pairB = pairs[addressB]
         if (sortedColumn === SORT_FIELD.APY) {
-          const apy0 = parseFloat(pairA.oneDayVolumeUSD * 0.003 * 356 * 100) / parseFloat(pairA.reserveUSD)
-          const apy1 = parseFloat(pairB.oneDayVolumeUSD * 0.003 * 356 * 100) / parseFloat(pairB.reserveUSD)
+          const pairAFeeRation24H = (pairA.oneDayVolumeUSD ? pairA.oneDayVolumeUSD : pairA.oneDayVolumeUntracked) * 0.003 / (pairA.oneDayVolumeUSD ? pairA.trackedReserveUSD : pairA.reserveUSD);
+          const pairBFeeRation24H = (pairB.oneDayVolumeUSD ? pairB.oneDayVolumeUSD : pairB.oneDayVolumeUntracked) * 0.003 / (pairB.oneDayVolumeUSD ? pairB.trackedReserveUSD : pairB.reserveUSD);
+          const apy0 = parseFloat((((1 + pairAFeeRation24H) ** 365) - 1) * 100)
+          const apy1 = parseFloat((((1 + pairBFeeRation24H) ** 365) - 1) * 100)
           return apy0 > apy1 ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         }
         return parseFloat(pairA[FIELD_TO_VALUE(sortedColumn, useTracked)]) >
@@ -337,7 +339,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
                 setSortDirection(sortedColumn !== SORT_FIELD.APY ? true : !sortDirection)
               }}
             >
-              1y Fees / Liquidity {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
+              APY {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
             <QuestionHelper text={'Based on 24hr volume annualized'} />
           </Flex>

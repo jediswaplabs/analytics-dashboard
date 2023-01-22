@@ -179,8 +179,7 @@ const TradingViewChart = ({
       // update the title when hovering on the chart
       chart.subscribeCrosshairMove(function (param) {
         if (
-          param === undefined ||
-          param.time === undefined ||
+          !param?.time ||
           param.point.x < 0 ||
           param.point.x > width ||
           param.point.y < 0 ||

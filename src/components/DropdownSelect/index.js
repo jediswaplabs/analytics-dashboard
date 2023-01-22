@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import Row, { RowBetween } from '../Row'
-import { AutoColumn } from '../Column'
+import Column, { AutoColumn } from '../Column'
 import { ChevronDown as Arrow } from 'react-feather'
 import { TYPE } from '../../Theme'
 import { StyledIcon } from '..'
@@ -11,14 +11,14 @@ const Wrapper = styled.div`
   z-index: 20;
   position: relative;
   background-color: ${({ theme }) => theme.panelColor};
-  border: 1px solid ${({ open, color }) => (open ? color : 'rgba(0, 0, 0, 0.15);')} 
-  width: 100px;
+  //border: 1px solid ${({ open, color }) => (open ? color : 'rgba(0, 0, 0, 0.15);')} 
+  width: 60px;
   padding: 4px 10px;
   padding-right: 6px;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 
   :hover {
     cursor: pointer;
@@ -28,13 +28,13 @@ const Wrapper = styled.div`
 const Dropdown = styled.div`
   position: absolute;
   top: 34px;
-  padding-top: 40px;
-  width: calc(100% - 40px);
   background-color: ${({ theme }) => theme.bg1};
   border: 1px solid rgba(0, 0, 0, 0.15);
-  padding: 10px 10px;
+  padding: 10px;
   border-radius: 8px;
-  width: calc(100% - 20px);
+  width: auto;
+  display: flex;
+  flex-direction: column;
   font-weight: 500;
   font-size: 1rem;
   color: black;
@@ -46,7 +46,6 @@ const Dropdown = styled.div`
 const ArrowStyled = styled(Arrow)`
   height: 20px;
   width: 20px;
-  margin-left: 6px;
 `
 
 const DropdownSelect = ({ options, active, setActive, color }) => {
@@ -56,13 +55,13 @@ const DropdownSelect = ({ options, active, setActive, color }) => {
     <Wrapper open={showDropdown} color={color}>
       <RowBetween onClick={() => toggleDropdown(!showDropdown)} justify="center">
         <TYPE.main>{active}</TYPE.main>
-        <StyledIcon>
+        <StyledIcon style={{display: 'flex'}}>
           <ArrowStyled />
         </StyledIcon>
       </RowBetween>
       {showDropdown && (
         <Dropdown>
-          <AutoColumn gap="20px">
+          <AutoColumn gap={"20px"} styles={{display: 'flex', flexDirection: 'column'}}>
             {Object.keys(options).map((key, index) => {
               let option = options[key]
               return (

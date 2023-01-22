@@ -164,31 +164,30 @@ function SideNav({ history }) {
           </AutoColumn>
           <AutoColumn gap="0.5rem" style={{ marginLeft: '.75rem', marginBottom: '4rem' }}>
             <HeaderText>
-              <Link href="https://uniswap.org" target="_blank">
-                Uniswap.org
+              <Link href="https://jediswap.xyz/" target="_blank">
+                JediSwap.xyz
               </Link>
             </HeaderText>
             <HeaderText>
-              <Link href="https://v1.uniswap.info" target="_blank">
-                V1 Analytics
-              </Link>
-            </HeaderText>
-            <HeaderText>
-              <Link href="https://uniswap.org/docs/v2" target="_blank">
+              <Link href="https://bip.so/@meshfinance/what-is-mesh-finance-11847c/public" target="_blank">
                 Docs
               </Link>
             </HeaderText>
             <HeaderText>
-              <Link href="https://discord.com/invite/FCfyBSbCU5" target="_blank">
+              <Link href="https://bip.so/meshfinance/what-is-mesh-finance-11847c" target="_blank">
+                Tech Docs
+              </Link>
+            </HeaderText>
+            <HeaderText>
+              <Link href="https://discord.com/invite/9sAPRUfv7t" target="_blank">
                 Discord
               </Link>
             </HeaderText>
             <HeaderText>
-              <Link href="https://twitter.com/UniswapProtocol" target="_blank">
+              <Link href="https://twitter.com/JediSwap" target="_blank">
                 Twitter
               </Link>
             </HeaderText>
-            <Toggle isActive={isDark} toggle={toggleDarkMode} />
           </AutoColumn>
           {!below1180 && (
             <Polling style={{ marginLeft: '.5rem' }}>
