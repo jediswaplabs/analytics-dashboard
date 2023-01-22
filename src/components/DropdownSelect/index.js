@@ -61,7 +61,7 @@ const DropdownSelect = ({ options, active, setActive, color }) => {
       </RowBetween>
       {showDropdown && (
         <Dropdown>
-          <div styles={{display: 'flex', flexDirection: 'column', gridColumnGap: '20px'}}>
+          <div style={{display: 'flex', flexDirection: 'column', gridColumnGap: '20px'}}>
             {Object.keys(options).map((key, index) => {
               let option = options[key]
               return (
