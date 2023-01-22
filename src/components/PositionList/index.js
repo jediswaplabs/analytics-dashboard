@@ -255,7 +255,6 @@ function PositionList({ positions }) {
   const positionsSorted =
     positions &&
     positions
-
       .sort((p0, p1) => {
         if (sortedColumn === SORT_FIELD.PRINCIPAL) {
           return p0?.principal?.usd > p1?.principal?.usd ? (sortDirection ? -1 : 1) : sortDirection ? 1 : -1
@@ -282,6 +281,10 @@ function PositionList({ positions }) {
           </div>
         )
       })
+
+    if (!positionsSorted) {
+        return <LocalLoader/>
+    }
 
   return (
     <ListWrapper>
@@ -321,7 +324,7 @@ function PositionList({ positions }) {
         )}
       </DashGrid>
       <Divider />
-      <List p={0}>{!positionsSorted ? <LocalLoader /> : positionsSorted}</List>
+      <List p={0}>{positionsSorted}</List>
       <PageButtons>
         <div onClick={() => setPage(page === 1 ? page : page - 1)}>
           <Arrow faded={page === 1 ? true : false}>←</Arrow>

@@ -7,7 +7,7 @@ import { Box, Flex, Text } from 'rebass'
 import TokenLogo from '../TokenLogo'
 import { CustomLink } from '../Link'
 import Row from '../Row'
-import { Divider } from '..'
+import {Divider, EmptyCard} from '..'
 
 import { formattedNum, formattedPercent } from '../../utils'
 import { useMedia } from 'react-use'
@@ -16,6 +16,7 @@ import { TOKEN_BLACKLIST } from '../../constants'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
 import { backgrounds, opacify } from 'polished'
+import LocalLoader from "../LocalLoader";
 
 dayjs.extend(utc)
 
@@ -183,7 +184,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
         <DataText area="name" fontWeight="500">
           <Row>
             {!below680 && <div style={{ marginRight: '1rem', width: '10px' }}>{index}</div>}
-            <TokenLogo address={item.id} />
+            <TokenLogo address={item.id} symbol={item.symbol}/>
             <CustomLink style={{ marginLeft: '16px', whiteSpace: 'nowrap' }} to={'/token/' + item.id}>
               <FormattedName
                 text={below680 ? item.symbol : item.name}
@@ -209,6 +210,10 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
         {!below1080 && <DataText area="change">{formattedPercent(item.priceChangeUSD)}</DataText>}
       </DashGrid>
     )
+  }
+
+  if (!filteredList || !filteredList.length) {
+      return <LocalLoader />
   }
 
   return (
@@ -304,23 +309,22 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
       </DashGrid>
       <Divider />
       <List p={0}>
-        {filteredList &&
-          filteredList.map((item, index) => {
-            return (
-              <div key={index}>
-                <ListItem key={index} index={(page - 1) * itemMax + index + 1} item={item} />
-                <Divider />
-              </div>
-            )
+          {filteredList.map((item, index) => {
+              return (
+                  <div key={index}>
+                      <ListItem key={index} index={(page - 1) * itemMax + index + 1} item={item} />
+                      <Divider />
+                  </div>
+              )
           })}
       </List>
       <PageButtons>
         <div onClick={() => setPage(page === 1 ? page : page - 1)}>
-          <Arrow faded={page === 1 ? true : false}>←</Arrow>
+          <Arrow faded={page === 1}>←</Arrow>
         </div>
         <TYPE.body>{page + ' of ' + maxPage}</TYPE.body>
         <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
-          <Arrow faded={page === maxPage ? true : false}>→</Arrow>
+          <Arrow faded={page === maxPage}>→</Arrow>
         </div>
       </PageButtons>
     </ListWrapper>

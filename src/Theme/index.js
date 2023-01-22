@@ -170,8 +170,12 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0;
     width: 100%;
     height: 100%;
-    font-size: 14px;    
+    font-size: 14px;
     background-color: ${({ theme }) => theme.bg6};
+  }
+  
+  * {
+    box-sizing: border-box;
   }
 
   a {

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 
-import { formatTime, formattedNum, urls } from '../../utils'
+import {formatTime, formattedNum, urls, convertDateToUnixFormat} from '../../utils'
 import { useMedia } from 'react-use'
 import { useCurrentCurrency } from '../../contexts/Application'
 import { RowFixed, RowBetween } from '../Row'
@@ -68,7 +68,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 780px) {
-    max-width: 1320px;
+    max-width: 100%;
     grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr;
     grid-template-areas: 'txn value amountToken amountOther time';
 
@@ -80,7 +80,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 1080px) {
-    max-width: 1320px;
+    max-width: 100%;
     grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-areas: 'txn value amountToken amountOther account time';
   }
@@ -188,8 +188,8 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
       if (transactions.mints.length > 0) {
         transactions.mints.map((mint) => {
           let newTxn = {}
-          newTxn.hash = mint.transaction.id
-          newTxn.timestamp = mint.transaction.timestamp
+          newTxn.hash = mint.transactionHash
+          newTxn.timestamp = mint.timestamp
           newTxn.type = TXN_TYPE.ADD
           newTxn.token0Amount = mint.amount0
           newTxn.token1Amount = mint.amount1
@@ -203,8 +203,8 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
       if (transactions.burns.length > 0) {
         transactions.burns.map((burn) => {
           let newTxn = {}
-          newTxn.hash = burn.transaction.id
-          newTxn.timestamp = burn.transaction.timestamp
+          newTxn.hash = burn.transactionHash
+          newTxn.timestamp = burn.timestamp
           newTxn.type = TXN_TYPE.REMOVE
           newTxn.token0Amount = burn.amount0
           newTxn.token1Amount = burn.amount1
@@ -234,8 +234,8 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
             newTxn.token1Amount = Math.abs(netToken0)
           }
 
-          newTxn.hash = swap.transaction.id
-          newTxn.timestamp = swap.transaction.timestamp
+          newTxn.hash = swap.transactionHash
+          newTxn.timestamp = swap.timestamp
           newTxn.type = TXN_TYPE.SWAP
 
           newTxn.amountUSD = swap.amountUSD
@@ -271,7 +271,15 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
     filteredItems &&
     filteredItems
       .sort((a, b) => {
-        return parseFloat(a[sortedColumn]) > parseFloat(b[sortedColumn])
+        let valueA = a[sortedColumn];
+        let valueB = b[sortedColumn];
+
+        if (sortedColumn === SORT_FIELD.TIMESTAMP) {
+          valueA = convertDateToUnixFormat(a[sortedColumn]);
+          valueB = convertDateToUnixFormat(b[sortedColumn]);
+        }
+
+        return parseFloat(valueA) > parseFloat(valueB)
           ? (sortDirection ? -1 : 1) * 1
           : (sortDirection ? -1 : 1) * -1
       })
@@ -305,14 +313,18 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
         )}
         {!below1080 && (
           <DataText area="account">
-            <Link color={color} external href={'https://etherscan.io/address/' + item.account}>
+            <Link color={color} external href={urls.showAddress(item.account)}>
               {item.account && item.account.slice(0, 6) + '...' + item.account.slice(38, 42)}
             </Link>
           </DataText>
         )}
-        <DataText area="time">{formatTime(item.timestamp)}</DataText>
+        <DataText area="time">{formatTime(convertDateToUnixFormat(item.timestamp))}</DataText>
       </DashGrid>
     )
+  }
+
+  if (!filteredList) {
+    return <LocalLoader />
   }
 
   return (
@@ -325,46 +337,10 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
           backgroundColor: '#ffffff33',
         }}
       >
-        {below780 ? (
-          <RowBetween area="txn">
-            <DropdownSelect options={TXN_TYPE} active={txFilter} setActive={setTxFilter} color={color} />
-          </RowBetween>
-        ) : (
-          <RowFixed area="txn" gap="10px" pl={4}>
-            <SortText
-              onClick={() => {
-                setTxFilter(TXN_TYPE.ALL)
-              }}
-              active={txFilter === TXN_TYPE.ALL}
-            >
-              All
-            </SortText>
-            <SortText
-              onClick={() => {
-                setTxFilter(TXN_TYPE.SWAP)
-              }}
-              active={txFilter === TXN_TYPE.SWAP}
-            >
-              Swaps
-            </SortText>
-            <SortText
-              onClick={() => {
-                setTxFilter(TXN_TYPE.ADD)
-              }}
-              active={txFilter === TXN_TYPE.ADD}
-            >
-              Adds
-            </SortText>
-            <SortText
-              onClick={() => {
-                setTxFilter(TXN_TYPE.REMOVE)
-              }}
-              active={txFilter === TXN_TYPE.REMOVE}
-            >
-              Removes
-            </SortText>
-          </RowFixed>
-        )}
+        <RowBetween area="txn">
+          <DropdownSelect options={TXN_TYPE} active={txFilter} setActive={setTxFilter} color={color} />
+        </RowBetween>
+
 
         <Flex alignItems="center" justifyContent="flexStart">
           <ClickableText
@@ -384,12 +360,12 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
               area="amountToken"
               color="textDim"
               onClick={() => {
-                setSortedColumn(SORT_FIELD.AMOUNT0)
-                setSortDirection(sortedColumn !== SORT_FIELD.AMOUNT0 ? true : !sortDirection)
+                setSortedColumn(SORT_FIELD.AMOUNT1)
+                setSortDirection(sortedColumn !== SORT_FIELD.AMOUNT1 ? true : !sortDirection)
               }}
             >
-              {symbol0Override ? symbol0Override + ' Amount' : 'Token Amount'}{' '}
-              {sortedColumn === SORT_FIELD.AMOUNT0 ? (sortDirection ? '↑' : '↓') : ''}
+              {symbol1Override ? symbol1Override + ' Amount' : 'Token Amount'}{' '}
+              {sortedColumn === SORT_FIELD.AMOUNT1 ? (sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -400,12 +376,12 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
                 area="amountOther"
                 color="textDim"
                 onClick={() => {
-                  setSortedColumn(SORT_FIELD.AMOUNT1)
-                  setSortDirection(sortedColumn !== SORT_FIELD.AMOUNT1 ? true : !sortDirection)
+                  setSortedColumn(SORT_FIELD.AMOUNT0)
+                  setSortDirection(sortedColumn !== SORT_FIELD.AMOUNT0 ? true : !sortDirection)
                 }}
               >
-                {symbol1Override ? symbol1Override + ' Amount' : 'Token Amount'}{' '}
-                {sortedColumn === SORT_FIELD.AMOUNT1 ? (sortDirection ? '↑' : '↓') : ''}
+                {symbol0Override ? symbol0Override + ' Amount' : 'Token Amount'}{' '}
+                {sortedColumn === SORT_FIELD.AMOUNT0 ? (sortDirection ? '↑' : '↓') : ''}
               </ClickableText>
             </Flex>
           )}
@@ -430,9 +406,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
       </DashGrid>
       <Divider />
       <List p={0}>
-        {!filteredList ? (
-          <LocalLoader />
-        ) : filteredList.length === 0 ? (
+        {!filteredList.length === 0 ? (
           <EmptyCard>No recent transactions found.</EmptyCard>
         ) : (
           filteredList.map((item, index) => {

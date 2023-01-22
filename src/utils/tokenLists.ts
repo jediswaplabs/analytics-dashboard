@@ -1,5 +1,6 @@
-import { TokenList } from '@uniswap/token-lists'
-import schema from '@uniswap/token-lists/src/tokenlist.schema.json'
+import {schema as JsSchema} from '@jediswap/token-lists'
+
+
 import Ajv from 'ajv'
 
 /**
@@ -24,13 +25,13 @@ function uriToHttp(uri: string): string[] {
   }
 }
 
-const tokenListValidator = new Ajv({ allErrors: true }).compile(schema)
+const tokenListValidator = new Ajv({ allErrors: true }).compile(JsSchema)
 
 /**
  * Contains the logic for resolving a list URL to a validated token list
  * @param listUrl list url
  */
-export default async function getTokenList(listUrl: string): Promise<TokenList> {
+export default async function getTokenList(listUrl: string) {
   const urls = uriToHttp(listUrl)
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i]
@@ -49,15 +50,19 @@ export default async function getTokenList(listUrl: string): Promise<TokenList> 
       continue
     }
 
-    const json = await response.json()
-    if (!tokenListValidator(json)) {
+    const json = await response.json();
+
+    try {
+      tokenListValidator(json)
+    } catch (e) {
       const validationErrors: string =
-        tokenListValidator.errors?.reduce<string>((memo, error) => {
-          const add = `${error.dataPath} ${error.message ?? ''}`
-          return memo.length > 0 ? `${memo}; ${add}` : `${add}`
-        }, '') ?? 'unknown error'
+          tokenListValidator.errors?.reduce<string>((memo, error) => {
+            const add = `${error.dataPath} ${error.message ?? ''}`
+            return memo.length > 0 ? `${memo}; ${add}` : `${add}`
+          }, '') ?? 'unknown error'
       throw new Error(`Token list failed validation: ${validationErrors}`)
     }
+
     return json
   }
   // throw new Error('Unrecognized list URL protocol.')

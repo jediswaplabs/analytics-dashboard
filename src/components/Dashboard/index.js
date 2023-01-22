@@ -14,7 +14,7 @@ const Dashboard = styled(Box)`
     'transactions';
 
   @media screen and (min-width: 64em) {
-    max-width: 1320px;
+    max-width: 100%;
     grid-gap: 24px;
     width: 100%;
     grid-template-columns: 1fr 1fr 1fr;

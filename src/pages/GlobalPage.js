@@ -71,7 +71,7 @@ function GlobalPage() {
     <PageWrapper>
       <ThemedBackground backgroundColor={transparentize(0.6, '#ff007a')} />
       <ContentWrapper>
-        <TYPE.largeHeader>{below800 ? 'Dashboard' : 'Dashboard'}</TYPE.largeHeader>
+        <TYPE.largeHeader>Dashboard</TYPE.largeHeader>
         <Search />
         <div
           style={{
@@ -156,15 +156,15 @@ function GlobalPage() {
               <TYPE.main fontSize={'1rem'} style={{ whiteSpace: 'nowrap' }}>
                 Top Pairs
               </TYPE.main>
-              <AutoRow gap="4px" width="100%" justifyContent="flex-end">
-                <CheckBox
-                  checked={useTracked}
-                  setChecked={() => setUseTracked(!useTracked)}
-                  text={'Hide untracked pairs'}
-                />
-                <QuestionHelper text="USD amounts may be inaccurate in low liquiidty pairs or pairs without ETH or stablecoins." />
-                <CustomLink to={'/pairs'}>See All</CustomLink>
-              </AutoRow>
+              {/*<AutoRow gap="4px" width="100%" justifyContent="flex-end">*/}
+              {/*  <CheckBox*/}
+              {/*    checked={useTracked}*/}
+              {/*    setChecked={() => setUseTracked(!useTracked)}*/}
+              {/*    text={'Hide untracked pairs'}*/}
+              {/*  />*/}
+              {/*  <QuestionHelper text="USD amounts may be inaccurate in low liquiidty pairs or pairs without ETH or stablecoins." />*/}
+              {/*  <CustomLink to={'/pairs'}>See All</CustomLink>*/}
+              {/*</AutoRow>*/}
             </RowBetween>
           </ListOptions>
           <Panel style={{ marginTop: '6px', padding: '0rem 0 ' }}>

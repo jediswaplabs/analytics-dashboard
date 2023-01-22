@@ -57,7 +57,7 @@ const TradingViewChart = ({
       time: dayjs.unix(entry.date).utc().format('YYYY-MM-DD'),
       value: parseFloat(entry[field]),
     }
-  })
+  }).filter((i) => !Number.isNaN(i.value));
 
   // adjust the scale based on the type of chart
   const topScale = type === CHART_TYPES.AREA ? 0.32 : 0.2
@@ -179,8 +179,7 @@ const TradingViewChart = ({
       // update the title when hovering on the chart
       chart.subscribeCrosshairMove(function (param) {
         if (
-          param === undefined ||
-          param.time === undefined ||
+          !param?.time ||
           param.point.x < 0 ||
           param.point.x > width ||
           param.point.y < 0 ||
