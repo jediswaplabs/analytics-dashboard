@@ -337,46 +337,10 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
           backgroundColor: '#ffffff33',
         }}
       >
-        {below780 ? (
-          <RowBetween area="txn">
-            <DropdownSelect options={TXN_TYPE} active={txFilter} setActive={setTxFilter} color={color} />
-          </RowBetween>
-        ) : (
-          <RowFixed area="txn" gap="10px" pl={4}>
-            <SortText
-              onClick={() => {
-                setTxFilter(TXN_TYPE.ALL)
-              }}
-              active={txFilter === TXN_TYPE.ALL}
-            >
-              All
-            </SortText>
-            <SortText
-              onClick={() => {
-                setTxFilter(TXN_TYPE.SWAP)
-              }}
-              active={txFilter === TXN_TYPE.SWAP}
-            >
-              Swaps
-            </SortText>
-            <SortText
-              onClick={() => {
-                setTxFilter(TXN_TYPE.ADD)
-              }}
-              active={txFilter === TXN_TYPE.ADD}
-            >
-              Adds
-            </SortText>
-            <SortText
-              onClick={() => {
-                setTxFilter(TXN_TYPE.REMOVE)
-              }}
-              active={txFilter === TXN_TYPE.REMOVE}
-            >
-              Removes
-            </SortText>
-          </RowFixed>
-        )}
+        <RowBetween area="txn">
+          <DropdownSelect options={TXN_TYPE} active={txFilter} setActive={setTxFilter} color={color} />
+        </RowBetween>
+
 
         <Flex alignItems="center" justifyContent="flexStart">
           <ClickableText
