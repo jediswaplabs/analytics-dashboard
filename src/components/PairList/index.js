@@ -267,7 +267,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
         )
       })
 
-  if (!pairList) {
+  if (!pairList || !pairList.length) {
     return <LocalLoader />
   }
 
@@ -341,7 +341,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
             >
               APY {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
-            <QuestionHelper text={'Based on 24hr volume annualized'} />
+            <QuestionHelper text={'Based on 24hr fee compounded'} />
           </Flex>
         )}
       </DashGrid>

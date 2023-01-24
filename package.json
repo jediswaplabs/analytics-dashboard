@@ -14,6 +14,7 @@
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
     "@uniswap/token-lists": "^1.0.0-beta.15",
+    "@vue/preload-webpack-plugin": "^2.0.0",
     "ajv": "^6.12.4",
     "animated-number-react": "^0.1.1",
     "apollo-cache-inmemory": "^1.6.3",
@@ -74,7 +75,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "build": "NODE_ENV=production GENERATE_SOURCEMAP=false react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
@@ -87,6 +88,7 @@
   "dependencies": {
     "@jediswap/token-lists": "^1.0.0-beta.1",
     "babel-plugin-styled-components": "^2.0.7",
+    "script-ext-html-webpack-plugin": "^2.1.5",
     "starknet": "^4.17.1",
     "use-http": "^1.0.27"
   }

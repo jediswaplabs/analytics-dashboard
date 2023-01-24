@@ -189,7 +189,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
         transactions.mints.map((mint) => {
           let newTxn = {}
           newTxn.hash = mint.transactionHash
-          newTxn.timestamp = mint.timestamp
+          newTxn.timestamp = dayjs.utc(mint.timestamp).local().format()
           newTxn.type = TXN_TYPE.ADD
           newTxn.token0Amount = mint.amount0
           newTxn.token1Amount = mint.amount1
@@ -204,7 +204,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
         transactions.burns.map((burn) => {
           let newTxn = {}
           newTxn.hash = burn.transactionHash
-          newTxn.timestamp = burn.timestamp
+          newTxn.timestamp = dayjs.utc(burn.timestamp).local().format()
           newTxn.type = TXN_TYPE.REMOVE
           newTxn.token0Amount = burn.amount0
           newTxn.token1Amount = burn.amount1
@@ -235,7 +235,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
           }
 
           newTxn.hash = swap.transactionHash
-          newTxn.timestamp = swap.timestamp
+          newTxn.timestamp = dayjs.utc(swap.timestamp).local().format()
           newTxn.type = TXN_TYPE.SWAP
 
           newTxn.amountUSD = swap.amountUSD

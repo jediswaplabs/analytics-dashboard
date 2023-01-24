@@ -157,7 +157,6 @@ export const ThemedBackground = styled.div`
 `
 
 export const GlobalStyle = createGlobalStyle`
-  @import url('https://rsms.me/inter/inter.css');
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap');
   html { font-family: 'DM Sans', sans-serif; }
   @supports (font-variation-settings: normal) {
