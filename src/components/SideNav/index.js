@@ -174,12 +174,12 @@ function SideNav({ history }) {
               </Link>
             </HeaderText>
             <HeaderText>
-              <Link href="https://bip.so/meshfinance/what-is-mesh-finance-11847c" target="_blank">
+              <Link href="https://bip.so/@meshfinance/Integration-Docs-leDlt/public" target="_blank">
                 Tech Docs
               </Link>
             </HeaderText>
             <HeaderText>
-              <Link href="https://discord.com/invite/9sAPRUfv7t" target="_blank">
+              <Link href="https://discord.gg/jediswap" target="_blank">
                 Discord
               </Link>
             </HeaderText>

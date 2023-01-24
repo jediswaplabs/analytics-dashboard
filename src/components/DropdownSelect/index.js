@@ -11,8 +11,6 @@ const Wrapper = styled.div`
   z-index: 20;
   position: relative;
   background-color: ${({ theme }) => theme.panelColor};
-  //border: 1px solid ${({ open, color }) => (open ? color : 'rgba(0, 0, 0, 0.15);')} 
-  width: 60px;
   padding: 4px 10px;
   padding-right: 6px;
   border-radius: 8px;
@@ -61,7 +59,7 @@ const DropdownSelect = ({ options, active, setActive, color }) => {
       </RowBetween>
       {showDropdown && (
         <Dropdown>
-          <div style={{display: 'flex', flexDirection: 'column', gridColumnGap: '20px'}}>
+          <div style={{display: 'flex', flexDirection: 'column', gridRowGap: '20px'}}>
             {Object.keys(options).map((key, index) => {
               let option = options[key]
               return (
