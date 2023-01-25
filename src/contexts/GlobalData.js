@@ -22,7 +22,6 @@ import {
 } from '../apollo/queries'
 import weekOfYear from 'dayjs/plugin/weekOfYear'
 import { useAllPairData } from './PairData'
-import { useTokenChartDataCombined } from './TokenData'
 const UPDATE = 'UPDATE'
 const UPDATE_TXNS = 'UPDATE_TXNS'
 const UPDATE_CHART = 'UPDATE_CHART'
@@ -31,14 +30,6 @@ const ETH_PRICE_KEY = 'ETH_PRICE_KEY'
 const UPDATE_ALL_PAIRS_IN_UNISWAP = 'UPDAUPDATE_ALL_PAIRS_IN_UNISWAPTE_TOP_PAIRS'
 const UPDATE_ALL_TOKENS_IN_UNISWAP = 'UPDATE_ALL_TOKENS_IN_UNISWAP'
 const UPDATE_TOP_LPS = 'UPDATE_TOP_LPS'
-
-const offsetVolumes = [
-  '0x9ea3b5b4ec044b70375236a281986106457b20ef',
-  '0x05934eba98486693aaec2d00b0e9ce918e37dc3f',
-  '0x3d7e683fc9c86b4d653c9e47ca12517440fad14e',
-  '0xfae9c647ad7d89e738aba720acf09af93dc535f7',
-  '0x7296368fe9bcb25d3ecc19af13655b907818cc09',
-]
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc)
@@ -324,7 +315,7 @@ async function getGlobalData(ethPrice, oldEthPrice) {
 
 let checked = false
 
-const getChartData = async (oldestDateToFetch, offsetData) => {
+const getChartData = async (oldestDateToFetch) => {
   let data = []
   let weeklyData = []
   const utcEndTime = dayjs.utc()
@@ -400,18 +391,6 @@ const getChartData = async (oldestDateToFetch, offsetData) => {
     let currentWeek = -1
 
     data.forEach((entry, i) => {
-      const date = data[i].date
-
-      // hardcoded fix for offset volume
-      offsetData &&
-        !checked &&
-        offsetData.map((dayData) => {
-          if (dayData[date]) {
-            data[i].dailyVolumeUSD = parseFloat(data[i].dailyVolumeUSD) - parseFloat(dayData[date].dailyVolumeUSD)
-          }
-          return true
-        })
-
       const week = dayjs.utc(dayjs.unix(data[i].date)).week()
       if (week !== currentWeek) {
         currentWeek = week
@@ -437,34 +416,48 @@ const getChartData = async (oldestDateToFetch, offsetData) => {
  */
 const getGlobalTransactions = async () => {
   let transactions = {}
+  const maxAmount = 100;
+  let data = [];
+  let skip = 0
+  let allFound = false
 
   try {
-    let result = await jediSwapClient.query({
-      query: GLOBAL_TXNS,
-      fetchPolicy: 'cache-first',
-    })
+    while (!allFound) {
+      let result = await jediSwapClient.query({
+        query: GLOBAL_TXNS,
+        variables: {
+          skip,
+        },
+        fetchPolicy: 'cache-first',
+      })
+      data = data.concat(result.data.transactions)
+      if (skip >= maxAmount) {
+        allFound = true
+      }
+      skip += 20
+    }
+
     transactions.mints = []
     transactions.burns = []
     transactions.swaps = []
-    result?.data?.transactions &&
-      result.data.transactions.map((transaction) => {
-        if (transaction?.mints.length > 0) {
-          transaction.mints.map((mint) => {
-            return transactions.mints.push(mint)
-          })
-        }
-        if (transaction?.burns.length > 0) {
-          transaction.burns.map((burn) => {
-            return transactions.burns.push(burn)
-          })
-        }
-        if (transaction?.swaps.length > 0) {
-          transaction.swaps.map((swap) => {
-            return transactions.swaps.push(swap)
-          })
-        }
-        return true
-      })
+    data && data.map((transaction) => {
+      if (transaction?.mints.length > 0) {
+        transaction.mints.map((mint) => {
+          return transactions.mints.push(mint)
+        })
+      }
+      if (transaction?.burns.length > 0) {
+        transaction.burns.map((burn) => {
+          return transactions.burns.push(burn)
+        })
+      }
+      if (transaction?.swaps.length > 0) {
+        transaction.swaps.map((swap) => {
+          return transactions.swaps.push(swap)
+        })
+      }
+      return true
+    })
   } catch (e) {
     console.log(e)
   }
@@ -619,7 +612,7 @@ export function useGlobalChartData() {
 
   // fix for rebass tokens
 
-  const combinedData = useTokenChartDataCombined(offsetVolumes)
+  // const combinedData = useTokenChartDataCombined(offsetVolumes)
 
   /**
    * Fetch data if none fetched or older data is needed
@@ -627,13 +620,13 @@ export function useGlobalChartData() {
   useEffect(() => {
     async function fetchData() {
       // historical stuff for chart
-      let [newChartData, newWeeklyData] = await getChartData(oldestDateFetch, combinedData)
+      let [newChartData, newWeeklyData] = await getChartData(oldestDateFetch)
       updateChart(newChartData, newWeeklyData)
     }
-    if (oldestDateFetch && !(chartDataDaily && chartDataWeekly) && combinedData) {
+    if (oldestDateFetch && !(chartDataDaily && chartDataWeekly)) {
       fetchData()
     }
-  }, [chartDataDaily, chartDataWeekly, combinedData, oldestDateFetch, updateChart])
+  }, [chartDataDaily, chartDataWeekly, oldestDateFetch, updateChart])
 
   return [chartDataDaily, chartDataWeekly]
 }

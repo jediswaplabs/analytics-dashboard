@@ -232,7 +232,7 @@ const getTopTokens = async (ethPrice, ethPriceOld) => {
     const ids = tokenids?.data?.tokenDayDatas?.reduce((accum, entry) => {
       accum.push(entry.tokenId)
       return accum
-    }, [])
+    }, []).filter((v, i, self) => self.indexOf(v) === i);
 
     let current = await jediSwapClient.query({
       query: TOKENS_HISTORICAL_BULK(ids),

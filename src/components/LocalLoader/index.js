@@ -34,8 +34,6 @@ const AnimatedImg = styled.div`
 `
 
 const LocalLoader = ({ fill }) => {
-  const [darkMode] = useDarkModeManager()
-
   return (
     <Wrapper fill={fill}>
       <AnimatedImg>

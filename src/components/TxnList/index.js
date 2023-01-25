@@ -6,7 +6,7 @@ import utc from 'dayjs/plugin/utc'
 import {formatTime, formattedNum, urls, convertDateToUnixFormat} from '../../utils'
 import { useMedia } from 'react-use'
 import { useCurrentCurrency } from '../../contexts/Application'
-import { RowFixed, RowBetween } from '../Row'
+import { RowBetween } from '../Row'
 
 import LocalLoader from '../LocalLoader'
 import { Box, Flex, Text } from 'rebass'
@@ -112,22 +112,6 @@ const DataText = styled(Flex)`
 
   @media screen and (max-width: 40em) {
     font-size: 0.85rem;
-  }
-`
-
-const SortText = styled.button`
-  cursor: pointer;
-  font-weight: ${({ active, theme }) => (active ? 500 : 400)};
-  margin-right: 0.75rem !important;
-  border: none;
-  background-color: transparent;
-  font-size: 1rem;
-  padding: 0px;
-  color: ${({ active, theme }) => (active ? theme.text1 : theme.text3)};
-  outline: none;
-
-  @media screen and (max-width: 600px) {
-    font-size: 14px;
   }
 `
 

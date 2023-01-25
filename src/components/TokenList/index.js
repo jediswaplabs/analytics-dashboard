@@ -7,7 +7,7 @@ import { Box, Flex, Text } from 'rebass'
 import TokenLogo from '../TokenLogo'
 import { CustomLink } from '../Link'
 import Row from '../Row'
-import {Divider, EmptyCard} from '..'
+import {Divider } from '..'
 
 import { formattedNum, formattedPercent } from '../../utils'
 import { useMedia } from 'react-use'
@@ -15,7 +15,6 @@ import { withRouter } from 'react-router-dom'
 import { TOKEN_BLACKLIST } from '../../constants'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
-import { backgrounds, opacify } from 'polished'
 import LocalLoader from "../LocalLoader";
 
 dayjs.extend(utc)
