@@ -23,8 +23,6 @@ import { transparentize } from 'polished'
 import { CustomLink } from '../components/Link'
 
 import { PageWrapper, ContentWrapper } from '../components'
-import CheckBox from '../components/Checkbox'
-import QuestionHelper from '../components/QuestionHelper'
 
 const ListOptions = styled(AutoRow)`
   height: 40px;
@@ -65,7 +63,7 @@ function GlobalPage() {
   }, [])
 
   // for tracked data on pairs
-  const [useTracked, setUseTracked] = useState(true)
+  const [useTracked] = useState(true)
 
   return (
     <PageWrapper>

@@ -354,8 +354,8 @@ export const GLOBAL_DATA = (block) => {
 }
 
 export const GLOBAL_TXNS = gql`
-  query transactions {
-    transactions(first: 50, orderBy: "block_timestamp", orderByDirection: "desc") {
+  query transactions($skip: Int!) {
+    transactions(first: 20, skip: $skip, orderBy: "block_timestamp", orderByDirection: "desc") {
       mints {
         transactionHash
         timestamp
@@ -641,7 +641,7 @@ const TokenFields = `
 // used for getting top tokens by daily volume
 export const TOKEN_TOP_DAY_DATAS = gql`
   query tokenDayDatas($date: Int) {
-    tokenDayDatas(first: 50, orderByDirection: "desc", orderBy: "total_liquidity_usd", where: {dateGt: $date}) {
+    tokenDayDatas(first: 20, orderByDirection: "desc", orderBy: "day_id", where: {dateGt: $date}) {
       tokenId
       date
     }

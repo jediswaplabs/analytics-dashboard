@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import Row, { RowBetween } from '../Row'
-import Column, { AutoColumn } from '../Column'
 import { ChevronDown as Arrow } from 'react-feather'
 import { TYPE } from '../../Theme'
 import { StyledIcon } from '..'
