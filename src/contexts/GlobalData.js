@@ -416,7 +416,7 @@ const getChartData = async (oldestDateToFetch) => {
  */
 const getGlobalTransactions = async () => {
   let transactions = {}
-  const maxAmount = 100;
+  const maxAmount = 20;
   let data = [];
   let skip = 0
   let allFound = false

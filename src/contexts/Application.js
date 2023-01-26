@@ -8,7 +8,7 @@ import {GET_LATEST_BLOCK} from '../apollo/queries'
 import {convertDateToUnixFormat} from "../utils";
 dayjs.extend(utc)
 
-const LATEST_STARKNET_BLOCK_FEEDER_URL = 'https://alpha-mainnet.starknet.io/feeder_gateway/get_block?blockNumber=latest';
+const LATEST_STARKNET_BLOCK_URL = 'https://starknet-mainnet.public.blastapi.io/';
 
 const UPDATE = 'UPDATE'
 const UPDATE_TIMEFRAME = 'UPDATE_TIMEFRAME'
@@ -182,7 +182,17 @@ export function useLatestBlocks() {
           query: GET_LATEST_BLOCK,
         });
 
-      const getLatestHeadBlockPromise = fetch(LATEST_STARKNET_BLOCK_FEEDER_URL)
+      const getLatestHeadBlockPromise = fetch(LATEST_STARKNET_BLOCK_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          method: "starknet_blockHashAndNumber",
+          id: 0
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
 
       Promise.all([getLatestBlockPromise, getLatestHeadBlockPromise])
         .then(async ([latestBlockRes, headBlockRes]) => {
@@ -195,7 +205,7 @@ export function useLatestBlocks() {
           const headBlock = parsedHeadBlockResult ? {
             id: parsedHeadBlockResult.block_hash,
             number: parsedHeadBlockResult.block_number,
-            timestamp: parsedHeadBlockResult.timestamp,
+            // timestamp: parsedHeadBlockResult.timestamp,
           } : null;
           if (syncedBlock && headBlock) {
             updateLatestBlock(syncedBlock)

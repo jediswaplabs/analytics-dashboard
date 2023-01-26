@@ -5,7 +5,6 @@ import utc from 'dayjs/plugin/utc'
 
 import {formatTime, formattedNum, urls, convertDateToUnixFormat} from '../../utils'
 import { useMedia } from 'react-use'
-import { useCurrentCurrency } from '../../contexts/Application'
 import { RowBetween } from '../Row'
 
 import LocalLoader from '../LocalLoader'
@@ -158,8 +157,6 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
   const [filteredItems, setFilteredItems] = useState()
   const [txFilter, setTxFilter] = useState(TXN_TYPE.ALL)
 
-  const [currency] = useCurrentCurrency()
-
   useEffect(() => {
     setMaxPage(1) // edit this to do modular
     setPage(1)
@@ -281,7 +278,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
           </Link>
         </DataText>
         <DataText area="value">
-          {currency === 'ETH' ? 'Ξ ' + formattedNum(item.valueETH) : formattedNum(item.amountUSD, true)}
+          {formattedNum(item.amountUSD, true)}
         </DataText>
         {!below780 && (
           <>

@@ -4,21 +4,18 @@ import { useUserTransactions, useUserPositions } from '../contexts/User'
 import TxnList from '../components/TxnList'
 import Panel from '../components/Panel'
 import {formattedNum, shortenStraknetAddress, urls} from '../utils'
-import Row, { AutoRow, RowFixed, RowBetween } from '../components/Row'
+import { AutoRow, RowFixed, RowBetween } from '../components/Row'
 import { AutoColumn } from '../components/Column'
 import PositionList from '../components/PositionList'
 import { TYPE } from '../Theme'
-import { ButtonDropdown } from '../components/ButtonStyled'
 import { PageWrapper, ContentWrapper, StyledIcon } from '../components'
-import DoubleTokenLogo from '../components/DoubleLogo'
-import { Bookmark, Activity } from 'react-feather'
+import { Bookmark } from 'react-feather'
 import Link from '../components/Link'
 import { FEE_WARNING_TOKENS } from '../constants'
 import { BasicLink } from '../components/Link'
 import { useMedia } from 'react-use'
 import Search from '../components/Search'
 import { useSavedAccounts } from '../contexts/LocalStorage'
-import PairReturnsChart from "../components/PairReturnsChart";
 import UserChart from "../components/UserChart";
 
 const AccountWrapper = styled.div`
@@ -34,38 +31,6 @@ const Header = styled.div``
 
 const DashboardWrapper = styled.div`
   width: 100%;
-`
-
-const DropdownWrapper = styled.div`
-  position: relative;
-  margin-bottom: 1rem;
-  border: 1px solid #edeef2;
-  border-radius: 12px;
-`
-
-const Flyout = styled.div`
-  position: absolute;
-  top: 38px;
-  left: -1px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.bg1};
-  z-index: 999;
-  border-bottom-right-radius: 10px;
-  border-bottom-left-radius: 10px;
-  padding-top: 4px;
-  border: 1px solid #edeef2;
-  border-top: none;
-`
-
-const MenuRow = styled(Row)`
-  width: 100%;
-  padding: 12px 0;
-  padding-left: 12px;
-
-  :hover {
-    cursor: pointer;
-    background-color: ${({ theme }) => theme.bg2};
-  }
 `
 
 const PanelWrapper = styled.div`
@@ -121,8 +86,7 @@ function AccountPage({ account }) {
 
   // settings for list view and dropdowns
   const hideLPContent = positions && positions.length === 0
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [activePosition, setActivePosition] = useState()
+  const [activePosition] = useState()
 
   const dynamicPositions = activePosition ? [activePosition] : positions
 
@@ -192,73 +156,6 @@ function AccountPage({ account }) {
         <DashboardWrapper>
           {showWarning && <Warning>Fees cannot currently be calculated for pairs that include AMPL.</Warning>}
           {!hideLPContent && (
-            <DropdownWrapper>
-              <ButtonDropdown width="100%" onClick={() => setShowDropdown(!showDropdown)} open={showDropdown}>
-                {!activePosition && (
-                  <RowFixed>
-                    <StyledIcon>
-                      <Activity size={16} />
-                    </StyledIcon>
-                    <TYPE.body ml={'10px'}>All Positions</TYPE.body>
-                  </RowFixed>
-                )}
-                {activePosition && (
-                  <RowFixed>
-                    <DoubleTokenLogo a0={activePosition.pair.token0.id} a1={activePosition.pair.token1.id} size={16} />
-                    <TYPE.body ml={'16px'}>
-                      {activePosition.pair.token0.symbol}-{activePosition.pair.token1.symbol} Position
-                    </TYPE.body>
-                  </RowFixed>
-                )}
-              </ButtonDropdown>
-              {showDropdown && (
-                <Flyout>
-                  <AutoColumn gap="0px">
-                    {positions?.map((p, i) => {
-                      if (p.pair.token1.symbol === 'WETH') {
-                        p.pair.token1.symbol = 'ETH'
-                      }
-                      if (p.pair.token0.symbol === 'WETH') {
-                        p.pair.token0.symbol = 'ETH'
-                      }
-                      return (
-                        p.pair.id !== activePosition?.pair.id && (
-                          <MenuRow
-                            onClick={() => {
-                              setActivePosition(p)
-                              setShowDropdown(false)
-                            }}
-                            key={i}
-                          >
-                            <DoubleTokenLogo a0={p.pair.token0.id} a1={p.pair.token1.id} size={16} />
-                            <TYPE.body ml={'16px'}>
-                              {p.pair.token0.symbol}-{p.pair.token1.symbol} Position
-                            </TYPE.body>
-                          </MenuRow>
-                        )
-                      )
-                    })}
-                    {activePosition && (
-                      <MenuRow
-                        onClick={() => {
-                          setActivePosition()
-                          setShowDropdown(false)
-                        }}
-                      >
-                        <RowFixed>
-                          <StyledIcon>
-                            <Activity size={16} />
-                          </StyledIcon>
-                          <TYPE.body ml={'10px'}>All Positions</TYPE.body>
-                        </RowFixed>
-                      </MenuRow>
-                    )}
-                  </AutoColumn>
-                </Flyout>
-              )}
-            </DropdownWrapper>
-          )}
-          {!hideLPContent && (
             <Panel style={{ height: '100%', marginBottom: '1rem' }}>
               <AutoRow gap="20px">
                 <AutoColumn gap="10px">
@@ -293,11 +190,7 @@ function AccountPage({ account }) {
           {!hideLPContent && (
             <PanelWrapper>
               <Panel style={{ gridColumn: '1' }}>
-                {activePosition ? (
-                  <PairReturnsChart account={account} position={activePosition} />
-                ) : (
-                  <UserChart account={account} position={activePosition} />
-                )}
+                <UserChart account={account} position={activePosition} />
               </Panel>
             </PanelWrapper>
           )}
