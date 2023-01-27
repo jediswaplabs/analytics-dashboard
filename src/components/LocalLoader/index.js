@@ -1,6 +1,5 @@
 import React from 'react'
 import styled, { css, keyframes } from 'styled-components'
-import { useDarkModeManager } from '../../contexts/LocalStorage'
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -33,9 +32,9 @@ const AnimatedImg = styled.div`
   }
 `
 
-const LocalLoader = ({ fill }) => {
+const LocalLoader = ({ fill, ...attr }) => {
   return (
-    <Wrapper fill={fill}>
+    <Wrapper fill={fill} {...attr}>
       <AnimatedImg>
         <img src={require('../../assets/jediswap-logo.png')} alt="loading-icon" />
       </AnimatedImg>
