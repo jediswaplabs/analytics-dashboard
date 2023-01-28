@@ -6,7 +6,7 @@ import { RowBetween, AutoRow } from '../Row'
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils'
 import { OptionButton } from '../ButtonStyled'
 import { darken } from 'polished'
-import { usePairChartData } from '../../contexts/PairData'
+import {usePairChartData, usePairData} from '../../contexts/PairData'
 import { timeframeOptions } from '../../constants'
 import { useMedia } from 'react-use'
 import { EmptyCard } from '..'
@@ -67,8 +67,15 @@ const PairChart = ({ address, color, base0, base1 }) => {
     return () => window.removeEventListener('resize', handleResize)
   }, [height, isClient, width]) // Empty array ensures that effect is only run on mount and unmount
 
+  const pairData = usePairData(address)
   // get data for pair, and rates
   let chartData = usePairChartData(address)
+
+  // formatted symbols for overflow
+  const formattedSymbol0 =
+      pairData?.token0?.symbol.length > 6 ? pairData?.token0?.symbol.slice(0, 5) + '...' : pairData?.token0?.symbol
+  const formattedSymbol1 =
+      pairData?.token1?.symbol.length > 6 ? pairData?.token1?.symbol.slice(0, 5) + '...' : pairData?.token1?.symbol
 
   const below1600 = useMedia('(max-width: 1600px)')
   const below1080 = useMedia('(max-width: 1080px)')
@@ -114,6 +121,24 @@ const PairChart = ({ address, color, base0, base1 }) => {
               }}
             >
               Volume
+            </OptionButton>
+            <OptionButton
+                active={chartFilter === CHART_VIEW.RATE0}
+                onClick={() => {
+                  setTimeWindow(timeframeOptions.WEEK)
+                  setChartFilter(CHART_VIEW.RATE0)
+                }}
+            >
+              {pairData.token0 ? formattedSymbol1 + '/' + formattedSymbol0 : '-'}
+            </OptionButton>
+            <OptionButton
+                active={chartFilter === CHART_VIEW.RATE1}
+                onClick={() => {
+                  setTimeWindow(timeframeOptions.WEEK)
+                  setChartFilter(CHART_VIEW.RATE1)
+                }}
+            >
+              {pairData.token0 ? formattedSymbol0 + '/' + formattedSymbol1 : '-'}
             </OptionButton>
           </AutoRow>
           <AutoRow justify="flex-end" gap="6px">
@@ -224,7 +249,7 @@ const PairChart = ({ address, color, base0, base1 }) => {
               <YAxis
                   type="number"
                   axisLine={false}
-                  tickMargin={16}
+                  tickMargin={8}
                   tickFormatter={(tick) => '$' + toK(tick)}
                   tickLine={false}
                   interval="preserveEnd"
@@ -256,6 +281,132 @@ const PairChart = ({ address, color, base0, base1 }) => {
                   stroke={color}
               />
             </BarChart>
+          </ResponsiveContainer>
+          : <LocalLoader className={"loader"}/>
+        )
+      }
+
+      {chartFilter === CHART_VIEW.RATE0 &&
+        (chartData?.length
+          ? <ResponsiveContainer aspect={aspect}>
+            <AreaChart margin={{ top: 0, right: 10, bottom: 6, left: 0 }} barCategoryGap={1} data={chartData}>
+              <defs>
+                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.35} />
+                  <stop offset="95%" stopColor={color} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                  tickLine={false}
+                  axisLine={false}
+                  interval="preserveEnd"
+                  tickMargin={8}
+                  minTickGap={80}
+                  tickFormatter={(tick) => toNiceDate(tick)}
+                  dataKey="date"
+                  tick={{ fill: textColor }}
+                  type={'number'}
+                  domain={['dataMin', 'dataMax']}
+              />
+              <YAxis
+                  type="number"
+                  orientation="right"
+                  tickFormatter={(tick) =>  toK(tick, 4)}
+                  axisLine={false}
+                  tickLine={false}
+                  interval="preserveEnd"
+                  // minTickGap={80}
+                  yAxisId={0}
+                  tickMargin={8}
+                  tick={{ fill: textColor }}
+              />
+              <Tooltip
+                  cursor={true}
+                  formatter={(val) => formattedNum(val, true)}
+                  labelFormatter={(label) => toNiceDateYear(label)}
+                  labelStyle={{ paddingTop: 4 }}
+                  contentStyle={{
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    borderColor: color,
+                    color: 'black',
+                  }}
+                  wrapperStyle={{ top: -70, left: -10 }}
+              />
+              <Area
+                  strokeWidth={2}
+                  dot={false}
+                  type="monotone"
+                  name={' (USD)'}
+                  dataKey={'token0Price'}
+                  yAxisId={0}
+                  stroke={darken(0.12, color)}
+                  fill="url(#colorUv)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+          : <LocalLoader className={"loader"}/>
+        )
+      }
+
+      {chartFilter === CHART_VIEW.RATE1 &&
+        (chartData?.length
+          ? <ResponsiveContainer aspect={aspect}>
+            <AreaChart margin={{ top: 0, right: 10, bottom: 6, left: 0 }} barCategoryGap={1} data={chartData}>
+              <defs>
+                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.35} />
+                  <stop offset="95%" stopColor={color} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                  tickLine={false}
+                  axisLine={false}
+                  interval="preserveEnd"
+                  tickMargin={14}
+                  minTickGap={80}
+                  tickFormatter={(tick) => toNiceDate(tick)}
+                  dataKey="date"
+                  tick={{ fill: textColor }}
+                  type={'number'}
+                  domain={['dataMin', 'dataMax']}
+              />
+              <YAxis
+                  type="number"
+                  orientation="right"
+                  tickFormatter={(tick) =>  toK(tick, 4)}
+                  axisLine={false}
+                  tickLine={false}
+                  interval="preserveEnd"
+                  // minTickGap={80}
+                  yAxisId={0}
+                  tickMargin={8}
+                  tick={{ fill: textColor }}
+              />
+              <Tooltip
+                  cursor={true}
+                  formatter={(val) => formattedNum(val, true)}
+                  labelFormatter={(label) => toNiceDateYear(label)}
+                  labelStyle={{ paddingTop: 4 }}
+                  contentStyle={{
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    borderColor: color,
+                    color: 'black',
+                  }}
+                  wrapperStyle={{ top: -70, left: -10 }}
+              />
+              <Area
+                  strokeWidth={2}
+                  dot={false}
+                  type="monotone"
+                  name={' (USD)'}
+                  dataKey={'token1Price'}
+                  yAxisId={0}
+                  stroke={darken(0.12, color)}
+                  fill="url(#colorUv)"
+              />
+            </AreaChart>
           </ResponsiveContainer>
           : <LocalLoader className={"loader"}/>
         )

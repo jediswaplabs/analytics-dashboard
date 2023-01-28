@@ -319,13 +319,9 @@ export const isStarknetAddress = (value) => {
   }
 }
 
-export const toK = (num) => {
-  return Numeral(num).format('0.[00]a')
+export const toK = (num, maxSigns = 2) => {
+  return Numeral(num).format(`0.[${Array.from({length: maxSigns}).map(() => 0).join('')}]a`)
 }
-
-export const setThemeColor = (theme) => document.documentElement.style.setProperty('--c-token', theme || '#333333')
-
-export const Big = (number) => new BigNumber(number)
 
 export const urls = {
   showTransaction: (tx) => `https://starkscan.co/tx/${tx}/`,
