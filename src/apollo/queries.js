@@ -297,6 +297,8 @@ export const PAIR_CHART = gql`
       dailyVolumeToken1
       dailyVolumeUSD
       reserveUSD
+      token0Price
+      token1Price
     }
   }
 `
@@ -402,6 +404,7 @@ export const GLOBAL_TXNS = gql`
         transactionHash
         timestamp
         to
+        sender
         liquidity
         amount0
         amount1
