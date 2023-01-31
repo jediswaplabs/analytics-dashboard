@@ -322,7 +322,7 @@ const PairChart = ({ address, color, base0, base1 }) => {
               />
               <Tooltip
                   cursor={true}
-                  formatter={(val) => formattedNum(val, true)}
+                  formatter={(val) => formattedNum(val)}
                   labelFormatter={(label) => toNiceDateYear(label)}
                   labelStyle={{ paddingTop: 4 }}
                   contentStyle={{
@@ -337,7 +337,7 @@ const PairChart = ({ address, color, base0, base1 }) => {
                   strokeWidth={2}
                   dot={false}
                   type="monotone"
-                  name={' (USD)'}
+                  name={` (${formattedSymbol0})`}
                   dataKey={'token0Price'}
                   yAxisId={0}
                   stroke={darken(0.12, color)}
@@ -385,7 +385,7 @@ const PairChart = ({ address, color, base0, base1 }) => {
               />
               <Tooltip
                   cursor={true}
-                  formatter={(val) => formattedNum(val, true)}
+                  formatter={(val) => formattedNum(val)}
                   labelFormatter={(label) => toNiceDateYear(label)}
                   labelStyle={{ paddingTop: 4 }}
                   contentStyle={{
@@ -400,7 +400,7 @@ const PairChart = ({ address, color, base0, base1 }) => {
                   strokeWidth={2}
                   dot={false}
                   type="monotone"
-                  name={' (USD)'}
+                  name={` (${formattedSymbol1})`}
                   dataKey={'token1Price'}
                   yAxisId={0}
                   stroke={darken(0.12, color)}

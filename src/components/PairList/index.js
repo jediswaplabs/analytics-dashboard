@@ -183,9 +183,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
       )
 
       const feeRatio24H = ((pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked) * 0.003 /  (pairData.oneDayVolumeUSD ? pairData.trackedReserveUSD : pairData.reserveUSD));
-      const apy = formattedPercent(
-          ((((1 + feeRatio24H) ** 365) - 1) * 100)
-      )
+      const apy = formattedPercent(((((1 + feeRatio24H) ** 365) - 1) * 100), true)
 
       const weekVolume = formattedNum(
         pairData.oneWeekVolumeUSD ? pairData.oneWeekVolumeUSD : pairData.oneWeekVolumeUntracked,
