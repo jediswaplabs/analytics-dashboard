@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import 'feather-icons'
 
 import { TYPE } from '../Theme'
@@ -19,8 +19,6 @@ function AllPairsPage() {
 
   const below800 = useMedia('(max-width: 800px)')
 
-  const [useTracked, setUseTracked] = useState(true)
-
   return (
     <PageWrapper>
       <FullWrapper>
@@ -29,7 +27,7 @@ function AllPairsPage() {
           {!below800 && <Search small={true} />}
         </RowBetween>
         <Panel style={{ padding: '0rem 0 ' }}>
-          <PairList pairs={allPairs} disbaleLinks={true} maxItems={50} useTracked={useTracked} />
+          <PairList pairs={allPairs} disbaleLinks={true} maxItems={50}  />
         </Panel>
       </FullWrapper>
     </PageWrapper>

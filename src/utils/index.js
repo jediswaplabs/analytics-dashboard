@@ -371,7 +371,7 @@ export const toSignificant = (number, significantDigits) => {
   return updated.toFormat(updated.decimalPlaces(), { groupSeparator: '' })
 }
 
-export const formattedNum = (number, usd = false, acceptNegatives = false) => {
+export const formattedNum = (number, usd = false) => {
   if (isNaN(number) || number === '' || number === undefined) {
     return usd ? '$0' : 0
   }
@@ -418,7 +418,7 @@ export function rawPercent(percentRaw) {
   return percent.toFixed(0) + '%'
 }
 
-export function formattedPercent(percent, useBrackets = false) {
+export function formattedPercent(percent, useAbs = false) {
   percent = parseFloat(percent)
   if (!percent || percent === 0) {
     return <Text fontWeight={500}>0%</Text>
@@ -446,9 +446,9 @@ export function formattedPercent(percent, useBrackets = false) {
   }
   if (fixedPercent > 0) {
     if (fixedPercent > 100) {
-      return <Text fontWeight={500} color="green">{`+${percent?.toFixed(0).toLocaleString()}%`}</Text>
+      return <Text fontWeight={500} color="green">{`${useAbs ? '' : '+'}${percent?.toFixed(0).toLocaleString()}%`}</Text>
     } else {
-      return <Text fontWeight={500} color="green">{`+${fixedPercent}%`}</Text>
+      return <Text fontWeight={500} color="green">{`${useAbs ? '' : '+'}${fixedPercent}%`}</Text>
     }
   } else {
     return <Text fontWeight={500} color="red">{`${fixedPercent}%`}</Text>
