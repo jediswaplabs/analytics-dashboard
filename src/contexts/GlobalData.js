@@ -285,10 +285,9 @@ async function getGlobalData(ethPrice, oldEthPrice) {
       )
 
       // format the total liquidity in USD
-      data.totalLiquidityUSD = data.totalLiquidityETH * ethPrice
       const liquidityChangeUSD = getPercentChange(
-        data.totalLiquidityETH * ethPrice,
-        oneDayData.totalLiquidityETH * oldEthPrice
+        data.totalLiquidityUSD,
+        oneDayData.totalLiquidityUSD
       )
 
       // add relevant fields with the calculated amounts
@@ -571,7 +570,6 @@ export function useGlobalData() {
   useEffect(() => {
     async function fetchData() {
       let globalData = await getGlobalData(ethPrice, oldEthPrice)
-
       globalData && update(globalData)
 
       let allPairs = await getAllPairsOnJediswap()
