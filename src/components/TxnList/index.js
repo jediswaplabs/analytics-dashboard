@@ -146,7 +146,7 @@ function getTransactionType(event, symbol0, symbol1) {
 }
 
 // @TODO rework into virtualized list
-function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
+function TxnList({ transactions, symbol0Override, symbol1Override, color, account }) {
   // page state
   const [page, setPage] = useState(1)
   const [maxPage, setMaxPage] = useState(1)
@@ -306,6 +306,12 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
 
   if (!filteredList) {
     return <LocalLoader />
+  }
+
+  if (!filteredList?.length && account) {
+    return (
+        <TYPE.main style={{textAlign: 'center'}}>No available data for {account}</TYPE.main>
+    )
   }
 
   return (

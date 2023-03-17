@@ -5,7 +5,9 @@ import {
   USER_TRANSACTIONS,
   USER_POSITIONS,
   USER_HISTORY,
-  PAIR_DAY_DATA_BULK
+  PAIR_DAY_DATA_BULK,
+  USER_LP_CONTEST_TRANSACTIONS,
+  USER_LP_CONTEST_HISTORY
 } from '../apollo/queries'
 import { useTimeframe, useStartTimestamp } from './Application'
 import dayjs from 'dayjs'
@@ -18,15 +20,19 @@ import {convertDateToUnixFormat} from "../utils";
 dayjs.extend(utc)
 
 const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS'
+const UPDATE_LP_CONTEST_TRANSACTIONS = 'UPDATE_LP_CONTEST_TRANSACTIONS'
 const UPDATE_POSITIONS = 'UPDATE_POSITIONS '
 const UPDATE_MINING_POSITIONS = 'UPDATE_MINING_POSITIONS'
 const UPDATE_USER_POSITION_HISTORY = 'UPDATE_USER_POSITION_HISTORY'
+const UPDATE_LP_CONTEST_USER_POSITION_HISTORY = 'UPDATE_LP_CONTEST_USER_POSITION_HISTORY'
 const UPDATE_USER_PAIR_RETURNS = 'UPDATE_USER_PAIR_RETURNS'
 
 const TRANSACTIONS_KEY = 'TRANSACTIONS_KEY'
+const LP_CONTEST_TRANSACTIONS_KEY = 'LP_CONTEST_TRANSACTIONS_KEY'
 const POSITIONS_KEY = 'POSITIONS_KEY'
 const MINING_POSITIONS_KEY = 'MINING_POSITIONS_KEY'
 const USER_SNAPSHOTS = 'USER_SNAPSHOTS'
+const LP_CONTEST_USER_SNAPSHOTS = 'LP_CONTEST_USER_SNAPSHOTS'
 const USER_PAIR_RETURNS_KEY = 'USER_PAIR_RETURNS_KEY'
 
 const UserContext = createContext()
@@ -47,6 +53,16 @@ function reducer(state, { type, payload }) {
         },
       }
     }
+    case UPDATE_LP_CONTEST_TRANSACTIONS: {
+      const { account, transactions } = payload
+      return {
+        ...state,
+        [account]: {
+          ...state?.[account],
+          [LP_CONTEST_TRANSACTIONS_KEY]: transactions,
+        },
+      }
+    }
     case UPDATE_POSITIONS: {
       const { account, positions } = payload
       return {
@@ -61,11 +77,19 @@ function reducer(state, { type, payload }) {
         [account]: { ...state?.[account], [MINING_POSITIONS_KEY]: miningPositions },
       }
     }
+
     case UPDATE_USER_POSITION_HISTORY: {
       const { account, historyData } = payload
       return {
         ...state,
         [account]: { ...state?.[account], [USER_SNAPSHOTS]: historyData },
+      }
+    }
+    case UPDATE_LP_CONTEST_USER_POSITION_HISTORY: {
+      const { account, historyData } = payload
+      return {
+        ...state,
+        [account]: { ...state?.[account], [LP_CONTEST_USER_SNAPSHOTS]: historyData },
       }
     }
 
@@ -104,6 +128,16 @@ export default function Provider({ children }) {
     })
   }, [])
 
+  const updateLpContestTransactions = useCallback((account, transactions) => {
+    dispatch({
+      type: UPDATE_LP_CONTEST_TRANSACTIONS,
+      payload: {
+        account,
+        transactions,
+      },
+    })
+  }, [])
+
   const updatePositions = useCallback((account, positions) => {
     dispatch({
       type: UPDATE_POSITIONS,
@@ -134,6 +168,16 @@ export default function Provider({ children }) {
     })
   }, [])
 
+  const updateLpContestUserSnapshots = useCallback((account, historyData) => {
+    dispatch({
+      type: UPDATE_LP_CONTEST_USER_POSITION_HISTORY,
+      payload: {
+        account,
+        historyData,
+      },
+    })
+  }, [])
+
   const updateUserPairReturns = useCallback((account, pairAddress, data) => {
     dispatch({
       type: UPDATE_USER_PAIR_RETURNS,
@@ -150,9 +194,9 @@ export default function Provider({ children }) {
       value={useMemo(
         () => [
           state,
-          { updateTransactions, updatePositions, updateMiningPositions, updateUserSnapshots, updateUserPairReturns },
+          { updateTransactions, updateLpContestTransactions, updatePositions, updateMiningPositions, updateUserSnapshots, updateLpContestUserSnapshots, updateUserPairReturns },
         ],
-        [state, updateTransactions, updatePositions, updateMiningPositions, updateUserSnapshots, updateUserPairReturns]
+        [state, updateTransactions, updateLpContestTransactions, updatePositions, updateMiningPositions, updateUserSnapshots, updateLpContestUserSnapshots, updateUserPairReturns]
       )}
     >
       {children}
@@ -184,6 +228,34 @@ export function useUserTransactions(account) {
       fetchData(account)
     }
   }, [account, transactions, updateTransactions])
+
+  return transactions || {}
+}
+
+export function useUserLpCampaignTransactions(account) {
+  const [state, { updateLpContestTransactions }] = useUserContext()
+  const transactions = state?.[account]?.[LP_CONTEST_TRANSACTIONS_KEY]
+  useEffect(() => {
+    async function fetchData(account) {
+      try {
+        let result = await jediSwapClient.query({
+          query: USER_LP_CONTEST_TRANSACTIONS,
+          variables: {
+            user: account,
+          },
+          fetchPolicy: 'no-cache',
+        })
+        if (result?.data) {
+          updateLpContestTransactions(account, result?.data)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (!transactions && account) {
+      fetchData(account)
+    }
+  }, [account, transactions, updateLpContestTransactions])
 
   return transactions || {}
 }
@@ -237,6 +309,40 @@ export function useUserSnapshots(account) {
       fetchData()
     }
   }, [account, snapshots, updateUserSnapshots])
+
+  return snapshots
+}
+
+export function useLpContestUserSnapshots(account) {
+  const [state, { updateLpContestUserSnapshots }] = useUserContext()
+  const snapshots = state?.[account]?.[LP_CONTEST_USER_SNAPSHOTS]
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const result = await jediSwapClient.query({
+          query: USER_LP_CONTEST_HISTORY,
+          variables: {
+            user: account,
+          },
+          fetchPolicy: 'cache-first',
+        })
+
+        const processedResult = result?.data?.lpContestBlocks;
+
+        console.log('processedResult: ', processedResult);
+
+        if (processedResult) {
+          updateLpContestUserSnapshots(account, processedResult)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (!snapshots && account) {
+      fetchData()
+    }
+  }, [account, snapshots, updateLpContestUserSnapshots])
 
   return snapshots
 }
@@ -452,6 +558,24 @@ export function useUserLiquidityChart(account) {
   }, [history, startDateTimestamp])
 
   return formattedHistory
+}
+
+export function useLpContestUserLiquidityChart(account) {
+  const history = useLpContestUserSnapshots(account)
+  let formattedHistory;
+  if (history) {
+    formattedHistory = history.map((item) => {
+      if (!(item?.timestamp && item?.contestValue)) {
+        return false;
+      }
+      return {
+        date: convertDateToUnixFormat(item.timestamp),
+        value: Number(item.contestValue).toFixed(),
+      }
+    }).filter(Boolean);
+  }
+
+  return formattedHistory;
 }
 
 export function useUserPositions(account) {

@@ -5,6 +5,9 @@ import { HttpLink } from 'apollo-link-http'
 export const jediSwapClient = new ApolloClient({
   link: new HttpLink({
     uri: 'https://api.jediswap.xyz/graphql',
+    headers: {
+      'm-color': 'blue'
+    }
   }),
   cache: new InMemoryCache({
     dataIdFromObject: (object) => {
@@ -59,4 +62,3 @@ export const jediSwapClient = new ApolloClient({
   }),
   shouldBatch: true,
 })
-
