@@ -320,20 +320,30 @@ export function useLpContestUserSnapshots(account) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const result = await jediSwapClient.query({
-          query: USER_LP_CONTEST_HISTORY,
-          variables: {
-            user: account,
-          },
-          fetchPolicy: 'cache-first',
-        })
+        let skip = 0
+        let allResults = []
+        let found = false
+        while (!found) {
+          const result = await jediSwapClient.query({
+            query: USER_LP_CONTEST_HISTORY,
+            variables: {
+              user: account,
+              skip,
+            },
+            fetchPolicy: 'cache-first',
+          })
 
-        const processedResult = result?.data?.lpContestBlocks;
+          const processedResult = result?.data?.lpContestBlocks;
 
-        console.log('processedResult: ', processedResult);
-
-        if (processedResult) {
-          updateLpContestUserSnapshots(account, processedResult)
+          allResults = allResults.concat(processedResult)
+          if (processedResult.length < 1000) {
+            found = true
+          } else {
+            skip += 1000
+          }
+        }
+        if (allResults) {
+          updateLpContestUserSnapshots(account, allResults)
         }
       } catch (e) {
         console.log(e)

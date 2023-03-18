@@ -196,8 +196,10 @@ export const USER_HISTORY = gql`
 `
 
 export const USER_LP_CONTEST_HISTORY = gql`
-  query lpContestSnapshots($user: String!) {
+  query lpContestSnapshots($user: String!, $skip: Int!) {
     lpContestBlocks(
+      first: 1000, 
+      skip: $skip, 
       where: {
         user: $user
       }

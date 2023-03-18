@@ -90,12 +90,16 @@ function LpContestNftClaim() {
 					}}
 					resistanceRatio={0.5}
 					style={{ paddingLeft: '20px', paddingRight: '20px' }}
+					onBeforeInit={(swiper) => {
+						swiper.params.navigation.prevEl = navigationPrevRef.current;
+						swiper.params.navigation.nextEl = navigationNextRef.current;
+					}}
 				>
 					<SwiperSlide>
-						<img src={ShrimpNFT} />
+						<img src={ShrimpNFT} alt={''}/>
 					</SwiperSlide>
 					<SwiperSlide>
-						<img src={OctopusNFT} />
+						<img src={OctopusNFT} alt={''}/>
 					</SwiperSlide>
 
 					<NavigationArrowPrev ref={navigationPrevRef}>

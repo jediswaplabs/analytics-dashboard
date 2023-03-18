@@ -93,6 +93,17 @@ export default function Title() {
                 Accounts
               </Option>
             </BasicLink>
+
+            <BasicLink to="/lp-contest">
+              <Option
+                  activeText={
+                      (history.location.pathname.split('/')[1] === 'lp-contest') ??
+                      undefined
+                  }
+              >
+                LP Campaign
+              </Option>
+            </BasicLink>
           </RowFixed>
         )}
       </Flex>

@@ -16,7 +16,6 @@ import {AutoRow, RowBetween} from '../components/Row'
 import {Banner} from "../components/Banner";
 import { Flag, Watch, Box, BarChart } from 'react-feather'
 import {useLatestBlocks} from "../contexts/Application";
-import {shortenStraknetAddress} from "../utils";
 import {useAllLpContestData} from "../contexts/LpContestData";
 
 const BannerGridRow = styled.div`
@@ -66,8 +65,8 @@ const LeaderboardNote = styled.div`
   color: #fff;
 `
 
-const CAMPAIGN_START_DATE_ISO = '2023-02-28T00:00:00.000Z';
-const CAMPAIGN_END_DATE_ISO = '2023-03-22T00:00:00.000Z';
+const CAMPAIGN_START_DATE_ISO = '2023-03-17T18:59:00.000Z';
+const CAMPAIGN_END_DATE_ISO = '2023-03-30T00:00:00.000Z';
 
 function LpContestLookup() {
 	const allPlayersData = useAllLpContestData();
@@ -101,7 +100,7 @@ function LpContestLookup() {
 						<Banner
 							title={'Campaign Started'}
 							titleIcon={<Flag size={20} />}
-							content={dayjs.utc(CAMPAIGN_START_DATE_ISO).format('MMM MM, YYYY')}
+							content={dayjs.utc(CAMPAIGN_START_DATE_ISO).format('MMM DD, YYYY')}
 							showPollingDot={false}
 						/>
 						<Banner
@@ -110,7 +109,7 @@ function LpContestLookup() {
 							content={
 								<Countdown
 									date={CAMPAIGN_END_DATE_ISO}
-									renderer={({days, hours, minutes, completed}) => ((completed) ? 'End' : `${days} D : ${hours} H : ${minutes} M`)}
+									renderer={({days, hours, minutes, completed}) => ((completed) ? 'End' : `~ ${days} D : ${hours} H : ${minutes} M`)}
 								/>
 							}
 							showPollingDot={false}
@@ -118,7 +117,7 @@ function LpContestLookup() {
 						<Banner
 							title={'Block Updates'}
 							titleIcon={<Box size={20} />}
-							content={`Block No. ${latestBlock?.id ? shortenStraknetAddress(latestBlock.id) : '...'}`}
+							content={`Block No. ${latestBlock?.number || '...'}`}
 							showPollingDot={false}
 						/>
 					</BannerGridRow>
