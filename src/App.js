@@ -105,7 +105,7 @@ function App() {
   const globalChartData = useGlobalChartData()
   const [latestBlock, headBlock] = useLatestBlocks();
 
-  const showWarning = headBlock && latestBlock ? headBlock.number - latestBlock.number > BLOCK_DIFFERENCE_THRESHOLD : false;
+  const showWarning = headBlock && latestBlock ? (headBlock.number - latestBlock.number) > BLOCK_DIFFERENCE_THRESHOLD : false;
 
   return (
     <ApolloProvider client={jediSwapClient}>

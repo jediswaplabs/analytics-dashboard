@@ -203,8 +203,8 @@ export function useLatestBlocks() {
             timestamp: convertDateToUnixFormat(syncedBlockResult.timestamp)
           } : null;
           const headBlock = parsedHeadBlockResult ? {
-            id: parsedHeadBlockResult.block_hash,
-            number: parsedHeadBlockResult.block_number,
+            id: parsedHeadBlockResult?.result?.block_hash,
+            number: parsedHeadBlockResult?.result?.block_number,
             // timestamp: parsedHeadBlockResult.timestamp,
           } : null;
           if (syncedBlock && headBlock) {
