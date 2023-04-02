@@ -18,7 +18,7 @@ import AccountLookup from './pages/AccountLookup'
 import LocalLoader from './components/LocalLoader'
 import { useLatestBlocks } from './contexts/Application'
 import GoogleAnalyticsReporter from './components/analytics/GoogleAnalyticsReporter'
-import { PAIR_BLACKLIST, TOKEN_BLACKLIST } from './constants'
+import {PAIR_WHITELIST, TOKEN_WHITELIST} from './constants'
 import dayjs from "dayjs";
 
 const AppWrapper = styled.div`
@@ -131,7 +131,7 @@ function App() {
                 render={({ match }) => {
                   if (
                     isStarknetAddress(match.params.tokenAddress.toLowerCase()) &&
-                    !Object.keys(TOKEN_BLACKLIST).includes(match.params.tokenAddress.toLowerCase())
+                    TOKEN_WHITELIST.includes(match.params.tokenAddress.toLowerCase())
                   ) {
                     return (
                       <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
@@ -150,7 +150,7 @@ function App() {
                 render={({ match }) => {
                   if (
                       isStarknetAddress(match.params.pairAddress.toLowerCase()) &&
-                    !Object.keys(PAIR_BLACKLIST).includes(match.params.pairAddress.toLowerCase())
+                    PAIR_WHITELIST.includes(match.params.pairAddress.toLowerCase())
                   ) {
                     return (
                       <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>

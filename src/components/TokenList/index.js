@@ -12,7 +12,7 @@ import {Divider } from '..'
 import { formattedNum, formattedPercent } from '../../utils'
 import { useMedia } from 'react-use'
 import { withRouter } from 'react-router-dom'
-import { TOKEN_BLACKLIST } from '../../constants'
+import { TOKEN_WHITELIST } from '../../constants'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
 import LocalLoader from "../LocalLoader";
@@ -145,7 +145,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
       tokens &&
       Object.keys(tokens)
         .filter((key) => {
-          return !TOKEN_BLACKLIST.includes(key)
+          return TOKEN_WHITELIST.includes(key)
         })
         .map((key) => tokens[key])
     )
