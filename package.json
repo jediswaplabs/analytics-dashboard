@@ -89,7 +89,7 @@
     "@jediswap/token-lists": "^1.0.0-beta.1",
     "babel-plugin-styled-components": "^2.0.7",
     "script-ext-html-webpack-plugin": "^2.1.5",
-    "starknet": "^4.17.1",
+    "starknet": "^4.22.0",
     "use-http": "^1.0.27"
   }
 }

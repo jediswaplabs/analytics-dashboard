@@ -18,7 +18,7 @@ import AccountLookup from './pages/AccountLookup'
 import LocalLoader from './components/LocalLoader'
 import { useLatestBlocks } from './contexts/Application'
 import GoogleAnalyticsReporter from './components/analytics/GoogleAnalyticsReporter'
-import {PAIR_WHITELIST, TOKEN_WHITELIST} from './constants'
+import {TOKEN_WHITELIST} from './constants'
 import dayjs from "dayjs";
 
 const AppWrapper = styled.div`
@@ -148,10 +148,7 @@ function App() {
                 strict
                 path="/pair/:pairAddress"
                 render={({ match }) => {
-                  if (
-                      isStarknetAddress(match.params.pairAddress.toLowerCase()) &&
-                    PAIR_WHITELIST.includes(match.params.pairAddress.toLowerCase())
-                  ) {
+                  if (isStarknetAddress(match.params.pairAddress.toLowerCase())) {
                     return (
                       <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
                         <PairPage pairAddress={match.params.pairAddress.toLowerCase()} />
