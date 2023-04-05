@@ -28,19 +28,6 @@ export const PAIR_BLACKLIST = [
 
 ]
 
-export const PAIR_WHITELIST = [
-    "0x4d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a",
-    "0x45e7131d776dddc137e30bdd490b431c7144677e97bf9369f629ed8d3fb7dd6",
-    "0x5801bdad32f343035fb242e98d1e9371ae85bc1543962fedea16c59b35bd19b",
-    "0x7e2a13b40fc1119ec55e0bcf9428eedaa581ab3c924561ad4e955f95da63138",
-    "0xcfd39f5244f7b617418c018204a8a9f9a7f72e71f0ef38f968eeb2a9ca302b",
-    "0xf0f5b3eed258344152e1f17baf84a2e1b621cd754b625bec169e8595aea767",
-    "0x260e98362e0949fefff8b4de85367c035e44f734c9f8069b6ce2075ae86b45c",
-    "0x5a8054e5ca0b277b295a830e53bd71a6a6943b42d0dbb22329437522bc80c8",
-    "0x39c183c8e5a2df130eefa6fbaa3b8aad89b29891f6272cb0c90deaa93ec6315",
-    "0x44d13ad98a46fd2322ef2637e5e4c292ce8822f47b7cb9a1d581176a801c1a0",
-    "0x4d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a"
-]
 
 // warnings to display if page contains info about blocked token
 export const BLOCKED_WARNINGS = {

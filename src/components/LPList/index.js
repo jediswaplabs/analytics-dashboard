@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { useMedia } from 'react-use'
+import React, {useState, useEffect, useMemo} from 'react'
+import {useMedia} from 'react-use'
 import dayjs from 'dayjs'
 import LocalLoader from '../LocalLoader'
 import utc from 'dayjs/plugin/utc'
-import { Box, Flex } from 'rebass'
+import {Box, Flex} from 'rebass'
 import styled from 'styled-components'
 
-import { CustomLink } from '../Link'
-import { Divider } from '..'
-import { withRouter } from 'react-router-dom'
-import { formattedNum } from '../../utils'
-import { TYPE } from '../../Theme'
+import {CustomLink} from '../Link'
+import {Divider} from '..'
+import {withRouter} from 'react-router-dom'
+import {formattedNum} from '../../utils'
+import {TYPE} from '../../Theme'
 import DoubleTokenLogo from '../DoubleLogo'
-import { RowFixed } from '../Row'
+import {RowFixed} from '../Row'
+import {TOKEN_WHITELIST} from "../../constants";
 
 dayjs.extend(utc)
 
@@ -25,10 +26,11 @@ const PageButtons = styled.div`
 `
 
 const Arrow = styled.div`
-  color: ${({ theme }) => theme.primary1};
+  color: ${({theme}) => theme.primary1};
   opacity: ${(props) => (props.faded ? 0.3 : 1)};
   padding: 0 20px;
   user-select: none;
+
   :hover {
     cursor: pointer;
   }
@@ -65,7 +67,8 @@ const ListWrapper = styled.div``
 const DataText = styled(Flex)`
   align-items: center;
   text-align: center;
-  color: ${({ theme }) => theme.text1};
+  color: ${({theme}) => theme.text1};
+
   & > * {
     font-size: 14px;
   }
@@ -75,109 +78,119 @@ const DataText = styled(Flex)`
   }
 `
 
-function LPList({ lps, disbaleLinks, maxItems = 10 }) {
-  const below600 = useMedia('(max-width: 600px)')
-  const below800 = useMedia('(max-width: 800px)')
-  // pagination
-  const [page, setPage] = useState(1)
-  const [maxPage, setMaxPage] = useState(1)
-  const ITEMS_PER_PAGE = maxItems
+function LPList({lps, disbaleLinks, maxItems = 10}) {
+	const below600 = useMedia('(max-width: 600px)')
+	const below800 = useMedia('(max-width: 800px)')
+	// pagination
+	const [page, setPage] = useState(1)
+	const [maxPage, setMaxPage] = useState(1)
+	const ITEMS_PER_PAGE = maxItems
 
-  useEffect(() => {
-    setMaxPage(1) // edit this to do modular
-    setPage(1)
-  }, [lps])
+	const filteredLps = useMemo(() => {
+		return (
+			lps &&
+			lps.filter((lp) => {
+				return (TOKEN_WHITELIST.includes(lp.token0) && TOKEN_WHITELIST.includes(lp.token1));
+			})
+		)
+	}, [lps])
 
-  useEffect(() => {
-    if (lps) {
-      let extraPages = 1
-      if (Object.keys(lps).length % ITEMS_PER_PAGE === 0) {
-        extraPages = 0
-      }
-      setMaxPage(Math.floor(Object.keys(lps).length / ITEMS_PER_PAGE) + extraPages)
-    }
-  }, [ITEMS_PER_PAGE, lps])
+	useEffect(() => {
+		setMaxPage(1) // edit this to do modular
+		setPage(1)
+	}, [lps])
 
-  const ListItem = ({ lp, index }) => {
-    return (
-      <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
-        {!below600 && (
-          <DataText area="number" fontWeight="500">
-            {index}
-          </DataText>
-        )}
-        <DataText area="name" fontWeight="500" justifyContent="flex-start">
-          <CustomLink style={{ marginLeft: below600 ? 0 : '1rem', whiteSpace: 'nowrap' }} to={'/account/' + lp.user.id}>
-            {below800 ? lp.user.id.slice(0, 4) + '...' + lp.user.id.slice(38, 42) : lp.user.id}
-          </CustomLink>
-        </DataText>
+	useEffect(() => {
+		if (filteredLps) {
+			let extraPages = 1
+			if (Object.keys(filteredLps).length % ITEMS_PER_PAGE === 0) {
+				extraPages = 0
+			}
+			setMaxPage(Math.floor(Object.keys(filteredLps).length / ITEMS_PER_PAGE) + extraPages)
+		}
+	}, [ITEMS_PER_PAGE, filteredLps])
 
-        {/* {!below1080 && (
+	const ListItem = ({lp, index}) => {
+		return (
+			<DashGrid style={{height: '48px'}} disbaleLinks={disbaleLinks} focus={true}>
+				{!below600 && (
+					<DataText area="number" fontWeight="500">
+						{index}
+					</DataText>
+				)}
+				<DataText area="name" fontWeight="500" justifyContent="flex-start">
+					<CustomLink style={{marginLeft: below600 ? 0 : '1rem', whiteSpace: 'nowrap'}}
+					            to={'/account/' + lp.user.id}>
+						{below800 ? lp.user.id.slice(0, 4) + '...' + lp.user.id.slice(38, 42) : lp.user.id}
+					</CustomLink>
+				</DataText>
+
+				{/* {!below1080 && (
           <DataText area="type" justifyContent="flex-end">
             {lp.type}
           </DataText>
         )} */}
 
-        <DataText>
-          <CustomLink area="pair" to={'/pair/' + lp.pairAddress}>
-            <RowFixed>
-              {!below600 && <DoubleTokenLogo a0={lp.token0} a1={lp.token1} size={16} margin={true} />}
-              {lp.pairName}
-            </RowFixed>
-          </CustomLink>
-        </DataText>
-        <DataText area="value">{formattedNum(lp.usd, true)}</DataText>
-      </DashGrid>
-    )
-  }
+				<DataText>
+					<CustomLink area="pair" to={'/pair/' + lp.pairAddress}>
+						<RowFixed>
+							{!below600 && <DoubleTokenLogo a0={lp.token0} a1={lp.token1} size={16} margin={true}/>}
+							{lp.pairName}
+						</RowFixed>
+					</CustomLink>
+				</DataText>
+				<DataText area="value">{formattedNum(lp.usd, true)}</DataText>
+			</DashGrid>
+		)
+	}
 
-  const lpList =
-    lps &&
-    lps.slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE).map((lp, index) => {
-      return (
-        <div key={index}>
-          <ListItem key={index} index={(page - 1) * 10 + index + 1} lp={lp} />
-          <Divider />
-        </div>
-      )
-    })
+	const lpList =
+		filteredLps &&
+		filteredLps.slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE).map((lp, index) => {
+			return (
+				<div key={index}>
+					<ListItem key={index} index={(page - 1) * 10 + index + 1} lp={lp}/>
+					<Divider/>
+				</div>
+			)
+		})
 
-  return (
-    <ListWrapper>
-      <DashGrid center={true} disbaleLinks={disbaleLinks} style={{ height: 'fit-content', padding: ' 0 0 1rem 0' }}>
-        {!below600 && (
-          <Flex alignItems="center" justifyContent="flex-start">
-            <TYPE.main area="number">#</TYPE.main>
-          </Flex>
-        )}
-        <Flex alignItems="center" justifyContent="flex-start">
-          <TYPE.main area="name">Account</TYPE.main>
-        </Flex>
-        {/* {!below1080 && (
+	return (
+		<ListWrapper>
+			<DashGrid center={true} disbaleLinks={disbaleLinks} style={{height: 'fit-content', padding: ' 0 0 1rem 0'}}>
+				{!below600 && (
+					<Flex alignItems="center" justifyContent="flex-start">
+						<TYPE.main area="number">#</TYPE.main>
+					</Flex>
+				)}
+				<Flex alignItems="center" justifyContent="flex-start">
+					<TYPE.main area="name">Account</TYPE.main>
+				</Flex>
+				{/* {!below1080 && (
           <Flex alignItems="center" justifyContent="flexEnd">
             <TYPE.main area="type">Type</TYPE.main>
           </Flex>
         )} */}
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <TYPE.main area="pair">Pair</TYPE.main>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <TYPE.main area="value">Value</TYPE.main>
-        </Flex>
-      </DashGrid>
-      <Divider />
-      <List p={0}>{!lpList ? <LocalLoader /> : lpList}</List>
-      <PageButtons>
-        <div onClick={() => setPage(page === 1 ? page : page - 1)}>
-          <Arrow faded={page === 1 ? true : false}>←</Arrow>
-        </div>
-        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
-        <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
-          <Arrow faded={page === maxPage ? true : false}>→</Arrow>
-        </div>
-      </PageButtons>
-    </ListWrapper>
-  )
+				<Flex alignItems="center" justifyContent="flexEnd">
+					<TYPE.main area="pair">Pair</TYPE.main>
+				</Flex>
+				<Flex alignItems="center" justifyContent="flexEnd">
+					<TYPE.main area="value">Value</TYPE.main>
+				</Flex>
+			</DashGrid>
+			<Divider/>
+			<List p={0}>{!lpList ? <LocalLoader/> : lpList}</List>
+			<PageButtons>
+				<div onClick={() => setPage(page === 1 ? page : page - 1)}>
+					<Arrow faded={page === 1 ? true : false}>←</Arrow>
+				</div>
+				<TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
+				<div onClick={() => setPage(page === maxPage ? page : page + 1)}>
+					<Arrow faded={page === maxPage ? true : false}>→</Arrow>
+				</div>
+			</PageButtons>
+		</ListWrapper>
+	)
 }
 
 export default withRouter(LPList)
