@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { transparentize } from 'polished'
 import { TYPE } from '../../Theme'
 import { withRouter } from 'react-router-dom'
-import { TrendingUp, List, PieChart, Disc, DollarSign } from 'react-feather'
+import { TrendingUp, List, PieChart, Disc, Flag } from 'react-feather'
 import Link from '../Link'
 import { useSessionStart } from '../../contexts/Application'
 
@@ -163,7 +163,7 @@ function SideNav({ history }) {
                       undefined
                     }
                   >
-                    <DollarSign size={18} style={{ marginRight: '.75rem' }} />
+                    <Flag size={18} style={{ marginRight: '.75rem' }} />
                     LP Campaign
                   </Option>
                 </BasicLink>

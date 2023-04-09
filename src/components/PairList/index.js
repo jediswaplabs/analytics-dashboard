@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
 import dayjs from 'dayjs'
 import LocalLoader from '../LocalLoader'
@@ -14,7 +14,7 @@ import DoubleTokenLogo from '../DoubleLogo'
 import FormattedName from '../FormattedName'
 import QuestionHelper from '../QuestionHelper'
 import { TYPE } from '../../Theme'
-import { PAIR_BLACKLIST } from '../../constants'
+import {TOKEN_WHITELIST} from '../../constants'
 import { AutoColumn } from '../Column'
 
 dayjs.extend(utc)
@@ -153,20 +153,29 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
   const [sortDirection, setSortDirection] = useState(true)
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ)
 
+  const filteredPairsAddresses = useMemo(() => {
+    return (
+        pairs &&
+        Object.keys(pairs).filter((address) => {
+          return (TOKEN_WHITELIST.includes(pairs[address].token0.id) && TOKEN_WHITELIST.includes(pairs[address].token1.id));
+        })
+    )
+  }, [pairs])
+
   useEffect(() => {
     setMaxPage(1) // edit this to do modular
     setPage(1)
   }, [pairs])
 
   useEffect(() => {
-    if (pairs) {
+    if (filteredPairsAddresses) {
       let extraPages = 1
-      if (Object.keys(pairs).length % ITEMS_PER_PAGE === 0) {
+      if (filteredPairsAddresses.length % ITEMS_PER_PAGE === 0) {
         extraPages = 0
       }
-      setMaxPage(Math.floor(Object.keys(pairs).length / ITEMS_PER_PAGE) + extraPages)
+      setMaxPage(Math.floor(filteredPairsAddresses.length / ITEMS_PER_PAGE) + extraPages)
     }
-  }, [ITEMS_PER_PAGE, pairs])
+  }, [ITEMS_PER_PAGE, filteredPairsAddresses])
 
   const ListItem = ({ pairAddress, index }) => {
     const pairData = pairs[pairAddress]
@@ -233,10 +242,9 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
   }
 
   const pairList =
-    pairs &&
-    Object.keys(pairs)
-      .filter(
-        (address) => !PAIR_BLACKLIST.includes(address) && (useTracked ? !!pairs[address].trackedReserveUSD : true)
+      filteredPairsAddresses &&
+      filteredPairsAddresses.filter(
+        (address) => (useTracked ? !!pairs[address].trackedReserveUSD : true)
       )
       .sort((addressA, addressB) => {
         const pairA = pairs[addressA]

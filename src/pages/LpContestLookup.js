@@ -14,9 +14,29 @@ import styled from 'styled-components'
 
 import {AutoRow, RowBetween} from '../components/Row'
 import {Banner} from "../components/Banner";
-import { Flag, Watch, Box, BarChart } from 'react-feather'
+import { Flag, Watch, Box } from 'react-feather'
 import {useLatestBlocks} from "../contexts/Application";
 import {useAllLpContestData} from "../contexts/LpContestData";
+
+import contestFlagIcon from '../../src/assets/flag.svg';
+
+const Title = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 14px;
+`;
+
+const TitleIconWrapper = styled.div`
+  display: flex;
+  margin-right: .75rem;
+  font-size: 30px;
+  
+  img {
+    width: 1em;
+  }
+`;
 
 const BannerGridRow = styled.div`
   display: grid;
@@ -57,14 +77,6 @@ const ListOptions = styled(AutoRow)`
   }
 `
 
-const LeaderboardNote = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 400;
-  color: #fff;
-`
-
 const CAMPAIGN_START_DATE_ISO = '2023-03-17T18:59:00.000Z';
 const CAMPAIGN_END_DATE_ISO = '2023-03-30T00:00:00.000Z';
 
@@ -81,9 +93,10 @@ function LpContestLookup() {
 	return (
 		<PageWrapper>
 			<FullWrapper>
-				<RowBetween>
-					<TYPE.largeHeader>LP Campaign Dashboard</TYPE.largeHeader>
-				</RowBetween>
+				<Title>
+					<TitleIconWrapper><img src={contestFlagIcon} /></TitleIconWrapper>
+					<TYPE.largeHeader style={{fontWeight: 700}}>Rise of the first LPs</TYPE.largeHeader>
+				</Title>
 
 				<div
 					style={{
@@ -115,7 +128,7 @@ function LpContestLookup() {
 							showPollingDot={false}
 						/>
 						<Banner
-							title={'Block Updates'}
+							title={'Last updated at'}
 							titleIcon={<Box size={20} />}
 							content={`Block No. ${latestBlock?.number || '...'}`}
 							showPollingDot={false}
@@ -129,10 +142,6 @@ function LpContestLookup() {
 									<TYPE.main fontSize={'1.125rem'} fontWeight={700} style={{ whiteSpace: 'nowrap' }}>
 										Contest Leaderboard
 									</TYPE.main>
-									<LeaderboardNote>
-										<BarChart size={16} style={{marginRight: '.25rem'}}/>
-										Sorted by Contest points
-									</LeaderboardNote>
 								</RowBetween>
 							</ListOptions>
 							<LpContestLeaderboard players={allPlayersData}/>
@@ -141,7 +150,7 @@ function LpContestLookup() {
 							<ListOptions gap="10px" style={{marginBottom: '.5rem', width: 'calc(100% + 20px)' }}>
 								<RowBetween>
 									<TYPE.main fontSize={'1.125rem'} fontWeight={700} style={{ whiteSpace: 'nowrap' }}>
-										Claim NFTs
+										NFTs to be won
 									</TYPE.main>
 								</RowBetween>
 							</ListOptions>

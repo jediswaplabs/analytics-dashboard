@@ -209,7 +209,17 @@ export const USER_LP_CONTEST_HISTORY = gql`
       block
       contestValue
       timestamp
+      isEligible
     }
+  }
+`
+export const USER_LP_CONTEST_PERCENTILE = gql`
+  query lpContestPercentile($user: String!) {
+    lpContestPercentile(
+      where: {
+        user: $user
+      }
+    )
   }
 `
 

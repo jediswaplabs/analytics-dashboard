@@ -11,7 +11,7 @@ import { useAllPairData, usePairData } from '../../contexts/PairData'
 import DoubleTokenLogo from '../DoubleLogo'
 import { useMedia } from 'react-use'
 import { useAllPairsInJediswap, useAllTokensInJediswap } from '../../contexts/GlobalData'
-import { TOKEN_BLACKLIST, PAIR_BLACKLIST } from '../../constants'
+import {TOKEN_BLACKLIST, TOKEN_WHITELIST} from '../../constants'
 
 import { transparentize } from 'polished'
 import {jediSwapClient} from '../../apollo/client'
@@ -326,7 +326,7 @@ export const Search = ({ small = false }) => {
             return 0
           })
           .filter((pair) => {
-            if (PAIR_BLACKLIST.includes(pair.id)) {
+            if (!(TOKEN_WHITELIST.includes(pair.token0.id) && TOKEN_WHITELIST.includes(pair.token1.id))) {
               return false
             }
             if (value && value.includes(' ')) {

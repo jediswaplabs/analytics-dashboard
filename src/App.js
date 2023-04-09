@@ -21,7 +21,7 @@ import LpContestAccountPage from "./pages/LpContestPage";
 import LocalLoader from './components/LocalLoader'
 import { useLatestBlocks } from './contexts/Application'
 import GoogleAnalyticsReporter from './components/analytics/GoogleAnalyticsReporter'
-import { PAIR_BLACKLIST, TOKEN_BLACKLIST } from './constants'
+import {TOKEN_WHITELIST} from './constants'
 import dayjs from "dayjs";
 
 const AppWrapper = styled.div`
@@ -108,7 +108,7 @@ function App() {
   const globalChartData = useGlobalChartData()
   const [latestBlock, headBlock] = useLatestBlocks();
 
-  const showWarning = headBlock && latestBlock ? headBlock.number - latestBlock.number > BLOCK_DIFFERENCE_THRESHOLD : false;
+  const showWarning = headBlock && latestBlock ? (headBlock.number - latestBlock.number) > BLOCK_DIFFERENCE_THRESHOLD : false;
 
   return (
     <ApolloProvider client={jediSwapClient}>
@@ -121,115 +121,111 @@ function App() {
           </WarningWrapper>
         )}
         {globalData && Object.keys(globalData).length > 0 && globalChartData && Object.keys(globalChartData).length > 0 ? (
-            <BrowserRouter>
-                <Route component={GoogleAnalyticsReporter} />
-                <Switch>
-                  <Route
-                    exacts
-                    strict
-                    path="/token/:tokenAddress"
-                    render={({ match }) => {
-                      if (
-                        isStarknetAddress(match.params.tokenAddress.toLowerCase()) &&
-                        !Object.keys(TOKEN_BLACKLIST).includes(match.params.tokenAddress.toLowerCase())
-                      ) {
-                        return (
+          <BrowserRouter>
+            <Route component={GoogleAnalyticsReporter} />
+            <Switch>
+              <Route
+                exacts
+                strict
+                path="/token/:tokenAddress"
+                render={({ match }) => {
+                  if (
+                    isStarknetAddress(match.params.tokenAddress.toLowerCase()) &&
+                    TOKEN_WHITELIST.includes(match.params.tokenAddress.toLowerCase())
+                  ) {
+                    return (
+                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                        <TokenPage address={match.params.tokenAddress.toLowerCase()} />
+                      </LayoutWrapper>
+                    )
+                  } else {
+                    return <Redirect to="/home" />
+                  }
+                }}
+              />
+              <Route
+                exacts
+                strict
+                path="/pair/:pairAddress"
+                render={({ match }) => {
+                  if (isStarknetAddress(match.params.pairAddress.toLowerCase())) {
+                    return (
+                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                        <PairPage pairAddress={match.params.pairAddress.toLowerCase()} />
+                      </LayoutWrapper>
+                    )
+                  } else {
+                    return <Redirect to="/home" />
+                  }
+                }}
+              />
+              <Route
+                exacts
+                strict
+                path="/account/:accountAddress"
+                render={({ match }) => {
+                  if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
+                    return (
+                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                        <AccountPage account={match.params.accountAddress.toLowerCase()} />
+                      </LayoutWrapper>
+                    )
+                  } else {
+                    return <Redirect to="/home" />
+                  }
+                }}
+              />
+
+              <Route path="/home">
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <GlobalPage />
+                </LayoutWrapper>
+              </Route>
+
+              <Route path="/tokens">
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <AllTokensPage />
+                </LayoutWrapper>
+              </Route>
+
+              <Route path="/pairs">
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <AllPairsPage />
+                </LayoutWrapper>
+              </Route>
+
+              <Route path="/accounts">
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <AccountLookup />
+                </LayoutWrapper>
+              </Route>
+
+              <Route
+                  exacts
+                  strict
+                  path="/lp-contest/:accountAddress"
+                  render={({ match }) => {
+                    if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
+                      return (
                           <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                            <TokenPage address={match.params.tokenAddress.toLowerCase()} />
+                            <LpContestAccountPage account={match.params.accountAddress.toLowerCase()} />
                           </LayoutWrapper>
-                        )
-                      } else {
-                        return <Redirect to="/home" />
-                      }
-                    }}
-                  />
-                  <Route
-                    exacts
-                    strict
-                    path="/pair/:pairAddress"
-                    render={({ match }) => {
-                      if (
-                          isStarknetAddress(match.params.pairAddress.toLowerCase()) &&
-                        !Object.keys(PAIR_BLACKLIST).includes(match.params.pairAddress.toLowerCase())
-                      ) {
-                        return (
-                          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                            <PairPage pairAddress={match.params.pairAddress.toLowerCase()} />
-                          </LayoutWrapper>
-                        )
-                      } else {
-                        return <Redirect to="/home" />
-                      }
-                    }}
-                  />
+                      )
+                    } else {
+                      return <Redirect to="/home" />
+                    }
+                  }}
+              />
 
-                  <Route
-                    exacts
-                    strict
-                    path="/account/:accountAddress"
-                    render={({ match }) => {
-                      if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
-                        return (
-                          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                            <AccountPage account={match.params.accountAddress.toLowerCase()} />
-                          </LayoutWrapper>
-                        )
-                      } else {
-                        return <Redirect to="/home" />
-                      }
-                    }}
-                  />
+              <Route path="/lp-contest/">
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <LpContestLookup />
+                </LayoutWrapper>
+              </Route>
 
-                  <Route path="/home">
-                    <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                      <GlobalPage />
-                    </LayoutWrapper>
-                  </Route>
-
-                  <Route path="/tokens">
-                    <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                      <AllTokensPage />
-                    </LayoutWrapper>
-                  </Route>
-
-                  <Route path="/pairs">
-                    <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                      <AllPairsPage />
-                    </LayoutWrapper>
-                  </Route>
-
-                  <Route path="/accounts">
-                    <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                      <AccountLookup />
-                    </LayoutWrapper>
-                  </Route>
-
-                    <Route
-                        exacts
-                        strict
-                        path="/lp-contest/:accountAddress"
-                        render={({ match }) => {
-                            if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
-                                return (
-                                    <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                                        <LpContestAccountPage account={match.params.accountAddress.toLowerCase()} />
-                                    </LayoutWrapper>
-                                )
-                            } else {
-                                return <Redirect to="/home" />
-                            }
-                        }}
-                    />
-
-                  <Route path="/lp-contest/">
-                    <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                      <LpContestLookup />
-                    </LayoutWrapper>
-                  </Route>
-
-                    <Redirect to="/home" />
-                </Switch>
-            </BrowserRouter>
+              <Redirect to="/home" />
+            </Switch>
+          </BrowserRouter>
         ) : (
           <LocalLoader fill="true" />
         )}

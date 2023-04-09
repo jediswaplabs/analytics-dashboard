@@ -44,7 +44,7 @@ import { Bookmark, PlusCircle, AlertCircle } from 'react-feather'
 import FormattedName from '../components/FormattedName'
 import { useListedTokens } from '../contexts/Application'
 import HoverText from '../components/HoverText'
-import { UNTRACKED_COPY, PAIR_BLACKLIST, BLOCKED_WARNINGS } from '../constants'
+import {UNTRACKED_COPY, BLOCKED_WARNINGS, TOKEN_WHITELIST} from '../constants'
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -202,7 +202,7 @@ function PairPage({ pairAddress, history }) {
 
   const listedTokens = useListedTokens()
 
-  if (PAIR_BLACKLIST.includes(pairAddress)) {
+  if (!(TOKEN_WHITELIST.includes(token0.id) && TOKEN_WHITELIST.includes(token1.id))) {
     return (
       <BlockedWrapper>
         <BlockedMessageWrapper>

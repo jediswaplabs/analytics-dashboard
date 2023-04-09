@@ -1,17 +1,28 @@
 import React, {useMemo, useEffect } from 'react'
 import styled from 'styled-components'
-import { useUserLpCampaignTransactions, useLpContestUserSnapshots } from '../contexts/User'
+import {
+  useUserLpCampaignTransactions,
+  useLpContestUserSnapshots,
+  useLpContestUPercentile,
+  useLpContestPercentile
+} from '../contexts/User'
 import TxnList from '../components/TxnList'
 import Panel from '../components/Panel'
-import {formattedNum, shortenStraknetAddress, urls} from '../utils'
-import { RowBetween } from '../components/Row'
+import {formattedNum, formattedPercent, shortenStraknetAddress, urls} from '../utils'
+import {AutoRow, RowBetween} from '../components/Row'
 import { AutoColumn } from '../components/Column'
 import { TYPE } from '../Theme'
 import {PageWrapper, ContentWrapper} from '../components'
-import Link from '../components/Link'
+import Link, {CustomLink} from '../components/Link'
 import { BasicLink } from '../components/Link'
 
+import eligibilityBadgeIcon from '../../src/assets/starBadge.svg';
+
 import LpContestUserChart from "../components/LpContestUserChart";
+
+const EligibilityBadge = styled.img`
+
+`
 
 const PanelWrapper = styled.div`
   grid-template-columns: 1fr;
@@ -30,12 +41,19 @@ const DashboardWrapper = styled.div`
 
 function LpContestAccountPage({ account }) {
   const userData = useLpContestUserSnapshots(account)
+  const userPercentile = useLpContestPercentile(account)
   const transactions = useUserLpCampaignTransactions(account)
 
   let userPoints = useMemo(() => {
     return userData?.length
         ? userData[0].contestValue
         : 0
+  }, [userData])
+
+  let isUserEligible = useMemo(() => {
+    return userData?.length
+        ? userData[0].isEligible
+        : false
   }, [userData])
 
   useEffect(() => {
@@ -50,7 +68,7 @@ function LpContestAccountPage({ account }) {
         <ContentWrapper>
           <RowBetween>
             <TYPE.body>
-              <BasicLink to="/lp-contest">{'LP Campaign Dashboard '}</BasicLink>→{' '}
+              <BasicLink to="/lp-contest">{'Rise of the first LPs'}</BasicLink>→{' '}
               <Link lineHeight={'145.23%'} href={urls.showAddress(account)} target="_blank">
                 {' '}{shortenStraknetAddress(account)}{' '}
               </Link>
@@ -59,7 +77,10 @@ function LpContestAccountPage({ account }) {
           <Header>
             <RowBetween>
               <span>
-                <TYPE.header fontSize={24}>{shortenStraknetAddress(account)}</TYPE.header>
+                <div style={{display: 'flex', justifyContent: "flex-start"}}>
+					<TYPE.header fontSize={24}>{shortenStraknetAddress(account)}</TYPE.header>
+                    {isUserEligible && <EligibilityBadge src={eligibilityBadgeIcon} style={{marginLeft: '12px'}}/>}
+				</div>
                 <Link lineHeight={'145.23%'} href={urls.showAddress(account)} target="_blank">
                   <TYPE.main fontSize={14}>View on Starkscan</TYPE.main>
                 </Link>
@@ -71,15 +92,17 @@ function LpContestAccountPage({ account }) {
               Campaign Performance
             </TYPE.main>
 
-            <Panel
-                style={{
-                  marginTop: '1.5rem',
-                }}
-            >
-              <AutoColumn gap="5px">
-                <TYPE.main>Contest points</TYPE.main>
-                <TYPE.header fontSize={24}>{!userData ? '...' : formattedNum(userPoints)}</TYPE.header>
-              </AutoColumn>
+            <Panel style={{marginTop: '1.5rem'}}>
+              <AutoRow gap={'25px'}>
+                <AutoColumn gap="5px">
+                  <TYPE.main>Contest points</TYPE.main>
+                  <TYPE.header fontSize={24}>{!userData ? '...' : formattedNum(userPoints)}</TYPE.header>
+                </AutoColumn>
+                <AutoColumn gap="5px">
+                  <TYPE.main>Percentile Score</TYPE.main>
+                  <TYPE.header fontSize={24}>{!userPercentile ? '...' : userPercentile + '%'}</TYPE.header>
+                </AutoColumn>
+              </AutoRow>
             </Panel>
 
             <TYPE.main fontSize={'1'} style={{ marginTop: '3rem' }}>
