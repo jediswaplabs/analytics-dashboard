@@ -17,6 +17,8 @@ const Decimal = toFormat(_Decimal)
 BigNumber.set({ EXPONENTIAL_AT: 50 })
 dayjs.extend(utc)
 
+export const zeroStarknetAddress = validateAndParseAddress();
+
 export function getTimeframe(timeWindow) {
   const utcEndTime = dayjs.utc()
   // based on window, get starttime
@@ -310,10 +312,13 @@ export const isAddress = (value) => {
   }
 }
 
-export const isStarknetAddress = (value) => {
+export const isStarknetAddress = (value, validateLength = false) => {
   if (!value) { return false }
+  const processedValue = value.toLowerCase();
   try {
-    return validateAndParseAddress(value.toLowerCase())
+    if (!processedValue.startsWith('0x')) { return false; }
+    if (validateLength && processedValue.length !== zeroStarknetAddress.length) { return false;}
+    return validateAndParseAddress(processedValue);
   } catch {
     return false
   }

@@ -19,6 +19,8 @@ import {useLatestBlocks} from "../contexts/Application";
 import {useAllLpContestData} from "../contexts/LpContestData";
 
 import contestFlagIcon from '../../src/assets/flag.svg';
+import {AutoColumn} from "../components/Column";
+import LpContestNftCategories from "../components/LpContestNftCategories";
 
 const Title = styled.div`
   display: flex;
@@ -60,7 +62,7 @@ const LeaderboardGridRow = styled.div`
   align-items: flex-start;
   justify-content: space-between;
 
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 1150px) {
   	grid-template-columns: minmax(0,1fr);
     row-gap: 20px;
   }
@@ -77,8 +79,8 @@ const ListOptions = styled(AutoRow)`
   }
 `
 
-const CAMPAIGN_START_DATE_ISO = '2023-03-17T18:59:00.000Z';
-const CAMPAIGN_END_DATE_ISO = '2023-03-30T00:00:00.000Z';
+const CAMPAIGN_START_DATE_ISO = '2023-04-17T00:00:00.000Z';
+const CAMPAIGN_END_DATE_ISO = '2023-07-26T00:00:00.000Z';
 
 function LpContestLookup() {
 	const allPlayersData = useAllLpContestData();
@@ -136,8 +138,8 @@ function LpContestLookup() {
 					</BannerGridRow>
 
 					<LeaderboardGridRow style={{marginTop: '25px'}}>
-						<div>
-							<ListOptions gap="10px" style={{marginBottom: '.5rem', width: 'calc(100% + 20px)' }}>
+						<AutoColumn>
+							<ListOptions gap="10px" style={{marginBottom: '10px', width: 'calc(100% + 20px)' }}>
 								<RowBetween>
 									<TYPE.main fontSize={'1.125rem'} fontWeight={700} style={{ whiteSpace: 'nowrap' }}>
 										Contest Leaderboard
@@ -145,17 +147,15 @@ function LpContestLookup() {
 								</RowBetween>
 							</ListOptions>
 							<LpContestLeaderboard players={allPlayersData}/>
-						</div>
-						<div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-							<ListOptions gap="10px" style={{marginBottom: '.5rem', width: 'calc(100% + 20px)' }}>
-								<RowBetween>
-									<TYPE.main fontSize={'1.125rem'} fontWeight={700} style={{ whiteSpace: 'nowrap' }}>
-										NFTs to be won
-									</TYPE.main>
-								</RowBetween>
-							</ListOptions>
-							<LpContestNftClaim style={{flexGrow: '1'}}></LpContestNftClaim>
-						</div>
+						</AutoColumn>
+						<AutoColumn gap={'20px'} style={{display: 'flex', flexDirection: 'column'}}>
+							<div>
+								<LpContestNftCategories />
+							</div>
+							<div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+								<LpContestNftClaim style={{flexGrow: '1'}}></LpContestNftClaim>
+							</div>
+						</AutoColumn>
 					</LeaderboardGridRow>
 				</div>
 			</FullWrapper>

@@ -7,21 +7,35 @@ import { Play } from 'react-feather'
 import 'swiper/swiper.css';
 import 'swiper/modules/navigation/navigation.min.css';
 
-import ShrimpNFT from './shrimp.svg';
-import OctopusNFT from './octopus.svg';
+import L1PW from './L1PW.png';
+import L1P2 from './L1P2.png';
+import L1P3 from './L1P3.png';
+import L1P4 from './L1P4.png';
+import L1P5 from './L1P5.png';
+
+import L1PW_x2 from './L1PW@x2.png';
+import L1P2_x2 from './L1P2@x2.png';
+import L1P3_x2 from './L1P3@x2.png';
+import L1P4_x2 from './L1P4@x2.png';
+import L1P5_x2 from './L1P5@x2.png';
 
 import Panel from "../Panel";
-import {TYPE} from "../../Theme";
 
 const Wrapper = styled(Panel)`
   display: flex;
   flex-direction: column;
   margin-top: 6px; 
-  padding: 20px 24px; 
+  padding: 32px 24px; 
   border-radius: 5px;
 `
 
-const Title = styled.div``;
+const Title = styled.div`
+	margin-bottom: 20px;
+	font-size: 18px;
+	font-weight: 700;
+	color: #fff;
+	text-align: center;
+`;
 
 const Slider = styled.div`
   position: relative;
@@ -37,6 +51,10 @@ const Slider = styled.div`
   .swiper-slide {
     text-align: center;
     user-select: none;
+    
+    img {
+      max-width: 270px;
+    }
   }
 `;
 
@@ -75,9 +93,7 @@ function LpContestNftClaim() {
 	return (
 		<Wrapper>
 			<Title>
-				<TYPE.main lineHeight={'1.5rem'}>
-					Liquidity providers need the Minimum required contest points for an NFT to get it unlocked for claim
-				</TYPE.main>
+					NFTs Showcase
 			</Title>
 			<Slider>
 				<Swiper
@@ -96,12 +112,20 @@ function LpContestNftClaim() {
 					}}
 				>
 					<SwiperSlide>
-						<img src={ShrimpNFT} alt={''}/>
+						<img src={L1PW} srcSet={L1PW + ' 1x,' + L1PW_x2 + ' 2x'}/>
 					</SwiperSlide>
 					<SwiperSlide>
-						<img src={OctopusNFT} alt={''}/>
+						<img src={L1P2} srcSet={L1P2 + ' 1x,' + L1P2_x2 + ' 2x'}/>
 					</SwiperSlide>
-
+					<SwiperSlide>
+						<img src={L1P3} srcSet={L1P3 + ' 1x,' + L1P3_x2 + ' 2x'}/>
+					</SwiperSlide>
+					<SwiperSlide>
+						<img src={L1P4} srcSet={L1P4 + ' 1x,' + L1P4_x2 + ' 2x'} />
+					</SwiperSlide>
+					<SwiperSlide>
+						<img src={L1P5} srcSet={L1P5 + ' 1x,' + L1P5_x2 + ' 2x'} />
+					</SwiperSlide>
 					<NavigationArrowPrev ref={navigationPrevRef}>
 						<Play size={30} />
 					</NavigationArrowPrev>

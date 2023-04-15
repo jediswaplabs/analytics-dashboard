@@ -10,12 +10,15 @@ import Switch from "react-switch";
 import {CustomLink} from '../Link'
 import LocalLoader from '../LocalLoader'
 import {Divider, EmptyCard} from '..'
-import {formattedNum, shortenStraknetAddress} from '../../utils'
+import {formattedNum, isStarknetAddress, shortenStraknetAddress, zeroStarknetAddress} from '../../utils'
 import {TYPE} from '../../Theme'
 import Panel from "../Panel";
 
 import eligibilityBadgeIcon from '../../../src/assets/starBadge.svg';
 import {AutoRow, RowBetween} from "../Row";
+import {AutoColumn} from "../Column";
+import {ButtonDark} from "../ButtonStyled";
+import {withRouter} from "react-router-dom";
 
 dayjs.extend(utc)
 
@@ -35,6 +38,45 @@ const Arrow = styled.div`
 
   :hover {
     cursor: pointer;
+  }
+`
+
+const SearchWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  border-radius: 12px;
+`
+
+const Input = styled.input`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: ${({ theme }) => theme.text1};
+  background-color: ${({ theme }) => theme.bg1};
+  font-size: 16px;
+  //margin-right: 1rem;
+
+  border: 1px solid ${({ theme }) => theme.bg3};
+
+  ::placeholder {
+    color: ${({ theme }) => theme.text3};
+    font-size: 14px;
+  }
+
+  @media screen and (max-width: 640px) {
+    ::placeholder {
+      font-size: 1rem;
+    }
   }
 `
 
@@ -110,9 +152,10 @@ const DataText = styled(Flex)`
   }
 `
 
-function LpContestLeaderboard({players, maxItems = 10}) {
+function LpContestLeaderboard({history, players, maxItems = 10}) {
 	const [isEligibilityFilterChecked, setIsEligibilityFilterChecked] = useState(false);
-	const [searchQuery, setSearchQuery] = useState('');
+	const [checkAccountQuery, setCheckAccountQuery] = useState('');
+	const [isCheckAccountAddressValid, setIsCheckAccountAddressValid] = useState(false);
 	const [page, setPage] = useState(1)
 	const [maxPage, setMaxPage] = useState(1)
 	const ITEMS_PER_PAGE = maxItems
@@ -125,25 +168,29 @@ function LpContestLeaderboard({players, maxItems = 10}) {
 				.filter((playerId) => {
 					return (isEligibilityFilterChecked) ? players[playerId]?.isEligible : true
 				})
-				.filter((playerId) => {
-					if (!searchQuery) { return true }
-					return playerId.toLowerCase().includes(searchQuery.toLowerCase());
-				})
 				.map((key) => players[key])
 		)
-	}, [arePlayersAvailable, players, isEligibilityFilterChecked, searchQuery])
+	}, [arePlayersAvailable, players, isEligibilityFilterChecked])
 
 	const handleEligibilitySwitcherChange = useCallback(() => {
 		setIsEligibilityFilterChecked((v) => !v);
 	}, []);
 
-	const handleSearchInputChange = useCallback((e) => {
+	const handleCheckAccountInputChange = useCallback((e) => {
 		const value = e.currentTarget.value;
 		if (!value) {
-			setSearchQuery('');
+			setCheckAccountQuery('');
+			setIsCheckAccountAddressValid(false);
+			return;
 		}
-		setSearchQuery(value);
-	}, [setSearchQuery]);
+		setCheckAccountQuery(value);
+		setIsCheckAccountAddressValid(isStarknetAddress(value, true));
+	}, [setCheckAccountQuery]);
+
+	const handleAccountSearch = useCallback((e) => {
+		if (!(isCheckAccountAddressValid && checkAccountQuery)) { return }
+		history.push('/lp-contest/' + checkAccountQuery)
+	}, [isCheckAccountAddressValid, checkAccountQuery]);
 
 	useEffect(() => {
 		setMaxPage(1) // edit this to do modular
@@ -190,85 +237,94 @@ function LpContestLeaderboard({players, maxItems = 10}) {
 			)
 		})
 
-	if (!arePlayersAvailable) {
-		return <LocalLoader/>
-	}
+	// if (!arePlayersAvailable) {
+	// 	return <LocalLoader/>
+	// }
 
 
 	return (
 		<>
-			<ListOptions gap="10px" style={{marginBottom: '.5rem', width: 'calc(100% + 20px)'}}>
-				<RowBetween>
-					<LeaderboardNote>
-						<span style={{marginRight: '1rem'}}>Filter by Eligible LP</span>
-						<Switcher
-							onColor={'#fff'}
-							offColor={'#959595'}
-							onHandleColor={'#FF00E9'}
-							offHandleColor={'#959595'}
-							uncheckedIcon={false}
-							checkedIcon={false}
-							handleDiameter={16}
-							height={12}
-							width={32}
-							onChange={handleEligibilitySwitcherChange}
-							checked={isEligibilityFilterChecked}
+			<AutoColumn gap={"20px"}>
+				<AutoRow gap={"10px"} style={{width: 'calc(100% + 10px)'}}>
+					<SearchWrapper>
+						<Input
+							type='text'
+							value={checkAccountQuery}
+							onChange={handleCheckAccountInputChange}
+							placeholder={'0x...'}
+							maxLength={zeroStarknetAddress.length}
 						/>
-					</LeaderboardNote>
-					<LeaderboardNote>
-						<BarChart size={16} style={{marginRight: '1rem', transform: 'scaleX(-1)'}}/>
-						Sorted by Contest points
-					</LeaderboardNote>
-				</RowBetween>
-			</ListOptions>
+					</SearchWrapper>
+					<div>
+						<ButtonDark onClick={handleAccountSearch} disabled={!isCheckAccountAddressValid}>Check Account</ButtonDark>
+					</div>
+				</AutoRow>
 
-			<ListOptions gap="10px" style={{marginBottom: '.5rem', width: 'calc(100% + 20px)'}}>
-				<input type='text' value={searchQuery} onChange={handleSearchInputChange}/>
-			</ListOptions>
+				<RowBetween>
+						<LeaderboardNote>
+							<span style={{marginRight: '1rem'}}>Filter by Eligible LP</span>
+							<Switcher
+								onColor={'#fff'}
+								offColor={'#959595'}
+								onHandleColor={'#FF00E9'}
+								offHandleColor={'#959595'}
+								uncheckedIcon={false}
+								checkedIcon={false}
+								handleDiameter={16}
+								height={12}
+								width={32}
+								onChange={handleEligibilitySwitcherChange}
+								checked={isEligibilityFilterChecked}
+							/>
+						</LeaderboardNote>
+						<LeaderboardNote>
+							<BarChart size={16} style={{marginRight: '1rem', transform: 'scaleX(-1)'}}/>
+							Sorted by Contest points
+						</LeaderboardNote>
+					</RowBetween>
 
+				<Panel style={{marginTop: '6px', padding: '0rem 0', borderRadius: '5px'}}>
+					<ListWrapper>
+						<DashGrid
+							center={true}
+							style={{
+								height: 'fit-content',
+								padding: '1rem 0 1rem 0',
+								backgroundColor: '#ffffff33',
+								borderRadius: '5px',
+							}}
+						>
+							<Flex alignItems="center" justifyContent="center">
+								<TYPE.main area="number">Rank</TYPE.main>
+							</Flex>
+							<Flex alignItems="center" justifyContent="flex-start">
+								<TYPE.main area="name">Address</TYPE.main>
+							</Flex>
 
-			<Panel style={{marginTop: '6px', padding: '0rem 0', borderRadius: '5px'}}>
-				<ListWrapper>
-					<DashGrid
-						center={true}
-						style={{
-							height: 'fit-content',
-							padding: '1rem 0 1rem 0',
-							backgroundColor: '#ffffff33',
-							borderRadius: '5px',
-						}}
-					>
-						<Flex alignItems="center" justifyContent="center">
-							<TYPE.main area="number">Rank</TYPE.main>
-						</Flex>
-						<Flex alignItems="center" justifyContent="flex-start">
-							<TYPE.main area="name">Address</TYPE.main>
-						</Flex>
-
-						<Flex alignItems="center" justifyContent="center">
-							<TYPE.main area="value">Contest Points</TYPE.main>
-						</Flex>
-					</DashGrid>
-					<Divider/>
-					{!playersList.length ? (
-						<EmptyCard style={{margin: '15px 0', height: 'auto'}}>No data found.</EmptyCard>
-					) : (
-						<List p={0}>{playersList}</List>
-					)}
-					<PageButtons>
-						<div onClick={() => setPage(page === 1 ? page : page - 1)}>
-							<Arrow faded={page === 1 ? true : false}>←</Arrow>
-						</div>
-						<TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
-						<div onClick={() => setPage(page === maxPage ? page : page + 1)}>
-							<Arrow faded={page === maxPage ? true : false}>→</Arrow>
-						</div>
-					</PageButtons>
-				</ListWrapper>
-			</Panel>
-
+							<Flex alignItems="center" justifyContent="center">
+								<TYPE.main area="value">Contest Points</TYPE.main>
+							</Flex>
+						</DashGrid>
+						<Divider/>
+						{!playersList?.length ? (
+							<EmptyCard style={{margin: '15px 0', height: 'auto'}}>No data found.</EmptyCard>
+						) : (
+							<List p={0}>{playersList}</List>
+						)}
+						<PageButtons>
+							<div onClick={() => setPage(page === 1 ? page : page - 1)}>
+								<Arrow faded={page === 1 ? true : false}>←</Arrow>
+							</div>
+							<TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
+							<div onClick={() => setPage(page === maxPage ? page : page + 1)}>
+								<Arrow faded={page === maxPage ? true : false}>→</Arrow>
+							</div>
+						</PageButtons>
+					</ListWrapper>
+				</Panel>
+			</AutoColumn>
 		</>
 	)
 }
 
-export default LpContestLeaderboard
+export default withRouter(LpContestLeaderboard)
