@@ -287,7 +287,7 @@ export const Search = ({ small = false }) => {
             return 1
           })
           .filter((token) => {
-            if (TOKEN_BLACKLIST.includes(token.id)) {
+            if (!TOKEN_WHITELIST.includes(token.id)) {
               return false
             }
             const regexMatches = Object.keys(token).map((tokenEntryKey) => {

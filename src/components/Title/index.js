@@ -101,7 +101,7 @@ export default function Title() {
                       undefined
                   }
               >
-                LP Campaign
+                Contest
               </Option>
             </BasicLink>
           </RowFixed>

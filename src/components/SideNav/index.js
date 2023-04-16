@@ -164,7 +164,7 @@ function SideNav({ history }) {
                     }
                   >
                     <Flag size={18} style={{ marginRight: '.75rem' }} />
-                    LP Campaign
+                    Contest
                   </Option>
                 </BasicLink>
               </AutoColumn>

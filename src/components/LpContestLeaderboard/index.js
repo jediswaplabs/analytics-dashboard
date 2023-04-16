@@ -6,6 +6,9 @@ import styled from 'styled-components'
 
 import {BarChart} from 'react-feather'
 import Switch from "react-switch";
+import 'react-tooltip/dist/react-tooltip.css'
+
+import { Tooltip as ReactTooltip } from 'react-tooltip'
 
 import {CustomLink} from '../Link'
 import LocalLoader from '../LocalLoader'
@@ -19,6 +22,8 @@ import {AutoRow, RowBetween} from "../Row";
 import {AutoColumn} from "../Column";
 import {ButtonDark} from "../ButtonStyled";
 import {withRouter} from "react-router-dom";
+import {Tooltip} from "../QuestionHelper";
+import FormattedName from "../FormattedName";
 
 dayjs.extend(utc)
 
@@ -152,6 +157,17 @@ const DataText = styled(Flex)`
   }
 `
 
+const StyledReactTooltip = styled(ReactTooltip)`
+  opacity: 1;
+  background: rgba(255, 255, 255);
+  border-radius: 4px;
+  font-family: DM Sans;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 11px;
+  text-align: left;
+`
+
 function LpContestLeaderboard({history, players, maxItems = 10}) {
 	const [isEligibilityFilterChecked, setIsEligibilityFilterChecked] = useState(false);
 	const [checkAccountQuery, setCheckAccountQuery] = useState('');
@@ -214,11 +230,13 @@ function LpContestLeaderboard({history, players, maxItems = 10}) {
 					{index}
 				</DataText>
 				<DataText area="name" fontWeight="500" justifyContent="flex-start">
-					<CustomLink style={{whiteSpace: 'nowrap'}} to={'/lp-contest/' + player.user.id}>
+					<CustomLink style={{whiteSpace: 'nowrap', marginRight: '15px'}} to={'/lp-contest/' + player.user.id}>
 						{shortenStraknetAddress(player.user.id, 6)}
 					</CustomLink>
 					{player?.isEligible && (
-						<EligibilityBadge src={eligibilityBadgeIcon} style={{marginLeft: '15px'}}/>
+						<a className="eligibility-badge" data-tooltip-content="Eligible for NFT" data-tooltip-place="right">
+							<EligibilityBadge src={eligibilityBadgeIcon}/>
+						</a>
 					)}
 				</DataText>
 				<DataText area="value" justifyContent="center">{formattedNum(player.contestValue)}</DataText>
@@ -283,7 +301,7 @@ function LpContestLeaderboard({history, players, maxItems = 10}) {
 						</LeaderboardNote>
 					</RowBetween>
 
-				<Panel style={{marginTop: '6px', padding: '0rem 0', borderRadius: '5px'}}>
+				<Panel style={{marginTop: '6px', padding: '0rem 0', borderRadius: '5px', height: 'auto'}}>
 					<ListWrapper>
 						<DashGrid
 							center={true}
@@ -323,6 +341,7 @@ function LpContestLeaderboard({history, players, maxItems = 10}) {
 					</ListWrapper>
 				</Panel>
 			</AutoColumn>
+			<ReactTooltip anchorSelect=".eligibility-badge" style={{ backgroundColor: "rgb(0, 0, 0)", color: "#fff" }}/>
 		</>
 	)
 }

@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import {
   useUserLpCampaignTransactions,
   useLpContestUserSnapshots,
-  useLpContestUPercentile,
   useLpContestPercentile
 } from '../contexts/User'
 import TxnList from '../components/TxnList'
@@ -13,7 +12,7 @@ import {AutoRow, RowBetween} from '../components/Row'
 import { AutoColumn } from '../components/Column'
 import { TYPE } from '../Theme'
 import {PageWrapper, ContentWrapper} from '../components'
-import Link, {CustomLink} from '../components/Link'
+import Link from '../components/Link'
 import { BasicLink } from '../components/Link'
 
 import eligibilityBadgeIcon from '../../src/assets/starBadge.svg';
@@ -100,7 +99,7 @@ function LpContestAccountPage({ account }) {
                 </AutoColumn>
                 <AutoColumn gap="5px">
                   <TYPE.main>Percentile Score</TYPE.main>
-                  <TYPE.header fontSize={24}>{!userPercentile ? '...' : userPercentile + '%'}</TYPE.header>
+                  <TYPE.header fontSize={24}>{!userPercentile?.percentileRank ? '...' : userPercentile?.percentileRank + '%'}</TYPE.header>
                 </AutoColumn>
               </AutoRow>
             </Panel>

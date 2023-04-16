@@ -215,11 +215,10 @@ export const USER_LP_CONTEST_HISTORY = gql`
 `
 export const USER_LP_CONTEST_PERCENTILE = gql`
   query lpContestPercentile($user: String!) {
-    lpContestPercentile(
-      where: {
-        user: $user
-      }
-    )
+    lpContestPercentile(where: { user: $user }) {
+      percentileRank
+      rank
+    }
   }
 `
 

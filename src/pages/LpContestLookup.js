@@ -62,7 +62,7 @@ const LeaderboardGridRow = styled.div`
   align-items: flex-start;
   justify-content: space-between;
 
-  @media screen and (max-width: 1150px) {
+  @media screen and (max-width: 1180px) {
   	grid-template-columns: minmax(0,1fr);
     row-gap: 20px;
   }
@@ -148,7 +148,7 @@ function LpContestLookup() {
 							</ListOptions>
 							<LpContestLeaderboard players={allPlayersData}/>
 						</AutoColumn>
-						<AutoColumn gap={'20px'} style={{display: 'flex', flexDirection: 'column'}}>
+						<AutoColumn gap={'20px'} style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
 							<div>
 								<LpContestNftCategories />
 							</div>

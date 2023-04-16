@@ -2,10 +2,12 @@ import React, {useRef} from 'react'
 import styled from 'styled-components'
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper';
+import { EffectFade } from 'swiper';
 import { Play } from 'react-feather'
 
 import 'swiper/swiper.css';
 import 'swiper/modules/navigation/navigation.min.css';
+import "swiper/modules/effect-fade/effect-fade.min.css";
 
 import L1PW from './L1PW.png';
 import L1P2 from './L1P2.png';
@@ -35,6 +37,7 @@ const Title = styled.div`
 	font-weight: 700;
 	color: #fff;
 	text-align: center;
+  user-select: none;
 `;
 
 const Slider = styled.div`
@@ -48,12 +51,17 @@ const Slider = styled.div`
     width: 100%;
   }
   
+  .swiper-wrapper {
+    align-items: center;
+  }
+  
   .swiper-slide {
     text-align: center;
     user-select: none;
     
     img {
       max-width: 270px;
+      width: 100%;
     }
   }
 `;
@@ -66,6 +74,7 @@ const NavigationArrow = styled.div`
   transform: translate(0, -50%);
   cursor: pointer;
   z-index: 1;
+  user-select: none;
 
   svg {
     fill: #50D5FF;
@@ -93,12 +102,14 @@ function LpContestNftClaim() {
 	return (
 		<Wrapper>
 			<Title>
-					NFTs Showcase
+				NFTs Showcase
 			</Title>
 			<Slider>
 				<Swiper
-					modules={[Navigation]}
+					modules={[Navigation, EffectFade]}
 					spaceBetween={0}
+					effect={'fade'}
+					speed={0}
 					slidesPerView={1}
 					navigation={{
 						prevEl: navigationPrevRef.current,
