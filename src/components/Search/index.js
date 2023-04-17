@@ -11,10 +11,10 @@ import { useAllPairData, usePairData } from '../../contexts/PairData'
 import DoubleTokenLogo from '../DoubleLogo'
 import { useMedia } from 'react-use'
 import { useAllPairsInJediswap, useAllTokensInJediswap } from '../../contexts/GlobalData'
-import {TOKEN_BLACKLIST, TOKEN_WHITELIST} from '../../constants'
+import { TOKEN_WHITELIST } from '../../constants'
 
 import { transparentize } from 'polished'
-import {jediSwapClient} from '../../apollo/client'
+import { jediSwapClient } from '../../apollo/client'
 import { PAIR_SEARCH, TOKEN_SEARCH } from '../../apollo/queries'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
@@ -287,7 +287,7 @@ export const Search = ({ small = false }) => {
             return 1
           })
           .filter((token) => {
-            if (TOKEN_BLACKLIST.includes(token.id)) {
+            if (!TOKEN_WHITELIST.includes(token.id)) {
               return false
             }
             const regexMatches = Object.keys(token).map((tokenEntryKey) => {

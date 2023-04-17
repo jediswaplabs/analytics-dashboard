@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { transparentize } from 'polished'
 import { TYPE } from '../../Theme'
 import { withRouter } from 'react-router-dom'
-import { TrendingUp, List, PieChart, Disc } from 'react-feather'
+import { TrendingUp, List, PieChart, Disc, Flag } from 'react-feather'
 import Link from '../Link'
 import { useSessionStart } from '../../contexts/Application'
 
@@ -153,6 +153,18 @@ function SideNav({ history }) {
                   >
                     <List size={20} style={{ marginRight: '.75rem' }} />
                     Accounts
+                  </Option>
+                </BasicLink>
+
+                <BasicLink to="/lp-contest">
+                  <Option
+                    activeText={
+                      (history.location.pathname.split('/')[1] === 'lp-contest') ??
+                      undefined
+                    }
+                  >
+                    <Flag size={18} style={{ marginRight: '.75rem' }} />
+                    Contest
                   </Option>
                 </BasicLink>
               </AutoColumn>

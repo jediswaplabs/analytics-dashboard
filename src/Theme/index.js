@@ -47,7 +47,7 @@ const theme = (darkMode, color) => ({
   modalBG: darkMode ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.6)',
   advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.4)',
   onlyLight: darkMode ? '#252323' : 'transparent',
-  divider: darkMode ? 'rgba(43, 43, 43, 0.435)' : 'rgba(43, 43, 43, 0.035)',
+  divider: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.2)',
 
   //primary colors
   primary1: darkMode ? '#2172E5' : '#FF00E9',
@@ -69,6 +69,7 @@ const theme = (darkMode, color) => ({
   // other
   red1: '#FF6871',
   green1: '#27AE60',
+  green2: '#21E70F',
   yellow1: '#FFE270',
   yellow2: '#F3841E',
   link: '#50D5FF',

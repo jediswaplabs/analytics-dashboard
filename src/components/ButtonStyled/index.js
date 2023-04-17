@@ -103,9 +103,16 @@ export const ButtonDark = styled(Base)`
   border-radius: 12px;
   white-space: nowrap;
 
-  :hover {
-    background-color: ${({ color, theme }) => (color ? darken(0.1, color) : darken(0.1, theme.primary1))};
-  }
+    ${(props) => !props.disabled && `
+          :hover {
+            background-color: ${({ color, theme }) => (color ? darken(0.1, color) : darken(0.1, theme.primary1))};
+          }
+    `}
+    
+    ${(props) => props.disabled && `
+        opacity: 0.5;
+        cursor: default;
+    `}
 `
 
 export const ButtonFaded = styled(Base)`

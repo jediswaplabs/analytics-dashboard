@@ -195,6 +195,33 @@ export const USER_HISTORY = gql`
   }
 `
 
+export const USER_LP_CONTEST_HISTORY = gql`
+  query lpContestSnapshots($user: String!, $skip: Int!) {
+    lpContestBlocks(
+      first: 1000, 
+      skip: $skip, 
+      where: {
+        user: $user
+      }
+      orderBy: "block"
+      orderByDirection: "desc"
+    ) {
+      block
+      contestValue
+      timestamp
+      isEligible
+    }
+  }
+`
+export const USER_LP_CONTEST_PERCENTILE = gql`
+  query lpContestPercentile($user: String!) {
+    lpContestPercentile(where: { user: $user }) {
+      percentileRank
+      rank
+    }
+  }
+`
+
 export const USER_POSITIONS = gql`
   query liquidityPositions($user: String!) {
     liquidityPositions(where: { user: $user }) {
@@ -224,6 +251,71 @@ export const USER_POSITIONS = gql`
 `
 
 export const USER_TRANSACTIONS = gql`
+  query transactions($user: String!) {
+    mints(orderBy: "block_timestamp", orderByDirection: "desc", where: { to: $user }) {
+      id
+      transactionHash
+      timestamp
+      pair {
+        id
+        token0 {
+          id
+          symbol
+        }
+        token1 {
+          id
+          symbol
+        }
+      }
+      to
+      liquidity
+      amount0
+      amount1
+      amountUSD
+    }
+    burns(orderBy: "timestamp", orderByDirection: "desc", where: { sender: $user }) {
+      id
+      transactionHash
+      timestamp
+      pair {
+        id
+        token0 {
+          symbol
+        }
+        token1 {
+          symbol
+        }
+      }
+      sender
+      to
+      liquidity
+      amount0
+      amount1
+      amountUSD
+    }
+    swaps(orderBy: "timestamp", orderByDirection: "desc", where: { to: $user }) {
+      id
+      transactionHash
+      timestamp
+      pair {
+        token0 {
+          symbol
+        }
+        token1 {
+          symbol
+        }
+      }
+      amount0In
+      amount0Out
+      amount1In
+      amount1Out
+      amountUSD
+      to
+    }
+  }
+`
+
+export const USER_LP_CONTEST_TRANSACTIONS = gql`
   query transactions($user: String!) {
     mints(orderBy: "block_timestamp", orderByDirection: "desc", where: { to: $user }) {
       id
@@ -558,6 +650,19 @@ export const PAIRS_CURRENT = gql`
   query pairs {
     pairs(first: 200, orderBy: "reserve_usd", orderByDirection: "desc") {
       id
+    }
+  }
+`
+
+export const LP_CONTEST_DATA = gql`
+  query contest {
+    lpContests(orderBy: "contest_value", orderByDirection: "desc") {
+      contestValue
+      isEligible
+      user {
+        id
+      }
+      block
     }
   }
 `
