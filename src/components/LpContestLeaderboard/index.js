@@ -1,29 +1,26 @@
-import React, {useState, useEffect, useMemo, useCallback} from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import {Box, Flex} from 'rebass'
+import { Box, Flex } from 'rebass'
 import styled from 'styled-components'
 
-import {BarChart} from 'react-feather'
-import Switch from "react-switch";
+import { BarChart } from 'react-feather'
+import Switch from 'react-switch'
 import 'react-tooltip/dist/react-tooltip.css'
 
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 
-import {CustomLink} from '../Link'
-import LocalLoader from '../LocalLoader'
-import {Divider, EmptyCard} from '..'
-import {formattedNum, isStarknetAddress, shortenStraknetAddress, zeroStarknetAddress} from '../../utils'
-import {TYPE} from '../../Theme'
-import Panel from "../Panel";
+import { CustomLink } from '../Link'
+import { Divider, EmptyCard } from '..'
+import { formattedNum, isStarknetAddress, shortenStraknetAddress, zeroStarknetAddress } from '../../utils'
+import { TYPE } from '../../Theme'
+import Panel from '../Panel'
 
-import eligibilityBadgeIcon from '../../../src/assets/starBadge.svg';
-import {AutoRow, RowBetween} from "../Row";
-import {AutoColumn} from "../Column";
-import {ButtonDark} from "../ButtonStyled";
-import {withRouter} from "react-router-dom";
-import {Tooltip} from "../QuestionHelper";
-import FormattedName from "../FormattedName";
+import eligibilityBadgeIcon from '../../../src/assets/starBadge.svg'
+import { AutoRow, RowBetween } from '../Row'
+import { AutoColumn } from '../Column'
+import { ButtonDark } from '../ButtonStyled'
+import { withRouter } from 'react-router-dom'
 
 dayjs.extend(utc)
 
@@ -36,7 +33,7 @@ const PageButtons = styled.div`
 `
 
 const Arrow = styled.div`
-  color: ${({theme}) => theme.primary1};
+  color: ${({ theme }) => theme.primary1};
   opacity: ${(props) => (props.faded ? 0.3 : 1)};
   padding: 0 20px;
   user-select: none;
@@ -61,15 +58,12 @@ const Input = styled.input`
   align-items: center;
   width: 100%;
   white-space: nowrap;
-  background: none;
-  border: none;
   outline: none;
   padding: 12px 16px;
   border-radius: 12px;
   color: ${({ theme }) => theme.text1};
   background-color: ${({ theme }) => theme.bg1};
   font-size: 16px;
-  //margin-right: 1rem;
 
   border: 1px solid ${({ theme }) => theme.bg3};
 
@@ -85,9 +79,7 @@ const Input = styled.input`
   }
 `
 
-const EligibilityBadge = styled.img`
-
-`
+const EligibilityBadge = styled.img``
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -123,17 +115,6 @@ const Switcher = styled(Switch)`
 
 const ListWrapper = styled.div``
 
-const ListOptions = styled(AutoRow)`
-  height: 40px;
-  width: 100%;
-  font-size: 1.25rem;
-  font-weight: 600;
-
-  @media screen and (max-width: 640px) {
-    font-size: 1rem;
-  }
-`
-
 const LeaderboardNote = styled.div`
   display: flex;
   align-items: center;
@@ -142,11 +123,10 @@ const LeaderboardNote = styled.div`
   color: #fff;
 `
 
-
 const DataText = styled(Flex)`
   align-items: center;
   text-align: center;
-  color: ${({theme}) => theme.text1};
+  color: ${({ theme }) => theme.text1};
 
   & > * {
     font-size: 14px;
@@ -157,193 +137,193 @@ const DataText = styled(Flex)`
   }
 `
 
-const StyledReactTooltip = styled(ReactTooltip)`
-  opacity: 1;
-  background: rgba(255, 255, 255);
-  border-radius: 4px;
-  font-family: DM Sans;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 11px;
-  text-align: left;
-`
+function LpContestLeaderboard({ history, players, maxItems = 10 }) {
+  const [isEligibilityFilterChecked, setIsEligibilityFilterChecked] = useState(false)
+  const [checkAccountQuery, setCheckAccountQuery] = useState('')
+  const [isCheckAccountAddressValid, setIsCheckAccountAddressValid] = useState(false)
+  const [page, setPage] = useState(1)
+  const [maxPage, setMaxPage] = useState(1)
+  const ITEMS_PER_PAGE = maxItems
+  const arePlayersAvailable = !!Object.keys(players).length
 
-function LpContestLeaderboard({history, players, maxItems = 10}) {
-	const [isEligibilityFilterChecked, setIsEligibilityFilterChecked] = useState(false);
-	const [checkAccountQuery, setCheckAccountQuery] = useState('');
-	const [isCheckAccountAddressValid, setIsCheckAccountAddressValid] = useState(false);
-	const [page, setPage] = useState(1)
-	const [maxPage, setMaxPage] = useState(1)
-	const ITEMS_PER_PAGE = maxItems
-	const arePlayersAvailable = !!(Object.keys(players).length);
+  const filteredPlayers = useMemo(() => {
+    if (!arePlayersAvailable) {
+      return
+    }
+    return Object.keys(players)
+      .filter((playerId) => {
+        return isEligibilityFilterChecked ? players[playerId]?.isEligible : true
+      })
+      .map((key) => players[key])
+  }, [arePlayersAvailable, players, isEligibilityFilterChecked])
 
-	const filteredPlayers = useMemo(() => {
-		if (!arePlayersAvailable) { return }
-		return (
-			Object.keys(players)
-				.filter((playerId) => {
-					return (isEligibilityFilterChecked) ? players[playerId]?.isEligible : true
-				})
-				.map((key) => players[key])
-		)
-	}, [arePlayersAvailable, players, isEligibilityFilterChecked])
+  const handleEligibilitySwitcherChange = useCallback(() => {
+    setIsEligibilityFilterChecked((v) => !v)
+  }, [])
 
-	const handleEligibilitySwitcherChange = useCallback(() => {
-		setIsEligibilityFilterChecked((v) => !v);
-	}, []);
+  const handleCheckAccountInputChange = useCallback(
+    (e) => {
+      const value = e.currentTarget.value
+      if (!value) {
+        setCheckAccountQuery('')
+        setIsCheckAccountAddressValid(false)
+        return
+      }
+      setCheckAccountQuery(value)
+      setIsCheckAccountAddressValid(isStarknetAddress(value, true))
+    },
+    [setCheckAccountQuery]
+  )
 
-	const handleCheckAccountInputChange = useCallback((e) => {
-		const value = e.currentTarget.value;
-		if (!value) {
-			setCheckAccountQuery('');
-			setIsCheckAccountAddressValid(false);
-			return;
-		}
-		setCheckAccountQuery(value);
-		setIsCheckAccountAddressValid(isStarknetAddress(value, true));
-	}, [setCheckAccountQuery]);
+  const handleAccountSearch = useCallback(
+    (e) => {
+      if (!(isCheckAccountAddressValid && checkAccountQuery)) {
+        return
+      }
+      history.push('/lp-contest/' + checkAccountQuery)
+    },
+    [isCheckAccountAddressValid, checkAccountQuery, history]
+  )
 
-	const handleAccountSearch = useCallback((e) => {
-		if (!(isCheckAccountAddressValid && checkAccountQuery)) { return }
-		history.push('/lp-contest/' + checkAccountQuery)
-	}, [isCheckAccountAddressValid, checkAccountQuery]);
+  useEffect(() => {
+    setMaxPage(1) // edit this to do modular
+    setPage(1)
+  }, [filteredPlayers])
 
-	useEffect(() => {
-		setMaxPage(1) // edit this to do modular
-		setPage(1)
-	}, [filteredPlayers])
+  useEffect(() => {
+    if (filteredPlayers?.length) {
+      let extraPages = 1
+      if (filteredPlayers.length % ITEMS_PER_PAGE === 0) {
+        extraPages = 0
+      }
+      setMaxPage(Math.floor(filteredPlayers.length / ITEMS_PER_PAGE) + extraPages)
+    }
+  }, [ITEMS_PER_PAGE, filteredPlayers])
 
-	useEffect(() => {
-		if (filteredPlayers?.length) {
-			let extraPages = 1
-			if (filteredPlayers.length % ITEMS_PER_PAGE === 0) {
-				extraPages = 0
-			}
-			setMaxPage(Math.floor(filteredPlayers.length / ITEMS_PER_PAGE) + extraPages)
-		}
-	}, [ITEMS_PER_PAGE, filteredPlayers])
+  const ListItem = ({ player, index }) => {
+    return (
+      <DashGrid style={{ height: '48px' }} focus={true}>
+        <DataText area="number" fontWeight="500" justifyContent="center">
+          {index}
+        </DataText>
+        <DataText area="name" fontWeight="500" justifyContent="flex-start">
+          <CustomLink style={{ whiteSpace: 'nowrap', marginRight: '15px' }} to={'/lp-contest/' + player.user.id}>
+            {shortenStraknetAddress(player.user.id, 6)}
+          </CustomLink>
+          {player?.isEligible && (
+            <a className="eligibility-badge" data-tooltip-content="Eligible for NFT" data-tooltip-place="right">
+              <EligibilityBadge src={eligibilityBadgeIcon} />
+            </a>
+          )}
+        </DataText>
+        <DataText area="value" justifyContent="center">
+          {formattedNum(player.contestValue)}
+        </DataText>
+      </DashGrid>
+    )
+  }
 
-	const ListItem = ({player, index}) => {
-		return (
-			<DashGrid style={{height: '48px'}} focus={true}>
-				<DataText area="number" fontWeight="500" justifyContent="center">
-					{index}
-				</DataText>
-				<DataText area="name" fontWeight="500" justifyContent="flex-start">
-					<CustomLink style={{whiteSpace: 'nowrap', marginRight: '15px'}} to={'/lp-contest/' + player.user.id}>
-						{shortenStraknetAddress(player.user.id, 6)}
-					</CustomLink>
-					{player?.isEligible && (
-						<a className="eligibility-badge" data-tooltip-content="Eligible for NFT" data-tooltip-place="right">
-							<EligibilityBadge src={eligibilityBadgeIcon}/>
-						</a>
-					)}
-				</DataText>
-				<DataText area="value" justifyContent="center">{formattedNum(player.contestValue)}</DataText>
-			</DashGrid>
-		)
-	}
+  const playersList =
+    filteredPlayers?.length &&
+    filteredPlayers.slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE).map((player, index) => {
+      return (
+        <div key={index}>
+          <ListItem key={index} index={(page - 1) * 10 + index + 1} player={player} />
+          <Divider />
+        </div>
+      )
+    })
 
-	const playersList =
-		filteredPlayers?.length &&
-		filteredPlayers.slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE).map((player, index) => {
-			return (
-				<div key={index}>
-					<ListItem key={index} index={(page - 1) * 10 + index + 1} player={player}/>
-					<Divider/>
-				</div>
-			)
-		})
+  // if (!arePlayersAvailable) {
+  // 	return <LocalLoader/>
+  // }
 
-	// if (!arePlayersAvailable) {
-	// 	return <LocalLoader/>
-	// }
+  return (
+    <>
+      <AutoColumn gap={'20px'}>
+        <AutoRow gap={'10px'} style={{ width: 'calc(100% + 10px)' }}>
+          <SearchWrapper>
+            <Input
+              type="text"
+              value={checkAccountQuery}
+              onChange={handleCheckAccountInputChange}
+              placeholder={'0x...'}
+              maxLength={zeroStarknetAddress.length}
+            />
+          </SearchWrapper>
+          <div>
+            <ButtonDark onClick={handleAccountSearch} disabled={!isCheckAccountAddressValid}>
+              Check Account
+            </ButtonDark>
+          </div>
+        </AutoRow>
 
+        <RowBetween>
+          <LeaderboardNote>
+            <span style={{ marginRight: '1rem' }}>Filter by Eligible LP</span>
+            <Switcher
+              onColor={'#fff'}
+              offColor={'#959595'}
+              onHandleColor={'#FF00E9'}
+              offHandleColor={'#959595'}
+              uncheckedIcon={false}
+              checkedIcon={false}
+              handleDiameter={16}
+              height={12}
+              width={32}
+              onChange={handleEligibilitySwitcherChange}
+              checked={isEligibilityFilterChecked}
+            />
+          </LeaderboardNote>
+          <LeaderboardNote>
+            <BarChart size={16} style={{ marginRight: '1rem', transform: 'scaleX(-1)' }} />
+            Sorted by Contest points
+          </LeaderboardNote>
+        </RowBetween>
 
-	return (
-		<>
-			<AutoColumn gap={"20px"}>
-				<AutoRow gap={"10px"} style={{width: 'calc(100% + 10px)'}}>
-					<SearchWrapper>
-						<Input
-							type='text'
-							value={checkAccountQuery}
-							onChange={handleCheckAccountInputChange}
-							placeholder={'0x...'}
-							maxLength={zeroStarknetAddress.length}
-						/>
-					</SearchWrapper>
-					<div>
-						<ButtonDark onClick={handleAccountSearch} disabled={!isCheckAccountAddressValid}>Check Account</ButtonDark>
-					</div>
-				</AutoRow>
+        <Panel style={{ marginTop: '6px', padding: '0rem 0', borderRadius: '5px', height: 'auto' }}>
+          <ListWrapper>
+            <DashGrid
+              center={true}
+              style={{
+                height: 'fit-content',
+                padding: '1rem 0 1rem 0',
+                backgroundColor: '#ffffff33',
+                borderRadius: '5px',
+              }}
+            >
+              <Flex alignItems="center" justifyContent="center">
+                <TYPE.main area="number">Rank</TYPE.main>
+              </Flex>
+              <Flex alignItems="center" justifyContent="flex-start">
+                <TYPE.main area="name">Address</TYPE.main>
+              </Flex>
 
-				<RowBetween>
-						<LeaderboardNote>
-							<span style={{marginRight: '1rem'}}>Filter by Eligible LP</span>
-							<Switcher
-								onColor={'#fff'}
-								offColor={'#959595'}
-								onHandleColor={'#FF00E9'}
-								offHandleColor={'#959595'}
-								uncheckedIcon={false}
-								checkedIcon={false}
-								handleDiameter={16}
-								height={12}
-								width={32}
-								onChange={handleEligibilitySwitcherChange}
-								checked={isEligibilityFilterChecked}
-							/>
-						</LeaderboardNote>
-						<LeaderboardNote>
-							<BarChart size={16} style={{marginRight: '1rem', transform: 'scaleX(-1)'}}/>
-							Sorted by Contest points
-						</LeaderboardNote>
-					</RowBetween>
-
-				<Panel style={{marginTop: '6px', padding: '0rem 0', borderRadius: '5px', height: 'auto'}}>
-					<ListWrapper>
-						<DashGrid
-							center={true}
-							style={{
-								height: 'fit-content',
-								padding: '1rem 0 1rem 0',
-								backgroundColor: '#ffffff33',
-								borderRadius: '5px',
-							}}
-						>
-							<Flex alignItems="center" justifyContent="center">
-								<TYPE.main area="number">Rank</TYPE.main>
-							</Flex>
-							<Flex alignItems="center" justifyContent="flex-start">
-								<TYPE.main area="name">Address</TYPE.main>
-							</Flex>
-
-							<Flex alignItems="center" justifyContent="center">
-								<TYPE.main area="value">Contest Points</TYPE.main>
-							</Flex>
-						</DashGrid>
-						<Divider/>
-						{!playersList?.length ? (
-							<EmptyCard style={{margin: '15px 0', height: 'auto'}}>No data found.</EmptyCard>
-						) : (
-							<List p={0}>{playersList}</List>
-						)}
-						<PageButtons>
-							<div onClick={() => setPage(page === 1 ? page : page - 1)}>
-								<Arrow faded={page === 1 ? true : false}>←</Arrow>
-							</div>
-							<TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
-							<div onClick={() => setPage(page === maxPage ? page : page + 1)}>
-								<Arrow faded={page === maxPage ? true : false}>→</Arrow>
-							</div>
-						</PageButtons>
-					</ListWrapper>
-				</Panel>
-			</AutoColumn>
-			<ReactTooltip anchorSelect=".eligibility-badge" style={{ backgroundColor: "rgb(0, 0, 0)", color: "#fff" }}/>
-		</>
-	)
+              <Flex alignItems="center" justifyContent="center">
+                <TYPE.main area="value">Contest Points</TYPE.main>
+              </Flex>
+            </DashGrid>
+            <Divider />
+            {!playersList?.length ? (
+              <EmptyCard style={{ margin: '15px 0', height: 'auto' }}>No data found.</EmptyCard>
+            ) : (
+              <List p={0}>{playersList}</List>
+            )}
+            <PageButtons>
+              <div onClick={() => setPage(page === 1 ? page : page - 1)}>
+                <Arrow faded={page === 1 ? true : false}>←</Arrow>
+              </div>
+              <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
+              <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
+                <Arrow faded={page === maxPage ? true : false}>→</Arrow>
+              </div>
+            </PageButtons>
+          </ListWrapper>
+        </Panel>
+      </AutoColumn>
+      <ReactTooltip anchorSelect=".eligibility-badge" style={{ backgroundColor: 'rgb(0, 0, 0)', color: '#fff' }} />
+    </>
+  )
 }
 
 export default withRouter(LpContestLeaderboard)

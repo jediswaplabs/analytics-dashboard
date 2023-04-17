@@ -6,8 +6,8 @@ export const jediSwapClient = new ApolloClient({
   link: new HttpLink({
     uri: 'https://api.jediswap.xyz/graphql',
     headers: {
-      'm-color': 'blue'
-    }
+      // 'm-color': 'blue',
+    },
   }),
   cache: new InMemoryCache({
     dataIdFromObject: (object) => {
@@ -19,7 +19,7 @@ export const jediSwapClient = new ApolloClient({
         //   return object.id;
         // }
         case 'Token': {
-          return `${object.id}${object.name}`;
+          return `${object.id}${object.name}`
         }
         // case 'Pair': {
         //   return object.id;
@@ -31,31 +31,31 @@ export const jediSwapClient = new ApolloClient({
         //   return object.id;
         // }
         case 'Swap': {
-          return `${object.transactionHash}${object.timestamp}`;
+          return `${object.transactionHash}${object.timestamp}`
         }
         case 'Mint': {
-          return `${object.transactionHash}${object.timestamp}`;
+          return `${object.transactionHash}${object.timestamp}`
         }
         case 'Burn': {
-          return `${object.transactionHash}${object.timestamp}`;
+          return `${object.transactionHash}${object.timestamp}`
         }
         case 'LiquidityPosition': {
-          return `${object.user.id}${object.pair.id}`;
+          return `${object.user.id}${object.pair.id}`
         }
         case 'LiquidityPositionSnapshot': {
-          return `${object.id}${object.user.id}${object.timestamp}`;
+          return `${object.id}${object.user.id}${object.timestamp}`
         }
         case 'ExchangeDayData': {
-          return `${object.id}${object.date}`;
+          return `${object.id}${object.date}`
         }
         case 'PairDayData': {
-          return `${object.pairId}${object.date}`;
+          return `${object.pairId}${object.date}`
         }
         case 'TokenDayData': {
-          return `${object.tokenId}${object.date}`;
+          return `${object.tokenId}${object.date}`
         }
         default: {
-          return object.id || object._id;
+          return object.id || object._id
         }
       }
     },
