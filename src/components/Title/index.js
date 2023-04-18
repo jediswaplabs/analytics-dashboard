@@ -39,6 +39,14 @@ const Option = styled.div`
   }
 `
 
+const AccentText = styled.span`
+  background: linear-gradient(90deg, #4bd4ff 0%, #ef35ff 97.26%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+`
+
 export default function Title() {
   const history = useHistory()
   const below1080 = useMedia('(max-width: 1080px)')
@@ -96,12 +104,10 @@ export default function Title() {
 
             <BasicLink to="/lp-contest">
               <Option
-                  activeText={
-                      (history.location.pathname.split('/')[1] === 'lp-contest') ??
-                      undefined
-                  }
+                activeText={history.location.pathname.split('/')[1] === 'lp-contest' ?? undefined}
+                style={{ opacity: 1 }}
               >
-                Contest
+                <AccentText>LP Contest</AccentText>
               </Option>
             </BasicLink>
           </RowFixed>
