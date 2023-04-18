@@ -11,6 +11,9 @@ import { TrendingUp, List, PieChart, Disc, Flag } from 'react-feather'
 import Link from '../Link'
 import { useSessionStart } from '../../contexts/Application'
 
+import confettiFiatGif from './confetti-flat.webp'
+import confettiFiatGif_x2 from './confetti-flat@x2.webp'
+
 const Wrapper = styled.div`
   height: ${({ isMobile }) => (isMobile ? 'initial' : '100vh')};
   background-color: ${({ theme }) => transparentize(0.4, theme.bg1)};
@@ -40,6 +43,7 @@ const Option = styled.div`
   opacity: ${({ activeText }) => (activeText ? 1 : 0.6)};
   color: ${({ theme }) => theme.white};
   display: flex;
+  align-items: center;
   :hover {
     opacity: 1;
   }
@@ -97,6 +101,14 @@ const PollingDot = styled.div`
   background-color: ${({ theme }) => theme.green1};
 `
 
+const AccentText = styled.span`
+  background: linear-gradient(90deg, #4bd4ff 0%, #ef35ff 97.26%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+`
+
 function SideNav({ history }) {
   const below1080 = useMedia('(max-width: 1080px)')
 
@@ -112,6 +124,21 @@ function SideNav({ history }) {
             <Title />
             {!below1080 && (
               <AutoColumn gap="1.25rem" style={{ marginTop: '1rem' }}>
+                <BasicLink to="/lp-contest">
+                  <Option
+                    activeText={history.location.pathname.split('/')[1] === 'lp-contest' ?? undefined}
+                    style={{ opacity: 1 }}
+                  >
+                    <img
+                      src={confettiFiatGif}
+                      srcSet={confettiFiatGif + ' 1x,' + confettiFiatGif_x2 + ' 2x'}
+                      alt={''}
+                      style={{ marginRight: '-.1rem', marginTop: '-5px', width: '35px' }}
+                    />
+                    <AccentText>LP Contest</AccentText>
+                  </Option>
+                </BasicLink>
+
                 <BasicLink to="/home">
                   <Option activeText={history.location.pathname === '/home' ?? undefined}>
                     <TrendingUp size={20} style={{ marginRight: '.75rem' }} />
@@ -153,18 +180,6 @@ function SideNav({ history }) {
                   >
                     <List size={20} style={{ marginRight: '.75rem' }} />
                     Accounts
-                  </Option>
-                </BasicLink>
-
-                <BasicLink to="/lp-contest">
-                  <Option
-                    activeText={
-                      (history.location.pathname.split('/')[1] === 'lp-contest') ??
-                      undefined
-                    }
-                  >
-                    <Flag size={18} style={{ marginRight: '.75rem' }} />
-                    Contest
                   </Option>
                 </BasicLink>
               </AutoColumn>
