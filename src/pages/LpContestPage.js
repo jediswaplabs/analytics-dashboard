@@ -1,9 +1,9 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useUserLpCampaignTransactions, useLpContestUserSnapshots, useLpContestPercentile } from '../contexts/User'
 import TxnList from '../components/TxnList'
 import Panel from '../components/Panel'
-import { formattedNum, shortenStraknetAddress, urls } from '../utils'
+import { convertHexToDecimal, formattedNum, shortenStraknetAddress, urls } from '../utils'
 import { AutoRow, RowBetween } from '../components/Row'
 import { AutoColumn } from '../components/Column'
 import { TYPE } from '../Theme'
@@ -33,6 +33,7 @@ const DashboardWrapper = styled.div`
 `
 
 function LpContestAccountPage({ account }) {
+  const [starknetIdDomain, setStarknetIdDomain] = useState('')
   const userData = useLpContestUserSnapshots(account)
   const userPercentile = useLpContestPercentile(account)
   const transactions = useUserLpCampaignTransactions(account)
@@ -52,6 +53,22 @@ function LpContestAccountPage({ account }) {
     })
   }, [])
 
+  useEffect(() => {
+    async function fetchData() {
+      const convertedAddress = convertHexToDecimal(account)
+      const response = await fetch(`https://app.starknet.id/api/indexer/addr_to_domain?addr=${convertedAddress}`)
+      const processedResponse = await response.json()
+      if (processedResponse.domain) {
+        setStarknetIdDomain(processedResponse.domain)
+      }
+    }
+    if (account) {
+      try {
+        fetchData()
+      } catch (e) {}
+    }
+  }, [account])
+
   return (
     <PageWrapper>
       <ContentWrapper>
@@ -68,7 +85,9 @@ function LpContestAccountPage({ account }) {
           <RowBetween>
             <span>
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <TYPE.header fontSize={24}>{shortenStraknetAddress(account)}</TYPE.header>
+                <TYPE.header fontSize={24}>
+                  {starknetIdDomain ? starknetIdDomain : shortenStraknetAddress(account)}
+                </TYPE.header>
                 {isUserEligible && <EligibilityBadge src={eligibilityBadgeIcon} style={{ marginLeft: '12px' }} />}
               </div>
               <Link lineHeight={'145.23%'} href={urls.showAddress(account)} target="_blank">

@@ -208,7 +208,7 @@ function LpContestLeaderboard({ history, players, maxItems = 10 }) {
         </DataText>
         <DataText area="name" fontWeight="500" justifyContent="flex-start">
           <CustomLink style={{ whiteSpace: 'nowrap', marginRight: '15px' }} to={'/lp-contest/' + player.user.id}>
-            {shortenStraknetAddress(player.user.id, 6)}
+            {player.starknetIdDomain ? player.starknetIdDomain : shortenStraknetAddress(player.user.id, 6)}
           </CustomLink>
           {player?.isEligible && (
             <a className="eligibility-badge" data-tooltip-content="Eligible for NFT" data-tooltip-place="right">
