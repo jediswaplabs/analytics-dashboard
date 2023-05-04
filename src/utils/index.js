@@ -3,21 +3,21 @@ import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import utc from 'dayjs/plugin/utc'
-import {jediSwapClient} from '../apollo/client'
-import {GET_BLOCK, GET_BLOCKS, SHARE_VALUE} from '../apollo/queries'
+import { jediSwapClient } from '../apollo/client'
+import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from '../apollo/queries'
 import { Text } from 'rebass'
 import _Decimal from 'decimal.js-light'
 import toFormat from 'toformat'
 import { timeframeOptions } from '../constants'
 import Numeral from 'numeral'
-import { validateAndParseAddress } from 'starknet'
+import { validateAndParseAddress, number as starknetNumberModule } from 'starknet'
 
 // format libraries
 const Decimal = toFormat(_Decimal)
 BigNumber.set({ EXPONENTIAL_AT: 50 })
 dayjs.extend(utc)
 
-export const zeroStarknetAddress = validateAndParseAddress();
+export const zeroStarknetAddress = validateAndParseAddress()
 
 export function getTimeframe(timeWindow) {
   const utcEndTime = dayjs.utc()
@@ -45,13 +45,17 @@ export function getPoolLink(token0Address, token1Address = null, remove = false)
     return (
       `https://app.jediswap.xyz/#/` +
       (remove ? `remove` : `add`) +
-      `/${token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address}/${'ETH'}`
+      `/${
+        token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address
+      }/${'ETH'}`
     )
   } else {
     return (
       `https://app.jediswap.xyz/#/` +
       (remove ? `remove` : `add`) +
-      `/${token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address}/${
+      `/${
+        token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address
+      }/${
         token1Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token1Address
       }`
     )
@@ -64,7 +68,9 @@ export function getSwapLink(token0Address, token1Address = null) {
   } else {
     return `https://app.jediswap.xyz/#/swap?inputCurrency=${
       token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address
-    }&outputCurrency=${token1Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token1Address}`
+    }&outputCurrency=${
+      token1Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token1Address
+    }`
   }
 }
 
@@ -197,11 +203,10 @@ export async function getBlocksFromTimestamps(timestamps, skipCount = 500) {
 
 export const convertDateToUnixFormat = (date) => {
   if (!Number.isNaN(Number(date))) {
-    return date;
+    return date
   }
-  return Math.floor(new Date(date).getTime() / 1000);
+  return Math.floor(new Date(date).getTime() / 1000)
 }
-
 
 // export async function getLiquidityTokenBalanceOvertime(account, timestamps) {
 //   // get blocks based on timestamps
@@ -249,9 +254,11 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
 
   let values = []
   for (var r in result?.data) {
-    if (!r.includes('t')) {continue};
+    if (!r.includes('t')) {
+      continue
+    }
     let timestamp = r.split('t')[1]
-    let row = result.data[r][0];
+    let row = result.data[r][0]
     let sharePriceUsd = parseFloat(row?.reserveUSD) / parseFloat(row?.totalSupply)
     if (timestamp) {
       values.push({
@@ -274,9 +281,11 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
   // add eth prices
   let index = 0
   for (var br in result?.data) {
-    if (!r.includes('b')) {continue};
+    if (!r.includes('b')) {
+      continue
+    }
     let timestamp = br.split('b')[1]
-    let brow = result.data[br][0];
+    let brow = result.data[br][0]
     if (timestamp) {
       values[index].ethPrice = brow.token1Price
       values[index].token0PriceUsd = brow.token1Price * values[index].token0DerivedETH
@@ -313,19 +322,36 @@ export const isAddress = (value) => {
 }
 
 export const isStarknetAddress = (value, validateLength = false) => {
-  if (!value) { return false }
-  const processedValue = value.toLowerCase();
+  if (!value) {
+    return false
+  }
+  const processedValue = value.toLowerCase()
   try {
-    if (!processedValue.startsWith('0x')) { return false; }
-    if (validateLength && processedValue.length !== zeroStarknetAddress.length) { return false;}
-    return validateAndParseAddress(processedValue);
+    if (!processedValue.startsWith('0x')) {
+      return false
+    }
+    if (validateLength && processedValue.length !== zeroStarknetAddress.length) {
+      return false
+    }
+    return validateAndParseAddress(processedValue)
   } catch {
     return false
   }
 }
 
+export const convertHexToDecimal = (address = '') => {
+  if (!isStarknetAddress(address)) {
+    return ''
+  }
+  return starknetNumberModule.hexToDecimalString(address)
+}
+
 export const toK = (num, maxSigns = 2) => {
-  return Numeral(num).format(`0.[${Array.from({length: maxSigns}).map(() => 0).join('')}]a`)
+  return Numeral(num).format(
+    `0.[${Array.from({ length: maxSigns })
+      .map(() => 0)
+      .join('')}]a`
+  )
 }
 
 export const urls = {
@@ -451,7 +477,9 @@ export function formattedPercent(percent, useAbs = false) {
   }
   if (fixedPercent > 0) {
     if (fixedPercent > 100) {
-      return <Text fontWeight={500} color="green">{`${useAbs ? '' : '+'}${percent?.toFixed(0).toLocaleString()}%`}</Text>
+      return (
+        <Text fontWeight={500} color="green">{`${useAbs ? '' : '+'}${percent?.toFixed(0).toLocaleString()}%`}</Text>
+      )
     } else {
       return <Text fontWeight={500} color="green">{`${useAbs ? '' : '+'}${fixedPercent}%`}</Text>
     }

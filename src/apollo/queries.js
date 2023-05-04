@@ -1,15 +1,10 @@
 import gql from 'graphql-tag'
 
-const ETH_USDC_PAIR_ADDRESS = '0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a';
+const ETH_USDC_PAIR_ADDRESS = '0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a'
 
 export const GET_BLOCK = gql`
   query blocks($timestampFrom: Int!) {
-    blocks(
-      first: 1
-      orderBy: "timestamp"
-      orderByDirection: "asc"
-      where: { timestampGt: $timestampFrom }
-    ) {
+    blocks(first: 1, orderBy: "timestamp", orderByDirection: "asc", where: { timestampGt: $timestampFrom }) {
       id
       number
       timestamp
@@ -19,11 +14,7 @@ export const GET_BLOCK = gql`
 
 export const GET_LATEST_BLOCK = gql`
   query blocks {
-    blocks(
-      first: 1
-      orderBy: "timestamp"
-      orderByDirection: "desc"
-    ) {
+    blocks(first: 1, orderBy: "timestamp", orderByDirection: "desc") {
       id
       number
       timestamp
@@ -44,7 +35,12 @@ export const GET_BLOCKS = (timestamps) => {
 
 export const TOP_LPS_PER_PAIRS = gql`
   query lps($pair: String!) {
-    liquidityPositions(where: { pair: $pair }, orderBy: "liquidity_token_balance", orderByDirection: "desc", first: 10) {
+    liquidityPositions(
+      where: { pair: $pair }
+      orderBy: "liquidity_token_balance"
+      orderByDirection: "desc"
+      first: 10
+    ) {
       user {
         id
       }
@@ -105,7 +101,8 @@ export const SHARE_VALUE = (pairAddress, blocks) => {
 }
 
 export const ETH_PRICE = (block) => {
-  const queryString = block ? `
+  const queryString = block
+    ? `
     query price {
       pairs(
         first: 1
@@ -116,7 +113,8 @@ export const ETH_PRICE = (block) => {
         token1Price
       }
     }
-  ` : `
+  `
+    : `
     query price {
       pairs(
         first: 1
@@ -165,7 +163,7 @@ export const USER_MINTS_BUNRS_PER_PAIR = gql`
 
 export const USER_HISTORY = gql`
   query snapshots($user: String!, $skip: Int!) {
-    liquidityPositionSnapshots(first: 1000, skip: $skip, where: {user: $user}) {
+    liquidityPositionSnapshots(first: 1000, skip: $skip, where: { user: $user }) {
       timestamp
       liquidityTokenBalance
       liquidityTokenTotalSupply
@@ -197,15 +195,7 @@ export const USER_HISTORY = gql`
 
 export const USER_LP_CONTEST_HISTORY = gql`
   query lpContestSnapshots($user: String!, $skip: Int!) {
-    lpContestBlocks(
-      first: 1000, 
-      skip: $skip, 
-      where: {
-        user: $user
-      }
-      orderBy: "block"
-      orderByDirection: "desc"
-    ) {
+    lpContestBlocks(first: 1000, skip: $skip, where: { user: $user }, orderBy: "block", orderByDirection: "desc") {
       block
       contestValue
       timestamp
@@ -419,7 +409,13 @@ export const PAIR_DAY_DATA_BULK = (pairs, startTimestamp) => {
 
 export const GLOBAL_CHART = gql`
   query exchangeDayDatas($startTime: Int!, $skip: Int!) {
-    exchangeDayDatas(first: 1000, skip: $skip, where: { dateGt: $startTime }, orderBy: "date", orderByDirection: "asc") {
+    exchangeDayDatas(
+      first: 1000
+      skip: $skip
+      where: { dateGt: $startTime }
+      orderBy: "date"
+      orderByDirection: "asc"
+    ) {
       id
       date
       totalVolumeUSD
@@ -749,7 +745,7 @@ const TokenFields = `
 // used for getting top tokens by daily volume
 export const TOKEN_TOP_DAY_DATAS = gql`
   query tokenDayDatas($date: Int) {
-    tokenDayDatas(first: 20, orderByDirection: "desc", orderBy: "day_id", where: {dateGt: $date}) {
+    tokenDayDatas(first: 20, orderByDirection: "desc", orderBy: "day_id", where: { dateGt: $date }) {
       tokenId
       date
     }
