@@ -37,11 +37,9 @@ function LpContestAccountPage({ account }) {
   const userData = useLpContestUserSnapshots(account)
   const userPercentile = useLpContestPercentile(account)
   const transactions = useUserLpCampaignTransactions(account)
-
   let userPoints = useMemo(() => {
     return userData?.length ? userData[0].contestValue : 0
   }, [userData])
-
   let isUserEligible = useMemo(() => {
     return userData?.length ? userData[0].isEligible : false
   }, [userData])
@@ -108,7 +106,18 @@ function LpContestAccountPage({ account }) {
               <AutoColumn gap="5px">
                 <TYPE.main>Percentile Score</TYPE.main>
                 <TYPE.header fontSize={24}>
-                  {!userPercentile?.percentileRank ? '...' : userPercentile?.percentileRank + '%'}
+                  {(typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0) ||
+                  userPercentile?.percentileRank
+                    ? userPercentile.percentileRank + '%'
+                    : '...'}
+                </TYPE.header>
+              </AutoColumn>
+              <AutoColumn gap="5px">
+                <TYPE.main>Rank</TYPE.main>
+                <TYPE.header fontSize={24}>
+                  {typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0
+                    ? userPercentile.rank + 1
+                    : '...'}
                 </TYPE.header>
               </AutoColumn>
             </AutoRow>
