@@ -124,15 +124,6 @@ function LpContestAccountPage({ account }) {
                 <TYPE.header fontSize={24}>{!userData ? '...' : formattedNum(userPoints)}</TYPE.header>
               </AutoColumn>
               <AutoColumn gap="5px">
-                <TYPE.main>Percentile Score</TYPE.main>
-                <TYPE.header fontSize={24}>
-                  {(typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0) ||
-                  userPercentile?.percentileRank
-                    ? userPercentile.percentileRank + '%'
-                    : '...'}
-                </TYPE.header>
-              </AutoColumn>
-              <AutoColumn gap="5px">
                 <TYPE.main>Rank</TYPE.main>
                 <TYPE.header fontSize={24}>
                   {typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0

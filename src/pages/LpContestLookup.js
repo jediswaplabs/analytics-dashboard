@@ -15,7 +15,7 @@ import styled from 'styled-components'
 import { AutoRow, RowBetween } from '../components/Row'
 import { Banner } from '../components/Banner'
 import { Flag, Watch, Box } from 'react-feather'
-import { useAllLpContestData } from '../contexts/LpContestData'
+import { useAllLpContestData, useLpContestNftRanksData } from '../contexts/LpContestData'
 
 import contestFlagIcon from '../../src/assets/flag.svg'
 import { AutoColumn } from '../components/Column'
