@@ -1,5 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
 import { useUserLpCampaignTransactions, useLpContestUserSnapshots, useLpContestPercentile } from '../contexts/User'
 import TxnList from '../components/TxnList'
 import Panel from '../components/Panel'
@@ -16,6 +17,12 @@ import eligibilityBadgeIcon from '../../src/assets/starBadge.svg'
 import LpContestUserChart from '../components/LpContestUserChart'
 
 const EligibilityBadge = styled.img``
+
+const EligibilityBadgeWrapper = styled.a`
+  display: flex;
+  margin-left: 12px;
+  cursor: help;
+`
 
 const PanelWrapper = styled.div`
   grid-template-columns: 1fr;
@@ -86,9 +93,22 @@ function LpContestAccountPage({ account }) {
                 <TYPE.header fontSize={24}>
                   {starknetIdDomain ? starknetIdDomain : shortenStraknetAddress(account)}
                 </TYPE.header>
-                {isUserEligible && <EligibilityBadge src={eligibilityBadgeIcon} style={{ marginLeft: '12px' }} />}
+                {isUserEligible && (
+                  <EligibilityBadgeWrapper
+                    className="eligibility-badge"
+                    data-tooltip-content="Eligible for NFT"
+                    data-tooltip-place="right"
+                  >
+                    <EligibilityBadge src={eligibilityBadgeIcon} />
+                  </EligibilityBadgeWrapper>
+                )}
               </div>
-              <Link lineHeight={'145.23%'} href={urls.showAddress(account)} target="_blank">
+              <Link
+                lineHeight={'145.23%'}
+                href={urls.showAddress(account)}
+                target="_blank"
+                style={{ display: 'inline-block' }}
+              >
                 <TYPE.main fontSize={14}>View on Starkscan</TYPE.main>
               </Link>
             </span>
@@ -144,6 +164,7 @@ function LpContestAccountPage({ account }) {
           </Panel>
         </DashboardWrapper>
       </ContentWrapper>
+      <ReactTooltip anchorSelect=".eligibility-badge" style={{ backgroundColor: 'rgb(0, 0, 0)', color: '#fff' }} />
     </PageWrapper>
   )
 }
