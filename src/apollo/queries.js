@@ -663,6 +663,23 @@ export const LP_CONTEST_DATA = gql`
   }
 `
 
+export const LP_CONTEST_NFT_RANK = gql`
+  query lpcontestnftrank {
+    lpContestNftRank {
+      L1P1Start
+      L1P1End
+      L1P2Start
+      L1P2End
+      L1P3Start
+      L1P3End
+      L1P4Start
+      L1P4End
+      L1P5Start
+      L1P5End
+    }
+  }
+`
+
 export const PAIR_DATA = (pairAddress, block) => {
   const queryString = `
     ${PairFields}

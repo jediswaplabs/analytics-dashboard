@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
+import { isObject, isEmpty } from 'lodash'
 
 import Panel from '../Panel'
+import { useLpContestNftRanksData } from '../../contexts/LpContestData'
 
 const scoreBannerThemeColors = {
   theme1: '#C23232',
@@ -48,80 +50,10 @@ const ScoreBannersGridRow = styled.div`
     grid-template-columns: 1fr 1fr;
   }
 
-  @media screen and (max-width: 400px) {
+  @media screen and (max-width: 450px) {
     grid-template-columns: 1fr;
   }
 `
-
-// const ScoreBannerWrapper = styled(Panel)`
-//   display: flex;
-//   flex-direction: column;
-//   border-radius: 8px;
-//   padding: 0;
-//   overflow: hidden;
-//
-//   .title-row {
-//     background: rgba(1, 77, 168, 1);
-//     display: grid;
-//     width: 100%;
-//     grid-template-columns: 1fr 1fr 1fr;
-//     column-gap: 10px;
-//     align-items: start;
-//     justify-content: space-between;
-//     overflow: hidden;
-//   }
-//
-//   .title-row-item {
-//     font-size: 10px;
-//     font-weight: 700;
-//     line-height: 20px;
-//     text-align: center;
-//     position: relative;
-//     white-space: nowrap;
-//
-//     &.accent {
-//       span {
-//         position: relative;
-//         z-index: 2;
-//       }
-//     }
-//
-//     &.accent:after {
-//       content: '';
-//       position: absolute;
-//       top: -1px;
-//       right: -1px;
-//       height: 38px;
-//       width: 140%;
-//       z-index: 1;
-//       clip-path: polygon(30% 0, 100% 0%, 100% 100%, 0% 100%);
-//       ${(props) => props.themeColor && `
-//         background: linear-gradient(180deg, ${props.themeColor} 5.47%,rgba(86,30,81,0) 78.84%);
-//     `}
-//     }
-//   }
-//
-//   .content {
-//     display: grid;
-//     grid-row-gap: 10px;
-//     padding: 10px 0;
-//   }
-//
-//   .score-row {
-//     display: grid;
-//     width: 100%;
-//     grid-template-columns: 1fr 1fr 1fr;
-//     column-gap: 10px;
-//     align-items: start;
-//     justify-content: space-between;
-//   }
-//
-//   .score-row-item {
-//     padding: 0 10px;
-//     text-align: center;
-//     font-weight: 700;
-//   }
-// `
 
 const ScoreBannerWrapper = styled.div`
   display: flex;
@@ -148,7 +80,7 @@ const ScoreBannerWrapper = styled.div`
     ${(props) =>
       props.themeColor &&
       `
-        background: linear-gradient(180deg, ${props.themeColor} 5.47%,rgba(86,30,81,0) 78.84%);
+      background: linear-gradient(180deg, ${props.themeColor} 5.47%,rgba(86,30,81,0) 78.84%);
     `}
   }
 
@@ -173,113 +105,80 @@ const ScoreBannerWrapper = styled.div`
 
   .content {
     font-weight: 700;
-    font-size: 18px;
+    font-size: 16px;
     white-space: nowrap;
   }
 `
 
 function LpContestNftCategories() {
+  const nftRanksData = useLpContestNftRanksData()
+
+  const getRankForBanner = useCallback(
+    (index = 0, top = false) => {
+      const startKeyName = `L1P${index}Start`
+      const endKeyName = `L1P${index}End`
+      if (!isObject(nftRanksData) || isEmpty(nftRanksData)) {
+        return '...'
+      }
+      if (!nftRanksData[startKeyName]) {
+        console.error(`Rank ${startKeyName} does not exist`)
+        return ''
+      }
+      if (!nftRanksData[endKeyName]) {
+        console.error(`Rank ${endKeyName} does not exist`)
+        return ''
+      }
+      if (top) {
+        return `Top ${nftRanksData[startKeyName] - 1}`
+      }
+      return `${nftRanksData[startKeyName]}-${nftRanksData[endKeyName]}`
+    },
+    [nftRanksData]
+  )
+
   return (
     <Wrapper>
       <Title>NFT Categories</Title>
       <ScoreBannersGridRow>
-        {/*<ScoreBannerWrapper themeColor={scoreBannerThemeColors.theme1}>*/}
-        {/*	<div className={'title-row'}>*/}
-        {/*		<TYPE.small className={'title-row-item'}>*/}
-        {/*			<span>Min. Rank</span>*/}
-        {/*		</TYPE.small>*/}
-        {/*		<TYPE.small className={'title-row-item'}>*/}
-        {/*			<span>Score</span>*/}
-        {/*		</TYPE.small>*/}
-        {/*		<TYPE.small className={'title-row-item accent'}>*/}
-        {/*			<span>NFT Reward</span>*/}
-        {/*		</TYPE.small>*/}
-        {/*	</div>*/}
-        {/*	<div className={'content'}>*/}
-        {/*		{data.slice(0, 3).map((props) => {*/}
-        {/*			return (*/}
-        {/*				<div className={'score-row'} key={props.rank}>*/}
-        {/*					{Object.values(props).map((prop) => {*/}
-        {/*						return (*/}
-        {/*							<TYPE.main className={'score-row-item'}>*/}
-        {/*								<span>{prop}</span>*/}
-        {/*							</TYPE.main>*/}
-        {/*						)*/}
-        {/*					})}*/}
-        {/*				</div>*/}
-        {/*			)*/}
-        {/*		})}*/}
-        {/*	</div>*/}
-        {/*</ScoreBannerWrapper>*/}
-
-        {/*<ScoreBannerWrapper themeColor={scoreBannerThemeColors.theme1}>*/}
-        {/*	<div className={'title-row'}>*/}
-        {/*		<TYPE.small className={'title-row-item'}>*/}
-        {/*			<span>Min. Rank</span>*/}
-        {/*		</TYPE.small>*/}
-        {/*		<TYPE.small className={'title-row-item'}>*/}
-        {/*			<span>Score</span>*/}
-        {/*		</TYPE.small>*/}
-        {/*		<TYPE.small className={'title-row-item accent'}>*/}
-        {/*			<span>NFT Reward</span>*/}
-        {/*		</TYPE.small>*/}
-        {/*	</div>*/}
-        {/*	<div className={'content'}>*/}
-        {/*		{data.slice(3, 6).map((props) => {*/}
-        {/*			return (*/}
-        {/*				<div className={'score-row'} key={props.rank}>*/}
-        {/*					{Object.values(props).map((prop) => {*/}
-        {/*					return (*/}
-        {/*						<TYPE.main className={'score-row-item'}>*/}
-        {/*							<span>{prop}</span>*/}
-        {/*						</TYPE.main>*/}
-        {/*					)*/}
-        {/*				})}*/}
-        {/*				</div>*/}
-        {/*			)*/}
-        {/*		})}*/}
-        {/*	</div>*/}
-        {/*</ScoreBannerWrapper>*/}
-
         <ScoreBanner
           themeColor={scoreBannerThemeColors.theme1}
           leftTitle={'Rank'}
-          leftContent={'Top 10'}
+          leftContent={getRankForBanner(1, true)}
           rightTitle={'NFT Unlock'}
           rightContent={'L1PW'}
         />
         <ScoreBanner
           themeColor={scoreBannerThemeColors.theme2}
-          leftTitle={'Percentile'}
-          leftContent={'0-2%'}
+          leftTitle={'Rank'}
+          leftContent={getRankForBanner(1)}
           rightTitle={'NFT Unlock'}
           rightContent={'L1P1'}
         />
         <ScoreBanner
           themeColor={scoreBannerThemeColors.theme3}
-          leftTitle={'Percentile'}
-          leftContent={'3-10%'}
+          leftTitle={'Rank'}
+          leftContent={getRankForBanner(2)}
           rightTitle={'NFT Unlock'}
           rightContent={'L1P2'}
         />
         <ScoreBanner
           themeColor={scoreBannerThemeColors.theme4}
-          leftTitle={'Percentile'}
-          leftContent={'11-25%'}
+          leftTitle={'Rank'}
+          leftContent={getRankForBanner(3)}
           rightTitle={'NFT Unlock'}
           rightContent={'L1P3'}
         />
         <ScoreBanner
           themeColor={scoreBannerThemeColors.theme5}
-          leftTitle={'Percentile'}
-          leftContent={'26-55%'}
+          leftTitle={'Rank'}
+          leftContent={getRankForBanner(4)}
           rightTitle={'NFT Unlock'}
           rightContent={'L1P4'}
         />
         <ScoreBanner
           themeColor={scoreBannerThemeColors.theme6}
-          leftTitle={'Percentile'}
-          leftContent={'56-100%'}
+          leftTitle={'Rank'}
+          leftContent={getRankForBanner(5)}
           rightTitle={'NFT Unlock'}
           rightContent={'L1P5'}
         />

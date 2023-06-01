@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
 import { usePairData } from './PairData'
-import {jediSwapClient} from '../apollo/client'
+import { jediSwapClient } from '../apollo/client'
 import {
   USER_TRANSACTIONS,
   USER_POSITIONS,
@@ -8,7 +8,7 @@ import {
   PAIR_DAY_DATA_BULK,
   USER_LP_CONTEST_TRANSACTIONS,
   USER_LP_CONTEST_HISTORY,
-  USER_LP_CONTEST_PERCENTILE
+  USER_LP_CONTEST_PERCENTILE,
 } from '../apollo/queries'
 import { useTimeframe, useStartTimestamp } from './Application'
 import dayjs from 'dayjs'
@@ -16,7 +16,7 @@ import utc from 'dayjs/plugin/utc'
 import { useEthPrice } from './GlobalData'
 import { getLPReturnsOnPair, getHistoricalPairReturns } from '../utils/returns'
 import { timeframeOptions } from '../constants'
-import {convertDateToUnixFormat} from "../utils";
+import { convertDateToUnixFormat } from '../utils'
 
 dayjs.extend(utc)
 
@@ -217,9 +217,28 @@ export default function Provider({ children }) {
       value={useMemo(
         () => [
           state,
-          { updateTransactions, updateLpContestTransactions, updatePositions, updateMiningPositions, updateUserSnapshots, updateLpContestUserSnapshots, updateUserPairReturns, updateLpContestPercentile },
+          {
+            updateTransactions,
+            updateLpContestTransactions,
+            updatePositions,
+            updateMiningPositions,
+            updateUserSnapshots,
+            updateLpContestUserSnapshots,
+            updateUserPairReturns,
+            updateLpContestPercentile,
+          },
         ],
-        [state, updateTransactions, updateLpContestTransactions, updatePositions, updateMiningPositions, updateUserSnapshots, updateLpContestUserSnapshots, updateUserPairReturns, updateLpContestPercentile]
+        [
+          state,
+          updateTransactions,
+          updateLpContestTransactions,
+          updatePositions,
+          updateMiningPositions,
+          updateUserSnapshots,
+          updateLpContestUserSnapshots,
+          updateUserPairReturns,
+          updateLpContestPercentile,
+        ]
       )}
     >
       {children}
@@ -308,10 +327,10 @@ export function useUserSnapshots(account) {
             fetchPolicy: 'cache-first',
           })
           const data = result.data.liquidityPositionSnapshots.map((position) => {
-            const timestamp = convertDateToUnixFormat(position.timestamp);
+            const timestamp = convertDateToUnixFormat(position.timestamp)
             return {
               ...position,
-              timestamp
+              timestamp,
             }
           })
           allResults = allResults.concat(data)
@@ -356,7 +375,7 @@ export function useLpContestUserSnapshots(account) {
             fetchPolicy: 'cache-first',
           })
 
-          const processedResult = result?.data?.lpContestBlocks;
+          const processedResult = result?.data?.lpContestBlocks
 
           allResults = allResults.concat(processedResult)
           if (processedResult.length < 1000) {
@@ -535,7 +554,9 @@ export function useUserLiquidityChart(account) {
       }, [])
 
       // get all day datas where date is in this list, and pair is in pair list
-      let { data: { pairDayDatas } } = await jediSwapClient.query({
+      let {
+        data: { pairDayDatas },
+      } = await jediSwapClient.query({
         query: PAIR_DAY_DATA_BULK(pairs, startDateTimestamp),
       })
 
@@ -624,20 +645,23 @@ export function useUserLiquidityChart(account) {
 
 export function useLpContestUserLiquidityChart(account) {
   const history = useLpContestUserSnapshots(account)
-  let formattedHistory;
+  let formattedHistory
   if (history) {
-    formattedHistory = history.map((item) => {
-      if (!(item?.timestamp && item?.contestValue)) {
-        return false;
-      }
-      return {
-        date: convertDateToUnixFormat(item.timestamp),
-        value: Number(item.contestValue).toFixed(),
-      }
-    }).filter(Boolean);
+    formattedHistory = history
+      .map((item) => {
+        if (!(item?.timestamp && item?.contestValue)) {
+          return false
+        }
+        return {
+          date: convertDateToUnixFormat(item.timestamp),
+
+          value: Number(item.contestValue).toFixed(),
+        }
+      })
+      .filter(Boolean)
   }
 
-  return formattedHistory;
+  return formattedHistory
 }
 
 export function useUserPositions(account) {

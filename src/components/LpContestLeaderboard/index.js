@@ -81,6 +81,11 @@ const Input = styled.input`
 
 const EligibilityBadge = styled.img``
 
+const EligibilityBadgeWrapper = styled.a`
+  display: flex;
+  cursor: help;
+`
+
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
 `
@@ -211,9 +216,13 @@ function LpContestLeaderboard({ history, players, maxItems = 10 }) {
             {player.starknetIdDomain ? player.starknetIdDomain : shortenStraknetAddress(player.user.id, 6)}
           </CustomLink>
           {player?.isEligible && (
-            <a className="eligibility-badge" data-tooltip-content="Eligible for NFT" data-tooltip-place="right">
+            <EligibilityBadgeWrapper
+              className="eligibility-badge"
+              data-tooltip-content="Eligible for NFT"
+              data-tooltip-place="right"
+            >
               <EligibilityBadge src={eligibilityBadgeIcon} />
-            </a>
+            </EligibilityBadgeWrapper>
           )}
         </DataText>
         <DataText area="value" justifyContent="center">
@@ -233,10 +242,6 @@ function LpContestLeaderboard({ history, players, maxItems = 10 }) {
         </div>
       )
     })
-
-  // if (!arePlayersAvailable) {
-  // 	return <LocalLoader/>
-  // }
 
   return (
     <>

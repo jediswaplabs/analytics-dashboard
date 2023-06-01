@@ -1,14 +1,18 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react'
 
 import { jediSwapClient } from '../apollo/client'
-import { LP_CONTEST_DATA } from '../apollo/queries'
+import { LP_CONTEST_DATA, LP_CONTEST_NFT_RANK, USER_POSITIONS } from '../apollo/queries'
 
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { convertHexToDecimal } from '../utils'
+import { useEthPrice } from './GlobalData'
+import { getLPReturnsOnPair } from '../utils/returns'
+import { useUserSnapshots } from './User'
 
 const UPDATE = 'UPDATE'
 const UPDATE_PLAYERS_DATA = 'UPDATE_PLAYERS_DATA'
+const UPDATE_NFT_RANKS_DATA = 'UPDATE_NFT_RANKS_DATA'
 
 dayjs.extend(utc)
 
@@ -42,6 +46,13 @@ function reducer(state, { type, payload }) {
         ...added,
       }
     }
+    case UPDATE_NFT_RANKS_DATA: {
+      const { ranks } = payload
+      return {
+        ...state,
+        ranks: ranks,
+      }
+    }
 
     default: {
       throw Error(`Unexpected action type in DataContext reducer: '${type}'.`)
@@ -72,6 +83,15 @@ export default function Provider({ children }) {
     })
   }, [])
 
+  const updateNftRanksData = useCallback((ranks) => {
+    dispatch({
+      type: UPDATE_NFT_RANKS_DATA,
+      payload: {
+        ranks,
+      },
+    })
+  }, [])
+
   return (
     <LpContestDataContext.Provider
       value={useMemo(
@@ -80,9 +100,10 @@ export default function Provider({ children }) {
           {
             update,
             updatePlayersData,
+            updateNftRanksData,
           },
         ],
-        [state, update, updatePlayersData]
+        [state, update, updatePlayersData, updateNftRanksData]
       )}
     >
       {children}
@@ -151,4 +172,31 @@ export function Updater() {
 export function useAllLpContestData() {
   const [state] = useLpContestDataContext()
   return state || {}
+}
+
+export function useLpContestNftRanksData() {
+  const [state, { updateNftRanksData }] = useLpContestDataContext()
+  const ranks = state?.ranks
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        let result = await jediSwapClient.query({
+          query: LP_CONTEST_NFT_RANK,
+          variables: {},
+          fetchPolicy: 'network-only',
+        })
+        if (result?.data?.lpContestNftRank) {
+          updateNftRanksData(result.data.lpContestNftRank)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (!(ranks && Object.keys(ranks).length)) {
+      fetchData()
+    }
+  }, [ranks])
+
+  return ranks
 }
