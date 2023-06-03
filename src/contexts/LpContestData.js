@@ -1,14 +1,11 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react'
 
 import { jediSwapClient } from '../apollo/client'
-import { LP_CONTEST_DATA, LP_CONTEST_NFT_RANK, USER_POSITIONS } from '../apollo/queries'
+import { LP_CONTEST_DATA, LP_CONTEST_NFT_RANK } from '../apollo/queries'
 
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { convertHexToDecimal } from '../utils'
-import { useEthPrice } from './GlobalData'
-import { getLPReturnsOnPair } from '../utils/returns'
-import { useUserSnapshots } from './User'
 
 const UPDATE = 'UPDATE'
 const UPDATE_PLAYERS_DATA = 'UPDATE_PLAYERS_DATA'
@@ -28,9 +25,12 @@ function reducer(state, { type, payload }) {
       const { playerAddress, data } = payload
       return {
         ...state,
-        [playerAddress]: {
-          ...state?.[playerAddress],
-          ...data,
+        players: {
+          ...(state?.players ?? {}),
+          [playerAddress]: {
+            ...state?.players?.[playerAddress],
+            ...data,
+          },
         },
       }
     }
@@ -43,7 +43,10 @@ function reducer(state, { type, payload }) {
       })
       return {
         ...state,
-        ...added,
+        players: {
+          ...(state?.players ?? {}),
+          ...added,
+        },
       }
     }
     case UPDATE_NFT_RANKS_DATA: {
@@ -172,6 +175,11 @@ export function Updater() {
 export function useAllLpContestData() {
   const [state] = useLpContestDataContext()
   return state || {}
+}
+
+export function useLpContestPlayersData() {
+  const [state] = useLpContestDataContext()
+  return state?.players || {}
 }
 
 export function useLpContestNftRanksData() {
