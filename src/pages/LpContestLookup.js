@@ -15,7 +15,7 @@ import styled from 'styled-components'
 import { AutoRow, RowBetween } from '../components/Row'
 import { Banner } from '../components/Banner'
 import { Flag, Watch, Box } from 'react-feather'
-import { useAllLpContestData, useLpContestNftRanksData } from '../contexts/LpContestData'
+import { useLpContestPlayersData } from '../contexts/LpContestData'
 
 import contestFlagIcon from '../../src/assets/flag.svg'
 import { AutoColumn } from '../components/Column'
@@ -82,7 +82,7 @@ const CAMPAIGN_START_DATE_ISO = '2023-04-17T00:00:00.000Z'
 const CAMPAIGN_END_DATE_ISO = '2023-07-26T07:24:00.000Z'
 
 function LpContestLookup() {
-  const allPlayersData = useAllLpContestData()
+  const allPlayersData = useLpContestPlayersData()
 
   let latestLpBlockNumber = useMemo(() => {
     if (!allPlayersData) {
