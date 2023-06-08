@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react'
+import React, { useMemo, useEffect, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 import { useUserLpCampaignTransactions, useLpContestUserSnapshots, useLpContestPercentile } from '../contexts/User'
@@ -15,6 +15,8 @@ import { BasicLink } from '../components/Link'
 import eligibilityBadgeIcon from '../../src/assets/starBadge.svg'
 
 import LpContestUserChart from '../components/LpContestUserChart'
+import { useLpContestNftRanksData } from '../contexts/LpContestData'
+import { isEmpty, isObject } from 'lodash'
 
 const EligibilityBadge = styled.img``
 
@@ -44,12 +46,39 @@ function LpContestAccountPage({ account }) {
   const userData = useLpContestUserSnapshots(account)
   const userPercentile = useLpContestPercentile(account)
   const transactions = useUserLpCampaignTransactions(account)
+  const nftRanksData = useLpContestNftRanksData()
+
   let userPoints = useMemo(() => {
     return userData?.length ? userData[0].contestValue : 0
   }, [userData])
+
   let isUserEligible = useMemo(() => {
     return userData?.length ? userData[0].isEligible : false
   }, [userData])
+
+  const getEligibleNftForUserRank = useCallback(() => {
+    const loadingResultStub = '...'
+    const notEligibleResult = 'Not eligible for NFT'
+    const isAllDataAvailable = isObject(nftRanksData) && !isEmpty(nftRanksData) && isObject(userPercentile) && !isEmpty(userPercentile)
+    const isUserRankAvailable = typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0
+    if (!isAllDataAvailable) { return loadingResultStub }
+    if (!isUserRankAvailable) { return notEligibleResult }
+    const userRank = Number(userPercentile?.rank) + 1;
+    const rangesAmount = Math.round((Object.keys(nftRanksData).length - 1) / 2)
+
+    let result = notEligibleResult;
+    for (let i = 1; i <= rangesAmount; i++) {
+      if (i === 1 && userRank < nftRanksData[`L1P${i}Start`]) {
+        result = `L1PW`;
+        break;
+      }
+      if (userRank <= nftRanksData[`L1P${i}End`]) {
+        result = `L1P${i}`;
+        break;
+      }
+    }
+    return result;
+  }, [nftRanksData, userPercentile]);
 
   useEffect(() => {
     window.scrollTo({
@@ -129,6 +158,12 @@ function LpContestAccountPage({ account }) {
                   {typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0
                     ? userPercentile.rank + 1
                     : '...'}
+                </TYPE.header>
+              </AutoColumn>
+              <AutoColumn gap="5px">
+                <TYPE.main>Eligible for NFT</TYPE.main>
+                <TYPE.header fontSize={24}>
+                  {getEligibleNftForUserRank()}
                 </TYPE.header>
               </AutoColumn>
             </AutoRow>
