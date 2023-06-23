@@ -3,13 +3,7 @@ import { withRouter } from 'react-router-dom'
 import 'feather-icons'
 import styled from 'styled-components'
 import Panel from '../components/Panel'
-import {
-  PageWrapper,
-  ContentWrapperLarge,
-  StyledIcon,
-  BlockedWrapper,
-  BlockedMessageWrapper,
-} from '../components/index'
+import { PageWrapper, ContentWrapperLarge, StyledIcon, BlockedWrapper, BlockedMessageWrapper } from '../components/index'
 import { AutoRow, RowBetween, RowFixed } from '../components/Row'
 import Column, { AutoColumn } from '../components/Column'
 import { ButtonLight, ButtonDark } from '../components/ButtonStyled'
@@ -19,14 +13,7 @@ import TxnList from '../components/TxnList'
 import Loader from '../components/LocalLoader'
 import { BasicLink } from '../components/Link'
 import Search from '../components/Search'
-import {
-  formattedNum,
-  formattedPercent,
-  getPoolLink,
-  getSwapLink,
-  shortenStraknetAddress,
-  urls
-} from '../utils'
+import { formattedNum, formattedPercent, getPoolLink, getSwapLink, shortenStraknetAddress, urls } from '../utils'
 import { useColor } from '../hooks'
 import { usePairData, usePairTransactions } from '../contexts/PairData'
 import { TYPE, ThemedBackground } from '../Theme'
@@ -42,9 +29,9 @@ import { usePathDismissed, useSavedPairs } from '../contexts/LocalStorage'
 
 import { Bookmark, PlusCircle, AlertCircle } from 'react-feather'
 import FormattedName from '../components/FormattedName'
-import { useListedTokens } from '../contexts/Application'
+import { useListedTokens, useWhitelistedTokens } from '../contexts/Application'
 import HoverText from '../components/HoverText'
-import {UNTRACKED_COPY, BLOCKED_WARNINGS, TOKEN_WHITELIST} from '../constants'
+import { UNTRACKED_COPY, BLOCKED_WARNINGS } from '../constants'
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -171,11 +158,9 @@ function PairPage({ pairAddress, history }) {
 
   // token data for usd
   const [ethPrice] = useEthPrice()
-  const token0USD =
-    token0?.derivedETH && ethPrice ? formattedNum(parseFloat(token0.derivedETH) * parseFloat(ethPrice), true) : ''
+  const token0USD = token0?.derivedETH && ethPrice ? formattedNum(parseFloat(token0.derivedETH) * parseFloat(ethPrice), true) : ''
 
-  const token1USD =
-    token1?.derivedETH && ethPrice ? formattedNum(parseFloat(token1.derivedETH) * parseFloat(ethPrice), true) : ''
+  const token1USD = token1?.derivedETH && ethPrice ? formattedNum(parseFloat(token1.derivedETH) * parseFloat(ethPrice), true) : ''
 
   // rates
   const token0Rate = reserve0 && reserve1 ? formattedNum(reserve1 / reserve0) : '-'
@@ -201,18 +186,15 @@ function PairPage({ pairAddress, history }) {
   const [savedPairs, addPair] = useSavedPairs()
 
   const listedTokens = useListedTokens()
+  const whitelistedTokens = useWhitelistedTokens()
 
-  if (!(TOKEN_WHITELIST.includes(token0.id) && TOKEN_WHITELIST.includes(token1.id))) {
+  if (!(whitelistedTokens.includes(token0.id) && whitelistedTokens.includes(token1.id))) {
     return (
       <BlockedWrapper>
         <BlockedMessageWrapper>
           <AutoColumn gap="1rem" justify="center">
-            <TYPE.light style={{ textAlign: 'center' }}>
-              {BLOCKED_WARNINGS[pairAddress] ?? `This pair is not supported.`}
-            </TYPE.light>
-            <Link external={true} href={urls.showAddress(pairAddress)}>{`More about ${shortenStraknetAddress(
-              pairAddress
-            )}`}</Link>
+            <TYPE.light style={{ textAlign: 'center' }}>{BLOCKED_WARNINGS[pairAddress] ?? `This pair is not supported.`}</TYPE.light>
+            <Link external={true} href={urls.showAddress(pairAddress)}>{`More about ${shortenStraknetAddress(pairAddress)}`}</Link>
           </AutoColumn>
         </BlockedMessageWrapper>
       </BlockedWrapper>
@@ -236,11 +218,7 @@ function PairPage({ pairAddress, history }) {
           </TYPE.body>
           {!below600 && <Search small={true} />}
         </RowBetween>
-        <WarningGrouping
-          disabled={
-            !dismissed && listedTokens && !(listedTokens.includes(token0?.id) && listedTokens.includes(token1?.id))
-          }
-        >
+        <WarningGrouping disabled={!dismissed && listedTokens && !(listedTokens.includes(token0?.id) && listedTokens.includes(token1?.id))}>
           <DashboardWrapper>
             <AutoColumn gap="40px" style={{ marginBottom: '1.5rem' }}>
               <div
@@ -253,18 +231,13 @@ function PairPage({ pairAddress, history }) {
               >
                 <RowFixed style={{ flexWrap: 'wrap', minWidth: '100px' }}>
                   <RowFixed>
-                    {token0 && token1 && (
-                      <DoubleTokenLogo a0={token0?.id || ''} a1={token1?.id || ''} size={32} margin={true} />
-                    )}{' '}
+                    {token0 && token1 && <DoubleTokenLogo a0={token0?.id || ''} a1={token1?.id || ''} size={32} margin={true} />}{' '}
                     <TYPE.main fontSize={below1080 ? '1.5rem' : '2rem'} style={{ margin: '0 1rem' }}>
                       {token0 && token1 ? (
                         <>
                           <HoverSpan onClick={() => history.push(`/token/${token0?.id}`)}>{token0.symbol}</HoverSpan>
                           <span>-</span>
-                          <HoverSpan onClick={() => history.push(`/token/${token1?.id}`)}>
-                            {token1.symbol}
-                          </HoverSpan>{' '}
-                          Pair
+                          <HoverSpan onClick={() => history.push(`/token/${token1?.id}`)}>{token1.symbol}</HoverSpan> Pair
                         </>
                       ) : (
                         ''
@@ -318,9 +291,7 @@ function PairPage({ pairAddress, history }) {
                   <TokenLogo address={token0?.id} size={'16px'} />
                   <TYPE.main fontSize={'16px'} lineHeight={1} fontWeight={500} ml={'4px'}>
                     {token0 && token1
-                      ? `1 ${formattedSymbol0} = ${token0Rate} ${formattedSymbol1} ${
-                          parseFloat(token0?.derivedETH) ? '(' + token0USD + ')' : ''
-                        }`
+                      ? `1 ${formattedSymbol0} = ${token0Rate} ${formattedSymbol1} ${parseFloat(token0?.derivedETH) ? '(' + token0USD + ')' : ''}`
                       : '-'}
                   </TYPE.main>
                 </RowFixed>
@@ -330,9 +301,7 @@ function PairPage({ pairAddress, history }) {
                   <TokenLogo address={token1?.id} size={'16px'} />
                   <TYPE.main fontSize={'16px'} lineHeight={1} fontWeight={500} ml={'4px'}>
                     {token0 && token1
-                      ? `1 ${formattedSymbol1} = ${token1Rate} ${formattedSymbol0}  ${
-                          parseFloat(token1?.derivedETH) ? '(' + token1USD + ')' : ''
-                        }`
+                      ? `1 ${formattedSymbol1} = ${token1Rate} ${formattedSymbol0}  ${parseFloat(token1?.derivedETH) ? '(' + token1USD + ')' : ''}`
                       : '-'}
                   </TYPE.main>
                 </RowFixed>
@@ -405,8 +374,7 @@ function PairPage({ pairAddress, history }) {
                         <TokenLogo address={token0?.id} />
                         <TYPE.main fontSize={20} lineHeight={1} fontWeight={500}>
                           <RowFixed>
-                            {reserve0 ? formattedNum(reserve0) : ''}{' '}
-                            <FormattedName text={token0?.symbol ?? ''} maxCharacters={8} margin={true} />
+                            {reserve0 ? formattedNum(reserve0) : ''} <FormattedName text={token0?.symbol ?? ''} maxCharacters={8} margin={true} />
                           </RowFixed>
                         </TYPE.main>
                       </AutoRow>
@@ -416,8 +384,7 @@ function PairPage({ pairAddress, history }) {
                         <TokenLogo address={token1?.id} />
                         <TYPE.main fontSize={20} lineHeight={1} fontWeight={500}>
                           <RowFixed>
-                            {reserve1 ? formattedNum(reserve1) : ''}{' '}
-                            <FormattedName text={token1?.symbol ?? ''} maxCharacters={8} margin={true} />
+                            {reserve1 ? formattedNum(reserve1) : ''} <FormattedName text={token1?.symbol ?? ''} maxCharacters={8} margin={true} />
                           </RowFixed>
                         </TYPE.main>
                       </AutoRow>
@@ -430,12 +397,7 @@ function PairPage({ pairAddress, history }) {
                     gridRow: below1080 ? '' : '1/5',
                   }}
                 >
-                  <PairChart
-                    address={pairAddress}
-                    color={backgroundColor}
-                    base0={reserve1 / reserve0}
-                    base1={reserve0 / reserve1}
-                  />
+                  <PairChart address={pairAddress} color={backgroundColor} base0={reserve1 / reserve0} base1={reserve0 / reserve1} />
                 </Panel>
               </PanelWrapper>
               <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
@@ -474,31 +436,25 @@ function PairPage({ pairAddress, history }) {
                   <Column>
                     <TYPE.main>Pair Address</TYPE.main>
                     <AutoRow align="flex-end">
-                      <TYPE.main style={{ marginTop: '.5rem' }}>
-                        {pairAddress.slice(0, 6) + '...' + pairAddress.slice(38, 42)}
-                      </TYPE.main>
+                      <TYPE.main style={{ marginTop: '.5rem' }}>{pairAddress.slice(0, 6) + '...' + pairAddress.slice(38, 42)}</TYPE.main>
                       <CopyHelper toCopy={pairAddress} />
                     </AutoRow>
                   </Column>
                   <Column>
                     <TYPE.main>
                       <RowFixed>
-                        <FormattedName text={token0?.symbol ?? ''} maxCharacters={8} />{' '}
-                        <span style={{ marginLeft: '4px' }}>Address</span>
+                        <FormattedName text={token0?.symbol ?? ''} maxCharacters={8} /> <span style={{ marginLeft: '4px' }}>Address</span>
                       </RowFixed>
                     </TYPE.main>
                     <AutoRow align="flex-end">
-                      <TYPE.main style={{ marginTop: '.5rem' }}>
-                        {token0?.id && shortenStraknetAddress(token0.id)}
-                      </TYPE.main>
+                      <TYPE.main style={{ marginTop: '.5rem' }}>{token0?.id && shortenStraknetAddress(token0.id)}</TYPE.main>
                       <CopyHelper toCopy={token0?.id} />
                     </AutoRow>
                   </Column>
                   <Column>
                     <TYPE.main>
                       <RowFixed>
-                        <FormattedName text={token1?.symbol ?? ''} maxCharacters={8} />{' '}
-                        <span style={{ marginLeft: '4px' }}>Address</span>
+                        <FormattedName text={token1?.symbol ?? ''} maxCharacters={8} /> <span style={{ marginLeft: '4px' }}>Address</span>
                       </RowFixed>
                     </TYPE.main>
                     <AutoRow align="flex-end">

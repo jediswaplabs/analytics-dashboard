@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Route, Switch, BrowserRouter, Redirect } from 'react-router-dom'
 import { ApolloProvider } from 'react-apollo'
-import {jediSwapClient} from './apollo/client'
+import { jediSwapClient } from './apollo/client'
 import GlobalPage from './pages/GlobalPage'
 import TokenPage from './pages/TokenPage'
 import PairPage from './pages/PairPage'
@@ -17,12 +17,12 @@ import PinnedData from './components/PinnedData'
 import SideNav from './components/SideNav'
 import AccountLookup from './pages/AccountLookup'
 import LpContestLookup from './pages/LpContestLookup'
-import LpContestAccountPage from "./pages/LpContestPage";
+import LpContestAccountPage from './pages/LpContestPage'
 import LocalLoader from './components/LocalLoader'
-import { useLatestBlocks } from './contexts/Application'
+import { useLatestBlocks, useWhitelistedTokens } from './contexts/Application'
 import GoogleAnalyticsReporter from './components/analytics/GoogleAnalyticsReporter'
-import {TOKEN_WHITELIST} from './constants'
-import dayjs from "dayjs";
+
+import dayjs from 'dayjs'
 
 const AppWrapper = styled.div`
   position: relative;
@@ -98,17 +98,17 @@ const LayoutWrapper = ({ children, savedOpen, setSavedOpen }) => {
   )
 }
 
-
-const BLOCK_DIFFERENCE_THRESHOLD = 2;
+const BLOCK_DIFFERENCE_THRESHOLD = 2
 
 function App() {
   const [savedOpen, setSavedOpen] = useState(false)
 
   const globalData = useGlobalData()
   const globalChartData = useGlobalChartData()
-  const [latestBlock, headBlock] = useLatestBlocks();
+  const whitelistedTokens = useWhitelistedTokens()
+  const [latestBlock, headBlock] = useLatestBlocks()
 
-  const showWarning = headBlock && latestBlock ? (headBlock.number - latestBlock.number) > BLOCK_DIFFERENCE_THRESHOLD : false;
+  const showWarning = headBlock && latestBlock ? headBlock.number - latestBlock.number > BLOCK_DIFFERENCE_THRESHOLD : false
 
   return (
     <ApolloProvider client={jediSwapClient}>
@@ -116,11 +116,17 @@ function App() {
         {showWarning && (
           <WarningWrapper>
             <WarningBanner>
-              {`Warning: The data on this site has only synced to Starknet block ${latestBlock.number} (was produced on ${dayjs.unix(latestBlock.timestamp).format('YYYY-MM-DDTHH:mm:ss')}). Please check back soon.`}
+              {`Warning: The data on this site has only synced to Starknet block ${latestBlock.number} (was produced on ${dayjs
+                .unix(latestBlock.timestamp)
+                .format('YYYY-MM-DDTHH:mm:ss')}). Please check back soon.`}
             </WarningBanner>
           </WarningWrapper>
         )}
-        {globalData && Object.keys(globalData).length > 0 && globalChartData && Object.keys(globalChartData).length > 0 ? (
+        {globalData &&
+        Object.keys(globalData).length > 0 &&
+        globalChartData &&
+        Object.keys(globalChartData).length > 0 &&
+        whitelistedTokens?.length ? (
           <BrowserRouter>
             <Route component={GoogleAnalyticsReporter} />
             <Switch>
@@ -131,7 +137,7 @@ function App() {
                 render={({ match }) => {
                   if (
                     isStarknetAddress(match.params.tokenAddress.toLowerCase()) &&
-                    TOKEN_WHITELIST.includes(match.params.tokenAddress.toLowerCase())
+                    whitelistedTokens.includes(match.params.tokenAddress.toLowerCase())
                   ) {
                     return (
                       <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
@@ -201,20 +207,20 @@ function App() {
               </Route>
 
               <Route
-                  exacts
-                  strict
-                  path="/lp-contest/:accountAddress"
-                  render={({ match }) => {
-                    if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
-                      return (
-                          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                            <LpContestAccountPage account={match.params.accountAddress.toLowerCase()} />
-                          </LayoutWrapper>
-                      )
-                    } else {
-                      return <Redirect to="/home" />
-                    }
-                  }}
+                exacts
+                strict
+                path="/lp-contest/:accountAddress"
+                render={({ match }) => {
+                  if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
+                    return (
+                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                        <LpContestAccountPage account={match.params.accountAddress.toLowerCase()} />
+                      </LayoutWrapper>
+                    )
+                  } else {
+                    return <Redirect to="/home" />
+                  }
+                }}
               />
 
               <Route path="/lp-contest/">

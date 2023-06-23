@@ -14,8 +14,8 @@ import DoubleTokenLogo from '../DoubleLogo'
 import FormattedName from '../FormattedName'
 import QuestionHelper from '../QuestionHelper'
 import { TYPE } from '../../Theme'
-import {TOKEN_WHITELIST} from '../../constants'
 import { AutoColumn } from '../Column'
+import { useWhitelistedTokens } from '../../contexts/Application'
 
 dayjs.extend(utc)
 
@@ -143,7 +143,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
   const below600 = useMedia('(max-width: 600px)')
   const below740 = useMedia('(max-width: 740px)')
   const below1080 = useMedia('(max-width: 1080px)')
-
+  const whitelistedTokens = useWhitelistedTokens()
   // pagination
   const [page, setPage] = useState(1)
   const [maxPage, setMaxPage] = useState(1)
@@ -155,12 +155,12 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
 
   const filteredPairsAddresses = useMemo(() => {
     return (
-        pairs &&
-        Object.keys(pairs).filter((address) => {
-          return (TOKEN_WHITELIST.includes(pairs[address].token0.id) && TOKEN_WHITELIST.includes(pairs[address].token1.id));
-        })
+      pairs &&
+      Object.keys(pairs).filter((address) => {
+        return whitelistedTokens.includes(pairs[address].token0.id) && whitelistedTokens.includes(pairs[address].token1.id)
+      })
     )
-  }, [pairs])
+  }, [pairs, whitelistedTokens])
 
   useEffect(() => {
     setMaxPage(1) // edit this to do modular
@@ -181,28 +181,18 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
     const pairData = pairs[pairAddress]
 
     if (pairData && pairData.token0 && pairData.token1) {
-      const liquidity = formattedNum(
-        !!pairData.trackedReserveUSD ? pairData.trackedReserveUSD : pairData.reserveUSD,
-        true
-      )
+      const liquidity = formattedNum(!!pairData.trackedReserveUSD ? pairData.trackedReserveUSD : pairData.reserveUSD, true)
 
-      const volume = formattedNum(
-        pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked,
-        true
-      )
+      const volume = formattedNum(pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked, true)
 
-      const feeRatio24H = ((pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked) * 0.003 /  (pairData.oneDayVolumeUSD ? pairData.trackedReserveUSD : pairData.reserveUSD));
-      const apy = formattedPercent(((((1 + feeRatio24H) ** 365) - 1) * 100), true)
+      const feeRatio24H =
+        ((pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked) * 0.003) /
+        (pairData.oneDayVolumeUSD ? pairData.trackedReserveUSD : pairData.reserveUSD)
+      const apy = formattedPercent(((1 + feeRatio24H) ** 365 - 1) * 100, true)
 
-      const weekVolume = formattedNum(
-        pairData.oneWeekVolumeUSD ? pairData.oneWeekVolumeUSD : pairData.oneWeekVolumeUntracked,
-        true
-      )
+      const weekVolume = formattedNum(pairData.oneWeekVolumeUSD ? pairData.oneWeekVolumeUSD : pairData.oneWeekVolumeUntracked, true)
 
-      const fees = formattedNum(
-        pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD * 0.003 : pairData.oneDayVolumeUntracked * 0.003,
-        true
-      )
+      const fees = formattedNum(pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD * 0.003 : pairData.oneDayVolumeUntracked * 0.003, true)
 
       return (
         <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
@@ -229,11 +219,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
           <DataText area="vol">{formatDataText(volume, pairData.oneDayVolumeUSD)}</DataText>
           {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>}
           {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
-          {!below1080 && (
-            <DataText area="apy">
-              {formatDataText(apy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}
-            </DataText>
-          )}
+          {!below1080 && <DataText area="apy">{formatDataText(apy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}</DataText>}
         </DashGrid>
       )
     } else {
@@ -242,22 +228,24 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
   }
 
   const pairList =
-      filteredPairsAddresses &&
-      filteredPairsAddresses.filter(
-        (address) => (useTracked ? !!pairs[address].trackedReserveUSD : true)
-      )
+    filteredPairsAddresses &&
+    filteredPairsAddresses
+      .filter((address) => (useTracked ? !!pairs[address].trackedReserveUSD : true))
       .sort((addressA, addressB) => {
         const pairA = pairs[addressA]
         const pairB = pairs[addressB]
         if (sortedColumn === SORT_FIELD.APY) {
-          const pairAFeeRation24H = (pairA.oneDayVolumeUSD ? pairA.oneDayVolumeUSD : pairA.oneDayVolumeUntracked) * 0.003 / (pairA.oneDayVolumeUSD ? pairA.trackedReserveUSD : pairA.reserveUSD);
-          const pairBFeeRation24H = (pairB.oneDayVolumeUSD ? pairB.oneDayVolumeUSD : pairB.oneDayVolumeUntracked) * 0.003 / (pairB.oneDayVolumeUSD ? pairB.trackedReserveUSD : pairB.reserveUSD);
-          const apy0 = parseFloat((((1 + pairAFeeRation24H) ** 365) - 1) * 100)
-          const apy1 = parseFloat((((1 + pairBFeeRation24H) ** 365) - 1) * 100)
+          const pairAFeeRation24H =
+            ((pairA.oneDayVolumeUSD ? pairA.oneDayVolumeUSD : pairA.oneDayVolumeUntracked) * 0.003) /
+            (pairA.oneDayVolumeUSD ? pairA.trackedReserveUSD : pairA.reserveUSD)
+          const pairBFeeRation24H =
+            ((pairB.oneDayVolumeUSD ? pairB.oneDayVolumeUSD : pairB.oneDayVolumeUntracked) * 0.003) /
+            (pairB.oneDayVolumeUSD ? pairB.trackedReserveUSD : pairB.reserveUSD)
+          const apy0 = parseFloat(((1 + pairAFeeRation24H) ** 365 - 1) * 100)
+          const apy1 = parseFloat(((1 + pairBFeeRation24H) ** 365 - 1) * 100)
           return apy0 > apy1 ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         }
-        return parseFloat(pairA[FIELD_TO_VALUE(sortedColumn, useTracked)]) >
-          parseFloat(pairB[FIELD_TO_VALUE(sortedColumn, useTracked)])
+        return parseFloat(pairA[FIELD_TO_VALUE(sortedColumn, useTracked)]) > parseFloat(pairB[FIELD_TO_VALUE(sortedColumn, useTracked)])
           ? (sortDirection ? -1 : 1) * 1
           : (sortDirection ? -1 : 1) * -1
       })

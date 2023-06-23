@@ -17,6 +17,28 @@ const Decimal = toFormat(_Decimal)
 BigNumber.set({ EXPONENTIAL_AT: 50 })
 dayjs.extend(utc)
 
+export const isStagingEnvironment = () => {
+  if (!window.location) {
+    return false
+  }
+  if (String(window.location) === '//') {
+    return false
+  }
+  const host = new URL(String(window.location))?.host || ''
+  return host === 'info.staging.jediswap.xyz'
+}
+
+export const isProductionEnvironment = () => {
+  if (!window.location) {
+    return false
+  }
+  if (String(window.location) === '//') {
+    return false
+  }
+  const host = new URL(String(window.location))?.host || ''
+  return host === 'info.jediswap.xyz'
+}
+
 export const zeroStarknetAddress = validateAndParseAddress()
 
 export function getTimeframe(timeWindow) {
@@ -45,17 +67,13 @@ export function getPoolLink(token0Address, token1Address = null, remove = false)
     return (
       `https://app.jediswap.xyz/#/` +
       (remove ? `remove` : `add`) +
-      `/${
-        token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address
-      }/${'ETH'}`
+      `/${token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address}/${'ETH'}`
     )
   } else {
     return (
       `https://app.jediswap.xyz/#/` +
       (remove ? `remove` : `add`) +
-      `/${
-        token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address
-      }/${
+      `/${token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address}/${
         token1Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token1Address
       }`
     )
@@ -68,9 +86,7 @@ export function getSwapLink(token0Address, token1Address = null) {
   } else {
     return `https://app.jediswap.xyz/#/swap?inputCurrency=${
       token0Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token0Address
-    }&outputCurrency=${
-      token1Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token1Address
-    }`
+    }&outputCurrency=${token1Address === '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' ? 'ETH' : token1Address}`
   }
 }
 
@@ -477,9 +493,7 @@ export function formattedPercent(percent, useAbs = false) {
   }
   if (fixedPercent > 0) {
     if (fixedPercent > 100) {
-      return (
-        <Text fontWeight={500} color="green">{`${useAbs ? '' : '+'}${percent?.toFixed(0).toLocaleString()}%`}</Text>
-      )
+      return <Text fontWeight={500} color="green">{`${useAbs ? '' : '+'}${percent?.toFixed(0).toLocaleString()}%`}</Text>
     } else {
       return <Text fontWeight={500} color="green">{`${useAbs ? '' : '+'}${fixedPercent}%`}</Text>
     }
@@ -513,8 +527,7 @@ export const get2DayPercentChange = (valueNow, value24HoursAgo, value48HoursAgo)
  * @param {*} value24HoursAgo
  */
 export const getPercentChange = (valueNow, value24HoursAgo) => {
-  const adjustedPercentChange =
-    ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) / parseFloat(value24HoursAgo)) * 100
+  const adjustedPercentChange = ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) / parseFloat(value24HoursAgo)) * 100
   if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
     return 0
   }

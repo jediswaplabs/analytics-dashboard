@@ -15,7 +15,7 @@ import TxnList from '../components/TxnList'
 import TokenChart from '../components/TokenChart'
 import { BasicLink } from '../components/Link'
 import Search from '../components/Search'
-import {formattedNum, formattedPercent, getPoolLink, getSwapLink, localNumber, urls} from '../utils'
+import { formattedNum, formattedPercent, getPoolLink, getSwapLink, localNumber, urls } from '../utils'
 import { useTokenData, useTokenTransactions, useTokenPairs } from '../contexts/TokenData'
 import { TYPE, ThemedBackground } from '../Theme'
 import { transparentize } from 'polished'
@@ -29,9 +29,9 @@ import { usePathDismissed, useSavedTokens } from '../contexts/LocalStorage'
 import { Hover, PageWrapper, ContentWrapper, StyledIcon, BlockedWrapper, BlockedMessageWrapper } from '../components'
 import { PlusCircle, Bookmark, AlertCircle } from 'react-feather'
 import FormattedName from '../components/FormattedName'
-import { useListedTokens } from '../contexts/Application'
+import { useListedTokens, useWhitelistedTokens } from '../contexts/Application'
 import HoverText from '../components/HoverText'
-import { UNTRACKED_COPY, TOKEN_WHITELIST, BLOCKED_WARNINGS } from '../constants'
+import { UNTRACKED_COPY, BLOCKED_WARNINGS } from '../constants'
 import QuestionHelper from '../components/QuestionHelper'
 import Checkbox from '../components/Checkbox'
 import { shortenStraknetAddress } from '../utils'
@@ -161,7 +161,7 @@ function TokenPage({ address, history }) {
   const [dismissed, markAsDismissed] = usePathDismissed(history.location.pathname)
   const [savedTokens, addToken] = useSavedTokens()
   const listedTokens = useListedTokens()
-
+  const whitelistedTokens = useWhitelistedTokens()
   useEffect(() => {
     window.scrollTo({
       behavior: 'smooth',
@@ -171,17 +171,13 @@ function TokenPage({ address, history }) {
 
   const [useTracked, setUseTracked] = useState(true)
 
-  if (!TOKEN_WHITELIST.includes(address)) {
+  if (!whitelistedTokens.includes(address)) {
     return (
       <BlockedWrapper>
         <BlockedMessageWrapper>
           <AutoColumn gap="1rem" justify="center">
-            <TYPE.light style={{ textAlign: 'center' }}>
-              {BLOCKED_WARNINGS[address] ?? `This token is not supported.`}
-            </TYPE.light>
-            <Link external={true} href={urls.showAddress(address)}>{`More about ${shortenStraknetAddress(
-              address
-            )}`}</Link>
+            <TYPE.light style={{ textAlign: 'center' }}>{BLOCKED_WARNINGS[address] ?? `This token is not supported.`}</TYPE.light>
+            <Link external={true} href={urls.showAddress(address)}>{`More about ${shortenStraknetAddress(address)}`}</Link>
           </AutoColumn>
         </BlockedMessageWrapper>
       </BlockedWrapper>
@@ -191,24 +187,14 @@ function TokenPage({ address, history }) {
   return (
     <PageWrapper>
       <ThemedBackground backgroundColor={transparentize(0.6, backgroundColor)} />
-      <Warning
-        type={'token'}
-        show={!dismissed && listedTokens && !listedTokens.includes(address)}
-        setShow={markAsDismissed}
-        address={address}
-      />
+      <Warning type={'token'} show={!dismissed && listedTokens && !listedTokens.includes(address)} setShow={markAsDismissed} address={address} />
       <ContentWrapper>
         <RowBetween style={{ flexWrap: 'wrap', alingItems: 'start' }}>
           <AutoRow align="flex-end" style={{ width: 'fit-content' }}>
             <TYPE.body>
               <BasicLink to="/tokens">{'Tokens '}</BasicLink>→ {symbol}
             </TYPE.body>
-            <Link
-              style={{ width: 'fit-content' }}
-              color={backgroundColor}
-              external
-              href={urls.showAddress(address)}
-            >
+            <Link style={{ width: 'fit-content' }} color={backgroundColor} external href={urls.showAddress(address)}>
               <Text style={{ marginLeft: '.15rem' }} fontSize={'14px'} fontWeight={400}>
                 ({shortenStraknetAddress(address)})
               </Text>
@@ -359,11 +345,7 @@ function TokenPage({ address, history }) {
             <RowBetween style={{ marginTop: '3rem' }}>
               <TYPE.main fontSize={'1.125rem'}>Top Pairs</TYPE.main>
               <AutoRow gap="4px" style={{ width: 'fit-content' }}>
-                <Checkbox
-                  checked={useTracked}
-                  setChecked={() => setUseTracked(!useTracked)}
-                  text={'Hide untracked pairs'}
-                />
+                <Checkbox checked={useTracked} setChecked={() => setUseTracked(!useTracked)} text={'Hide untracked pairs'} />
                 <QuestionHelper text="USD amounts may be inaccurate in low liquiidty pairs or pairs without ETH or stablecoins." />
               </AutoRow>
             </RowBetween>

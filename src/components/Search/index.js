@@ -11,7 +11,6 @@ import { useAllPairData, usePairData } from '../../contexts/PairData'
 import DoubleTokenLogo from '../DoubleLogo'
 import { useMedia } from 'react-use'
 import { useAllPairsInJediswap, useAllTokensInJediswap } from '../../contexts/GlobalData'
-import { TOKEN_WHITELIST } from '../../constants'
 
 import { transparentize } from 'polished'
 import { jediSwapClient } from '../../apollo/client'
@@ -19,6 +18,7 @@ import { PAIR_SEARCH, TOKEN_SEARCH } from '../../apollo/queries'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
 import { updateNameData } from '../../utils/data'
+import { useWhitelistedTokens } from '../../contexts/Application'
 
 const Container = styled.div`
   height: 48px;
@@ -116,8 +116,7 @@ const Menu = styled.div`
   background: ${({ theme }) => theme.bg7};
   border-bottom-right-radius: 12px;
   border-bottom-left-radius: 12px;
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.04);
+  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 24px 32px rgba(0, 0, 0, 0.04);
   display: ${({ hide }) => hide && 'none'};
 `
 
@@ -164,6 +163,7 @@ export const Search = ({ small = false }) => {
   // fetch new data on tokens and pairs if needed
   useTokenData(value)
   usePairData(value)
+  const whitelistedTokens = useWhitelistedTokens()
 
   const below700 = useMedia('(max-width: 700px)')
   const below470 = useMedia('(max-width: 470px)')
@@ -200,11 +200,7 @@ export const Search = ({ small = false }) => {
             },
           })
 
-          setSearchedPairs(
-            updateNameData(pairs.data.as0)
-              .concat(updateNameData(pairs.data.as1))
-              .concat(updateNameData(pairs.data.asAddress))
-          )
+          setSearchedPairs(updateNameData(pairs.data.as0).concat(updateNameData(pairs.data.as1)).concat(updateNameData(pairs.data.asAddress)))
           const foundTokens = tokens.data.asSymbol.concat(tokens.data.asAddress).concat(tokens.data.asName)
           setSearchedTokens(foundTokens)
         }
@@ -287,7 +283,7 @@ export const Search = ({ small = false }) => {
             return 1
           })
           .filter((token) => {
-            if (!TOKEN_WHITELIST.includes(token.id)) {
+            if (!whitelistedTokens.includes(token.id)) {
               return false
             }
             const regexMatches = Object.keys(token).map((tokenEntryKey) => {
@@ -306,7 +302,7 @@ export const Search = ({ small = false }) => {
             return regexMatches.some((m) => m)
           })
       : []
-  }, [allTokenData, uniqueTokens, value])
+  }, [allTokenData, uniqueTokens, value, whitelistedTokens])
 
   const filteredPairList = useMemo(() => {
     return uniquePairs
@@ -326,7 +322,7 @@ export const Search = ({ small = false }) => {
             return 0
           })
           .filter((pair) => {
-            if (!(TOKEN_WHITELIST.includes(pair.token0.id) && TOKEN_WHITELIST.includes(pair.token1.id))) {
+            if (!(whitelistedTokens.includes(pair.token0.id) && whitelistedTokens.includes(pair.token1.id))) {
               return false
             }
             if (value && value.includes(' ')) {
@@ -351,23 +347,17 @@ export const Search = ({ small = false }) => {
                 return pair[field].match(new RegExp(escapeRegExp(value), 'i'))
               }
               if (field === 'token0') {
-                return (
-                  pair[field].symbol.match(new RegExp(escapeRegExp(value), 'i')) ||
-                  pair[field].name.match(new RegExp(escapeRegExp(value), 'i'))
-                )
+                return pair[field].symbol.match(new RegExp(escapeRegExp(value), 'i')) || pair[field].name.match(new RegExp(escapeRegExp(value), 'i'))
               }
               if (field === 'token1') {
-                return (
-                  pair[field].symbol.match(new RegExp(escapeRegExp(value), 'i')) ||
-                  pair[field].name.match(new RegExp(escapeRegExp(value), 'i'))
-                )
+                return pair[field].symbol.match(new RegExp(escapeRegExp(value), 'i')) || pair[field].name.match(new RegExp(escapeRegExp(value), 'i'))
               }
               return false
             })
             return regexMatches.some((m) => m)
           })
       : []
-  }, [allPairData, uniquePairs, value])
+  }, [allPairData, uniquePairs, value, whitelistedTokens])
 
   useEffect(() => {
     if (Object.keys(filteredTokenList).length > 2) {
@@ -400,10 +390,7 @@ export const Search = ({ small = false }) => {
   const menuRef = useRef()
 
   const handleClick = (e) => {
-    if (
-      !(menuRef.current && menuRef.current.contains(e.target)) &&
-      !(wrapperRef.current && wrapperRef.current.contains(e.target))
-    ) {
+    if (!(menuRef.current && menuRef.current.contains(e.target)) && !(wrapperRef.current && wrapperRef.current.contains(e.target))) {
       setPairsShown(3)
       setTokensShown(3)
       toggleMenu(false)
@@ -425,15 +412,7 @@ export const Search = ({ small = false }) => {
           type={'text'}
           ref={wrapperRef}
           placeholder={
-            small
-              ? ''
-              : below410
-              ? 'Search...'
-              : below470
-              ? 'Search for...'
-              : below700
-              ? 'Search for tokens...'
-              : 'Search for tokens and pools...'
+            small ? '' : below410 ? 'Search...' : below470 ? 'Search for...' : below700 ? 'Search for tokens...' : 'Search for tokens and pools...'
           }
           value={value}
           onChange={(e) => {
@@ -465,16 +444,12 @@ export const Search = ({ small = false }) => {
                 <BasicLink to={'/pair/' + pair.id} key={pair.id} onClick={onDismiss}>
                   <MenuItem>
                     <DoubleTokenLogo a0={pair?.token0?.id} a1={pair?.token1?.id} margin={true} />
-                    <TYPE.body style={{ marginLeft: '10px' }}>
-                      {pair.token0.symbol + '-' + pair.token1.symbol} Pair
-                    </TYPE.body>
+                    <TYPE.body style={{ marginLeft: '10px' }}>{pair.token0.symbol + '-' + pair.token1.symbol} Pair</TYPE.body>
                   </MenuItem>
                 </BasicLink>
               )
             })}
-          <Heading
-            hide={!(Object.keys(filteredPairList).length > 3 && Object.keys(filteredPairList).length >= pairsShown)}
-          >
+          <Heading hide={!(Object.keys(filteredPairList).length > 3 && Object.keys(filteredPairList).length >= pairsShown)}>
             <Blue
               onClick={() => {
                 setPairsShown(pairsShown + 5)
@@ -509,9 +484,7 @@ export const Search = ({ small = false }) => {
             )
           })}
 
-          <Heading
-            hide={!(Object.keys(filteredTokenList).length > 3 && Object.keys(filteredTokenList).length >= tokensShown)}
-          >
+          <Heading hide={!(Object.keys(filteredTokenList).length > 3 && Object.keys(filteredTokenList).length >= tokensShown)}>
             <Blue
               onClick={() => {
                 setTokensShown(tokensShown + 5)
