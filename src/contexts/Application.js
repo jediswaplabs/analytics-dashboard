@@ -1,23 +1,27 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useState, useEffect } from 'react'
-import { timeframeOptions, SUPPORTED_LIST_URLS__NO_ENS } from '../constants'
+import { uniq } from 'lodash'
+import { timeframeOptions, SUPPORTED_LIST_URLS__NO_ENS, DEFAULT_TOKENS_WHITELIST } from '../constants'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { number as starknetNumberModule } from 'starknet'
 import getTokenList from '../utils/tokenLists'
-import {jediSwapClient} from '../apollo/client'
-import {GET_LATEST_BLOCK} from '../apollo/queries'
-import {convertDateToUnixFormat} from "../utils";
+import { jediSwapClient } from '../apollo/client'
+import { GET_LATEST_BLOCK } from '../apollo/queries'
+import { convertDateToUnixFormat } from '../utils'
 dayjs.extend(utc)
 
-const LATEST_STARKNET_BLOCK_URL = 'https://starknet-mainnet.public.blastapi.io/';
+const LATEST_STARKNET_BLOCK_URL = 'https://starknet-mainnet.public.blastapi.io/'
 
 const UPDATE = 'UPDATE'
 const UPDATE_TIMEFRAME = 'UPDATE_TIMEFRAME'
 const UPDATE_SESSION_START = 'UPDATE_SESSION_START'
 const UPDATED_SUPPORTED_TOKENS = 'UPDATED_SUPPORTED_TOKENS'
+const UPDATED_WHITELISTED_TOKENS = 'UPDATED_WHITELISTED_TOKENS'
 const UPDATE_LATEST_BLOCK = 'UPDATE_LATEST_BLOCK'
 const UPDATE_HEAD_BLOCK = 'UPDATE_HEAD_BLOCK'
 
 const SUPPORTED_TOKENS = 'SUPPORTED_TOKENS'
+const WHITELISTED_TOKENS = 'WHITELISTED_TOKENS'
 const TIME_KEY = 'TIME_KEY'
 const CURRENCY = 'CURRENCY'
 const SESSION_START = 'SESSION_START'
@@ -78,6 +82,14 @@ function reducer(state, { type, payload }) {
       }
     }
 
+    case UPDATED_WHITELISTED_TOKENS: {
+      const { whitelistedTokens } = payload
+      return {
+        ...state,
+        [WHITELISTED_TOKENS]: whitelistedTokens,
+      }
+    }
+
     default: {
       throw Error(`Unexpected action type in DataContext reducer: '${type}'.`)
     }
@@ -129,6 +141,15 @@ export default function Provider({ children }) {
     })
   }, [])
 
+  const updateWhitelistedTokens = useCallback((whitelistedTokens) => {
+    dispatch({
+      type: UPDATED_WHITELISTED_TOKENS,
+      payload: {
+        whitelistedTokens,
+      },
+    })
+  }, [])
+
   const updateLatestBlock = useCallback((block) => {
     dispatch({
       type: UPDATE_LATEST_BLOCK,
@@ -157,11 +178,12 @@ export default function Provider({ children }) {
             updateSessionStart,
             updateTimeframe,
             updateSupportedTokens,
+            updateWhitelistedTokens,
             updateLatestBlock,
             updateHeadBlock,
           },
         ],
-        [state, update, updateTimeframe, updateSessionStart, updateSupportedTokens, updateLatestBlock, updateHeadBlock]
+        [state, update, updateTimeframe, updateSessionStart, updateSupportedTokens, updateWhitelistedTokens, updateLatestBlock, updateHeadBlock]
       )}
     >
       {children}
@@ -177,36 +199,39 @@ export function useLatestBlocks() {
 
   useEffect(() => {
     async function fetchData() {
-      const getLatestBlockPromise = jediSwapClient
-        .query({
-          query: GET_LATEST_BLOCK,
-        });
+      const getLatestBlockPromise = jediSwapClient.query({
+        query: GET_LATEST_BLOCK,
+      })
 
       const getLatestHeadBlockPromise = fetch(LATEST_STARKNET_BLOCK_URL, {
         method: 'POST',
         body: JSON.stringify({
-          jsonrpc: "2.0",
-          method: "starknet_blockHashAndNumber",
-          id: 0
+          jsonrpc: '2.0',
+          method: 'starknet_blockHashAndNumber',
+          id: 0,
         }),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
       })
 
       Promise.all([getLatestBlockPromise, getLatestHeadBlockPromise])
         .then(async ([latestBlockRes, headBlockRes]) => {
-          const parsedHeadBlockResult = await headBlockRes.json();
-          const syncedBlockResult = latestBlockRes?.data?.blocks?.[0];
-          const syncedBlock = syncedBlockResult ? {
-            ...syncedBlockResult,
-            timestamp: convertDateToUnixFormat(syncedBlockResult.timestamp)
-          } : null;
-          const headBlock = parsedHeadBlockResult ? {
-            id: parsedHeadBlockResult?.result?.block_hash,
-            number: parsedHeadBlockResult?.result?.block_number,
-            // timestamp: parsedHeadBlockResult.timestamp,
-          } : null;
+          const parsedHeadBlockResult = await headBlockRes.json()
+          const syncedBlockResult = latestBlockRes?.data?.blocks?.[0]
+          const syncedBlock = syncedBlockResult
+            ? {
+                ...syncedBlockResult,
+                timestamp: convertDateToUnixFormat(syncedBlockResult.timestamp),
+              }
+            : null
+          const headBlock = parsedHeadBlockResult
+            ? {
+                id: parsedHeadBlockResult?.result?.block_hash,
+                number: parsedHeadBlockResult?.result?.block_number,
+                // timestamp: parsedHeadBlockResult.timestamp,
+              }
+            : null
           if (syncedBlock && headBlock) {
             updateLatestBlock(syncedBlock)
             updateHeadBlock(headBlock)
@@ -251,10 +276,7 @@ export function useStartTimestamp() {
     let startTime =
       dayjs
         .utc()
-        .subtract(
-          1,
-          activeWindow === timeframeOptions.week ? 'week' : activeWindow === timeframeOptions.ALL_TIME ? 'year' : 'year'
-        )
+        .subtract(1, activeWindow === timeframeOptions.week ? 'week' : activeWindow === timeframeOptions.ALL_TIME ? 'year' : 'year')
         .startOf('day')
         .unix() - 1
     // if we find a new start time less than the current startrtime - update oldest pooint to fetch
@@ -299,10 +321,10 @@ export function useListedTokens() {
         const tokensSoFar = await fetchedTokens
         const newTokens = await getTokenList(url)
         if (newTokens?.tokens) {
-          return Promise.resolve([...tokensSoFar, ...newTokens.tokens])
+          return Promise.resolve([...(tokensSoFar ?? []), ...newTokens.tokens])
         }
       }, Promise.resolve([]))
-      let formatted = allFetched?.map((t) => t.address.toLowerCase())
+      let formatted = allFetched?.map((t) => starknetNumberModule.cleanHex(t.address.toLowerCase()))
       updateSupportedTokens(formatted)
     }
     if (!supportedTokens) {
@@ -315,4 +337,33 @@ export function useListedTokens() {
   }, [updateSupportedTokens, supportedTokens])
 
   return supportedTokens
+}
+
+export function useWhitelistedTokens() {
+  const [state, { updateWhitelistedTokens }] = useApplicationContext()
+  const whitelistedTokens = state?.[WHITELISTED_TOKENS] ?? []
+
+  useEffect(() => {
+    async function fetchList() {
+      const allFetched = await SUPPORTED_LIST_URLS__NO_ENS.reduce(async (fetchedTokens, url) => {
+        const tokensSoFar = await fetchedTokens
+        const newTokens = await getTokenList(url)
+
+        if (newTokens?.tokens) {
+          return Promise.resolve([...(tokensSoFar ?? []), ...newTokens.tokens])
+        }
+      }, Promise.resolve([]))
+      let formatted = allFetched?.map((t) => starknetNumberModule.cleanHex(t.address.toLowerCase()))
+      updateWhitelistedTokens(formatted)
+    }
+    if (!whitelistedTokens?.length) {
+      try {
+        fetchList()
+      } catch {
+        console.log('Error fetching')
+      }
+    }
+  }, [updateWhitelistedTokens, whitelistedTokens])
+
+  return uniq([...whitelistedTokens, ...DEFAULT_TOKENS_WHITELIST])
 }

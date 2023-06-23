@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 import { ButtonLight, ButtonFaded } from '../ButtonStyled'
 import { AutoRow, RowBetween } from '../Row'
-import {isStarknetAddress, shortenStraknetAddress} from '../../utils'
+import { isStarknetAddress, shortenStraknetAddress } from '../../utils'
 import { useSavedAccounts } from '../../contexts/LocalStorage'
 import { AutoColumn } from '../Column'
 import { TYPE } from '../../Theme'
@@ -116,11 +116,7 @@ function AccountSearch({ history, small }) {
               savedAccounts.map((account) => {
                 return (
                   <DashGrid key={account} center={true} style={{ height: 'fit-content', padding: '1rem 0 0 0' }}>
-                    <Flex
-                      area="account"
-                      justifyContent="space-between"
-                      onClick={() => history.push('/account/' + account)}
-                    >
+                    <Flex area="account" justifyContent="space-between" onClick={() => history.push('/account/' + account)}>
                       <AccountLink>{account}</AccountLink>
                       <Hover
                         onClick={(e) => {
@@ -150,11 +146,7 @@ function AccountSearch({ history, small }) {
                 return (
                   <RowBetween key={account}>
                     <ButtonFaded onClick={() => history.push('/account/' + account)}>
-                      {small ? (
-                        <TYPE.header>{shortenStraknetAddress(account)}</TYPE.header>
-                      ) : (
-                        <AccountLink>{account}</AccountLink>
-                      )}
+                      {small ? <TYPE.header>{shortenStraknetAddress(account)}</TYPE.header> : <AccountLink>{account}</AccountLink>}
                     </ButtonFaded>
                     <Hover onClick={() => removeAccount(account)}>
                       <StyledIcon>

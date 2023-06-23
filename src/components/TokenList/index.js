@@ -7,15 +7,15 @@ import { Box, Flex, Text } from 'rebass'
 import TokenLogo from '../TokenLogo'
 import { CustomLink } from '../Link'
 import Row from '../Row'
-import {Divider } from '..'
+import { Divider } from '..'
 
 import { formattedNum, formattedPercent } from '../../utils'
 import { useMedia } from 'react-use'
 import { withRouter } from 'react-router-dom'
-import { TOKEN_WHITELIST } from '../../constants'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
-import LocalLoader from "../LocalLoader";
+import LocalLoader from '../LocalLoader'
+import { useWhitelistedTokens } from '../../contexts/Application'
 
 dayjs.extend(utc)
 
@@ -126,7 +126,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
   // page state
   const [page, setPage] = useState(1)
   const [maxPage, setMaxPage] = useState(1)
-
+  const whitelistedTokens = useWhitelistedTokens()
   // sorting
   const [sortDirection, setSortDirection] = useState(true)
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.VOL)
@@ -145,11 +145,11 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
       tokens &&
       Object.keys(tokens)
         .filter((key) => {
-          return TOKEN_WHITELIST.includes(key)
+          return whitelistedTokens.includes(key)
         })
         .map((key) => tokens[key])
     )
-  }, [tokens])
+  }, [tokens, whitelistedTokens])
 
   useEffect(() => {
     if (tokens && formattedTokens) {
@@ -169,9 +169,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
           if (sortedColumn === SORT_FIELD.SYMBOL || sortedColumn === SORT_FIELD.NAME) {
             return a[sortedColumn] > b[sortedColumn] ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
           }
-          return parseFloat(a[sortedColumn]) > parseFloat(b[sortedColumn])
-            ? (sortDirection ? -1 : 1) * 1
-            : (sortDirection ? -1 : 1) * -1
+          return parseFloat(a[sortedColumn]) > parseFloat(b[sortedColumn]) ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         })
         .slice(itemMax * (page - 1), page * itemMax)
     )
@@ -183,14 +181,9 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
         <DataText area="name" fontWeight="500">
           <Row>
             {!below680 && <div style={{ marginRight: '1rem', width: '10px' }}>{index}</div>}
-            <TokenLogo address={item.id} symbol={item.symbol}/>
+            <TokenLogo address={item.id} symbol={item.symbol} />
             <CustomLink style={{ marginLeft: '16px', whiteSpace: 'nowrap' }} to={'/token/' + item.id}>
-              <FormattedName
-                text={below680 ? item.symbol : item.name}
-                maxCharacters={below600 ? 8 : 16}
-                adjustSize={true}
-                link={true}
-              />
+              <FormattedName text={below680 ? item.symbol : item.name} maxCharacters={below600 ? 8 : 16} adjustSize={true} link={true} />
             </CustomLink>
           </Row>
         </DataText>
@@ -212,7 +205,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
   }
 
   if (!filteredList || !filteredList.length) {
-      return <LocalLoader />
+    return <LocalLoader />
   }
 
   return (
@@ -269,9 +262,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
             area="vol"
             onClick={() => {
               setSortedColumn(useTracked ? SORT_FIELD.VOL_UT : SORT_FIELD.VOL)
-              setSortDirection(
-                sortedColumn !== (useTracked ? SORT_FIELD.VOL_UT : SORT_FIELD.VOL) ? true : !sortDirection
-              )
+              setSortDirection(sortedColumn !== (useTracked ? SORT_FIELD.VOL_UT : SORT_FIELD.VOL) ? true : !sortDirection)
             }}
           >
             Volume (24hrs)
@@ -308,14 +299,14 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
       </DashGrid>
       <Divider />
       <List p={0}>
-          {filteredList.map((item, index) => {
-              return (
-                  <div key={index}>
-                      <ListItem key={index} index={(page - 1) * itemMax + index + 1} item={item} />
-                      <Divider />
-                  </div>
-              )
-          })}
+        {filteredList.map((item, index) => {
+          return (
+            <div key={index}>
+              <ListItem key={index} index={(page - 1) * itemMax + index + 1} item={item} />
+              <Divider />
+            </div>
+          )
+        })}
       </List>
       <PageButtons>
         <div onClick={() => setPage(page === 1 ? page : page - 1)}>

@@ -111,9 +111,7 @@ function GlobalPage() {
                         <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
                           {totalLiquidityUSD ? formattedNum(totalLiquidityUSD, true) : '-'}
                         </TYPE.main>
-                        <TYPE.main fontSize={12}>
-                          {liquidityChangeUSD ? formattedPercent(liquidityChangeUSD) : '-'}
-                        </TYPE.main>
+                        <TYPE.main fontSize={12}>{liquidityChangeUSD ? formattedPercent(liquidityChangeUSD) : '-'}</TYPE.main>
                       </RowBetween>
                     </AutoColumn>
                   </AutoColumn>

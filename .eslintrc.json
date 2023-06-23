@@ -14,10 +14,14 @@
       "version": "detect"
     }
   },
+  "plugins": [
+    "prettier"
+  ],
   "extends": [
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
+    "prettier"
   ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "off",
