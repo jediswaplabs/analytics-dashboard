@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react'
 
 import { jediSwapClient } from '../apollo/client'
-import { LP_CONTEST_DATA, LP_CONTEST_NFT_RANK } from '../apollo/queries'
+import { LP_CONTEST_LORD_DATA, LP_CONTEST_LORD_NFT_RANK } from '../apollo/queries'
 
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -13,10 +13,10 @@ const UPDATE_NFT_RANKS_DATA = 'UPDATE_NFT_RANKS_DATA'
 
 dayjs.extend(utc)
 
-const LpContestDataContext = createContext()
+const LpContestLordDataContext = createContext()
 
-function useLpContestDataContext() {
-  return useContext(LpContestDataContext)
+function useLpContestLordDataContext() {
+  return useContext(LpContestLordDataContext)
 }
 
 function reducer(state, { type, payload }) {
@@ -96,7 +96,7 @@ export default function Provider({ children }) {
   }, [])
 
   return (
-    <LpContestDataContext.Provider
+    <LpContestLordDataContext.Provider
       value={useMemo(
         () => [
           state,
@@ -110,12 +110,12 @@ export default function Provider({ children }) {
       )}
     >
       {children}
-    </LpContestDataContext.Provider>
+    </LpContestLordDataContext.Provider>
   )
 }
 
 export function Updater() {
-  const [, { updatePlayersData, updateNftRanksData }] = useLpContestDataContext()
+  const [, { updatePlayersData, updateNftRanksData }] = useLpContestLordDataContext()
   useEffect(() => {
     const collectUserIds = (data = []) => data.map((item) => item?.user?.id).filter(Boolean)
     const convertIdsToDecimal = (data) =>
@@ -131,7 +131,7 @@ export function Updater() {
       let {
         data: { lpContests },
       } = await jediSwapClient.query({
-        query: LP_CONTEST_DATA,
+        query: LP_CONTEST_LORD_DATA,
         fetchPolicy: 'cache-first',
       })
       let payloadData = lpContests
@@ -172,25 +172,25 @@ export function Updater() {
   return null
 }
 
-export function useAllLpContestData() {
-  const [state] = useLpContestDataContext()
+export function useAllLpContestLordData() {
+  const [state] = useLpContestLordDataContext()
   return state || {}
 }
 
-export function useLpContestPlayersData() {
-  const [state] = useLpContestDataContext()
+export function useLpContestLordPlayersData() {
+  const [state] = useLpContestLordDataContext()
   return state?.players || {}
 }
 
-export function useLpContestNftRanksData() {
-  const [state, { updateNftRanksData }] = useLpContestDataContext()
+export function useLpContestLordNftRanksData() {
+  const [state, { updateNftRanksData }] = useLpContestLordDataContext()
   const ranks = state?.ranks
 
   useEffect(() => {
     async function fetchData() {
       try {
         let result = await jediSwapClient.query({
-          query: LP_CONTEST_NFT_RANK,
+          query: LP_CONTEST_LORD_NFT_RANK,
           variables: {},
           fetchPolicy: 'network-only',
         })

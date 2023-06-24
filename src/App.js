@@ -23,6 +23,8 @@ import { useLatestBlocks, useWhitelistedTokens } from './contexts/Application'
 import GoogleAnalyticsReporter from './components/analytics/GoogleAnalyticsReporter'
 
 import dayjs from 'dayjs'
+import LpContestLordLookup from './pages/LpContestLordLookup'
+import LpContestLordAccountPage from './pages/LpContestLordPage'
 
 const AppWrapper = styled.div`
   position: relative;
@@ -226,6 +228,29 @@ function App() {
               <Route path="/lp-contest/">
                 <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
                   <LpContestLookup />
+                </LayoutWrapper>
+              </Route>
+
+              <Route
+                exacts
+                strict
+                path="/lp-contest-lord/:accountAddress"
+                render={({ match }) => {
+                  if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
+                    return (
+                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                        <LpContestLordAccountPage account={match.params.accountAddress.toLowerCase()} />
+                      </LayoutWrapper>
+                    )
+                  } else {
+                    return <Redirect to="/home" />
+                  }
+                }}
+              />
+
+              <Route path="/lp-contest-lord/">
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <LpContestLordLookup />
                 </LayoutWrapper>
               </Route>
 

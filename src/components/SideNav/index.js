@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { transparentize } from 'polished'
 import { TYPE } from '../../Theme'
 import { withRouter } from 'react-router-dom'
-import { TrendingUp, List, PieChart, Disc, Flag } from 'react-feather'
+import { TrendingUp, List, PieChart, Disc } from 'react-feather'
 import Link from '../Link'
 import { useSessionStart } from '../../contexts/Application'
 
@@ -125,10 +125,7 @@ function SideNav({ history }) {
             {!below1080 && (
               <AutoColumn gap="1.25rem" style={{ marginTop: '1rem' }}>
                 <BasicLink to="/lp-contest">
-                  <Option
-                    activeText={history.location.pathname.split('/')[1] === 'lp-contest' ?? undefined}
-                    style={{ opacity: 1 }}
-                  >
+                  <Option activeText={history.location.pathname.split('/')[1] === 'lp-contest' ?? undefined} style={{ opacity: 1 }}>
                     <img
                       src={confettiFiatGif}
                       srcSet={confettiFiatGif + ' 1x,' + confettiFiatGif_x2 + ' 2x'}
@@ -136,6 +133,18 @@ function SideNav({ history }) {
                       style={{ marginRight: '-.1rem', marginTop: '-5px', width: '35px' }}
                     />
                     <AccentText>LP Contest</AccentText>
+                  </Option>
+                </BasicLink>
+
+                <BasicLink to="/lp-contest-lord">
+                  <Option activeText={history.location.pathname.split('/')[1] === 'lp-contest-lord' ?? undefined} style={{ opacity: 1 }}>
+                    <img
+                      src={confettiFiatGif}
+                      srcSet={confettiFiatGif + ' 1x,' + confettiFiatGif_x2 + ' 2x'}
+                      alt={''}
+                      style={{ marginRight: '-.1rem', marginTop: '-5px', width: '35px' }}
+                    />
+                    <AccentText>LP Contest Lord</AccentText>
                   </Option>
                 </BasicLink>
 
@@ -148,9 +157,7 @@ function SideNav({ history }) {
                 <BasicLink to="/tokens">
                   <Option
                     activeText={
-                      (history.location.pathname.split('/')[1] === 'tokens' ||
-                        history.location.pathname.split('/')[1] === 'token') ??
-                      undefined
+                      (history.location.pathname.split('/')[1] === 'tokens' || history.location.pathname.split('/')[1] === 'token') ?? undefined
                     }
                   >
                     <Disc size={20} style={{ marginRight: '.75rem' }} />
@@ -160,9 +167,7 @@ function SideNav({ history }) {
                 <BasicLink to="/pairs">
                   <Option
                     activeText={
-                      (history.location.pathname.split('/')[1] === 'pairs' ||
-                        history.location.pathname.split('/')[1] === 'pair') ??
-                      undefined
+                      (history.location.pathname.split('/')[1] === 'pairs' || history.location.pathname.split('/')[1] === 'pair') ?? undefined
                     }
                   >
                     <PieChart size={20} style={{ marginRight: '.75rem' }} />
@@ -173,9 +178,7 @@ function SideNav({ history }) {
                 <BasicLink to="/accounts">
                   <Option
                     activeText={
-                      (history.location.pathname.split('/')[1] === 'accounts' ||
-                        history.location.pathname.split('/')[1] === 'account') ??
-                      undefined
+                      (history.location.pathname.split('/')[1] === 'accounts' || history.location.pathname.split('/')[1] === 'account') ?? undefined
                     }
                   >
                     <List size={20} style={{ marginRight: '.75rem' }} />
