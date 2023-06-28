@@ -91,7 +91,7 @@ function LPList({ lps, disbaleLinks, maxItems = 10 }) {
     return (
       lps &&
       lps.filter((lp) => {
-        return whitelistedTokens.includes(lp.token0) && whitelistedTokens.includes(lp.token1)
+        return whitelistedTokens[lp.token0] && whitelistedTokens[lp.token1]
       })
     )
   }, [lps, whitelistedTokens])

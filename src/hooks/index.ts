@@ -2,20 +2,22 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { shade } from 'polished'
 import Vibrant from 'node-vibrant'
 import { hex } from 'wcag-contrast'
-import {isStarknetAddress} from '../utils'
 import copy from 'copy-to-clipboard'
-import {STARKNET_LOGO_ADDRESSES} from "../components/TokenLogo";
+import { isStarknetAddress } from '../utils'
+import { useWhitelistedTokens } from '../contexts/Application'
 
 export function useColor(tokenAddress, token) {
   const [color, setColor] = useState('#2172E5')
-  if (!(tokenAddress && isStarknetAddress(tokenAddress) && STARKNET_LOGO_ADDRESSES[tokenAddress])) {
-    return color;
+  const whitelistedTokens = useWhitelistedTokens()
+
+  if (!(tokenAddress && isStarknetAddress(tokenAddress) && whitelistedTokens[tokenAddress])) {
+    return color
   }
-  const path = STARKNET_LOGO_ADDRESSES[tokenAddress].logoUrl;
+  const path = whitelistedTokens[tokenAddress].logoURI
 
   Vibrant.from(path).getPalette((err, palette) => {
     if (!(palette && palette.Vibrant)) {
-      return;
+      return
     }
     let detectedHex = palette.Vibrant.hex
     let AAscore = hex(detectedHex, '#FFF')
@@ -30,7 +32,7 @@ export function useColor(tokenAddress, token) {
     }
   })
 
-  return color;
+  return color
 }
 
 export function useCopyClipboard(timeout = 500) {

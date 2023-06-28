@@ -157,7 +157,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10, useTracked = fals
     return (
       pairs &&
       Object.keys(pairs).filter((address) => {
-        return whitelistedTokens.includes(pairs[address].token0.id) && whitelistedTokens.includes(pairs[address].token1.id)
+        return whitelistedTokens[pairs[address].token0.id] && whitelistedTokens[pairs[address].token1.id]
       })
     )
   }, [pairs, whitelistedTokens])

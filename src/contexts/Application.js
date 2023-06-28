@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useState, useEffect } from 'react'
-import { uniq } from 'lodash'
+import { isEmpty } from 'lodash'
 import { timeframeOptions, SUPPORTED_LIST_URLS__NO_ENS, DEFAULT_TOKENS_WHITELIST } from '../constants'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -353,10 +353,17 @@ export function useWhitelistedTokens() {
           return Promise.resolve([...(tokensSoFar ?? []), ...newTokens.tokens])
         }
       }, Promise.resolve([]))
-      let formatted = allFetched?.map((t) => starknetNumberModule.cleanHex(t.address.toLowerCase()))
+      let formatted = allFetched?.reduce((acc, { address, symbol, logoURI }) => {
+        acc[starknetNumberModule.cleanHex(address.toLowerCase())] = {
+          symbol,
+          logoURI,
+        }
+        return acc
+      }, {})
+
       updateWhitelistedTokens(formatted)
     }
-    if (!whitelistedTokens?.length) {
+    if (isEmpty(whitelistedTokens)) {
       try {
         fetchList()
       } catch {
@@ -365,5 +372,5 @@ export function useWhitelistedTokens() {
     }
   }, [updateWhitelistedTokens, whitelistedTokens])
 
-  return uniq([...whitelistedTokens, ...DEFAULT_TOKENS_WHITELIST])
+  return { ...DEFAULT_TOKENS_WHITELIST, ...whitelistedTokens }
 }

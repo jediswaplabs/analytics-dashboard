@@ -1,31 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import {isStarknetAddress} from '../../utils'
+import { isEmpty } from 'lodash'
+import { isStarknetAddress } from '../../utils'
+import { useWhitelistedTokens } from '../../contexts/Application'
 
 const BAD_IMAGES = {}
-
-export const STARKNET_LOGO_ADDRESSES = {
-    '0xda114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3': {
-        symbol: 'DAI',
-        logoUrl: require('../../assets/tokens/0x6B175474E89094C44Da98b954EedeAC495271d0F.png'),
-    },
-    '0x53c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8': {
-        symbol: "USDC",
-        logoUrl: require('../../assets/tokens/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48.png'),
-    },
-    '0x68f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8': {
-        symbol: "USDT",
-        logoUrl: require('../../assets/tokens/0xdAC17F958D2ee523a2206206994597C13D831ec7.png'),
-    },
-    '0x3fe2b97c1fd336e750087d68b9b867997fd64a2661ff3ca5a7c771641e8e7ac': {
-        symbol: "WBTC",
-        logoUrl: require('../../assets/tokens/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599.png'),
-    },
-    '0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7': {
-        symbol: "ETH",
-        logoUrl: require('../../assets/tokens/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7.png'),
-    }
-}
 
 const Inline = styled.div`
   display: flex;
@@ -41,25 +20,15 @@ const Image = styled.img`
   box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.075);
 `
 
-const StyledEthereumLogo = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  > img {
-    width: ${({ size }) => size};
-    height: ${({ size }) => size};
-  }
-`
-
 export default function TokenLogo({ address, symbol, header = false, size = '24px', ...rest }) {
   const [error, setError] = useState(false)
+  const whitelistedTokens = useWhitelistedTokens()
 
   useEffect(() => {
     setError(false)
   }, [address])
 
-  if (error || BAD_IMAGES[address] || !isStarknetAddress(address)) {
+  if (error || BAD_IMAGES[address] || !isStarknetAddress(address) || isEmpty(whitelistedTokens)) {
     return (
       <Inline>
         <span {...rest} alt={''} style={{ fontSize: size }} role="img" aria-label="face">
@@ -69,25 +38,9 @@ export default function TokenLogo({ address, symbol, header = false, size = '24p
     )
   }
 
-  if (STARKNET_LOGO_ADDRESSES[address]?.symbol === 'ETH') {
-    return (
-      <StyledEthereumLogo size={size} {...rest}>
-        <img
-            loading={'lazy'}
-          src={STARKNET_LOGO_ADDRESSES[address].logoUrl}
-          style={{
-            boxShadow: '0px 6px 10px rgba(0, 0, 0, 0.075)',
-            borderRadius: '24px',
-          }}
-          alt=""
-        />
-      </StyledEthereumLogo>
-    )
-  }
-
-  const path = STARKNET_LOGO_ADDRESSES[address]
-      ? STARKNET_LOGO_ADDRESSES[address].logoUrl
-      : `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`
+  const path = whitelistedTokens[address]
+    ? whitelistedTokens[address].logoURI
+    : `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`
 
   return (
     <Inline>

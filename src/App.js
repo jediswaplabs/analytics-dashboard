@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Route, Switch, BrowserRouter, Redirect } from 'react-router-dom'
 import { ApolloProvider } from 'react-apollo'
+import { isEmpty } from 'lodash'
 import { jediSwapClient } from './apollo/client'
 import GlobalPage from './pages/GlobalPage'
 import TokenPage from './pages/TokenPage'
@@ -107,7 +108,6 @@ function App() {
   const globalChartData = useGlobalChartData()
   const whitelistedTokens = useWhitelistedTokens()
   const [latestBlock, headBlock] = useLatestBlocks()
-
   const showWarning = headBlock && latestBlock ? headBlock.number - latestBlock.number > BLOCK_DIFFERENCE_THRESHOLD : false
 
   return (
@@ -126,7 +126,7 @@ function App() {
         Object.keys(globalData).length > 0 &&
         globalChartData &&
         Object.keys(globalChartData).length > 0 &&
-        whitelistedTokens?.length ? (
+        !isEmpty(whitelistedTokens) ? (
           <BrowserRouter>
             <Route component={GoogleAnalyticsReporter} />
             <Switch>
@@ -135,10 +135,7 @@ function App() {
                 strict
                 path="/token/:tokenAddress"
                 render={({ match }) => {
-                  if (
-                    isStarknetAddress(match.params.tokenAddress.toLowerCase()) &&
-                    whitelistedTokens.includes(match.params.tokenAddress.toLowerCase())
-                  ) {
+                  if (isStarknetAddress(match.params.tokenAddress.toLowerCase()) && whitelistedTokens[match.params.tokenAddress.toLowerCase()]) {
                     return (
                       <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
                         <TokenPage address={match.params.tokenAddress.toLowerCase()} />

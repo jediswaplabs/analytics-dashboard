@@ -145,7 +145,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
       tokens &&
       Object.keys(tokens)
         .filter((key) => {
-          return whitelistedTokens.includes(key)
+          return whitelistedTokens[key]
         })
         .map((key) => tokens[key])
     )
@@ -189,7 +189,7 @@ function TopTokenList({ tokens, itemMax = 10, useTracked = false }) {
         </DataText>
         {!below680 && (
           <DataText area="symbol" color="text" fontWeight="500">
-            <FormattedName text={item.symbol} maxCharacters={5} />
+            <FormattedName text={item.symbol} maxCharacters={8} />
           </DataText>
         )}
         <DataText area="liq">{formattedNum(item.totalLiquidityUSD, true)}</DataText>
