@@ -283,7 +283,7 @@ export const Search = ({ small = false }) => {
             return 1
           })
           .filter((token) => {
-            if (!whitelistedTokens.includes(token.id)) {
+            if (!whitelistedTokens[token.id]) {
               return false
             }
             const regexMatches = Object.keys(token).map((tokenEntryKey) => {
@@ -322,7 +322,7 @@ export const Search = ({ small = false }) => {
             return 0
           })
           .filter((pair) => {
-            if (!(whitelistedTokens.includes(pair.token0.id) && whitelistedTokens.includes(pair.token1.id))) {
+            if (!(whitelistedTokens[pair.token0.id] && whitelistedTokens[pair.token1.id])) {
               return false
             }
             if (value && value.includes(' ')) {

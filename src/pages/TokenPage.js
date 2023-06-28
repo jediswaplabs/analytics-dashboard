@@ -171,7 +171,7 @@ function TokenPage({ address, history }) {
 
   const [useTracked, setUseTracked] = useState(true)
 
-  if (!whitelistedTokens.includes(address)) {
+  if (!whitelistedTokens[address]) {
     return (
       <BlockedWrapper>
         <BlockedMessageWrapper>

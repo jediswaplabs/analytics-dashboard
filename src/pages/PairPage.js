@@ -32,6 +32,7 @@ import FormattedName from '../components/FormattedName'
 import { useListedTokens, useWhitelistedTokens } from '../contexts/Application'
 import HoverText from '../components/HoverText'
 import { UNTRACKED_COPY, BLOCKED_WARNINGS } from '../constants'
+import { isEmpty } from 'lodash'
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -187,8 +188,9 @@ function PairPage({ pairAddress, history }) {
 
   const listedTokens = useListedTokens()
   const whitelistedTokens = useWhitelistedTokens()
+  const isTokenWhitelisted = !!(whitelistedTokens[token0?.id] && whitelistedTokens[token1?.id])
 
-  if (!(whitelistedTokens.includes(token0.id) && whitelistedTokens.includes(token1.id))) {
+  if (!isTokenWhitelisted) {
     return (
       <BlockedWrapper>
         <BlockedMessageWrapper>
@@ -207,7 +209,7 @@ function PairPage({ pairAddress, history }) {
       <span />
       <Warning
         type={'pair'}
-        show={!dismissed && listedTokens && !(listedTokens.includes(token0?.id) && listedTokens.includes(token1?.id))}
+        show={!dismissed && !isEmpty(whitelistedTokens) && !isTokenWhitelisted}
         setShow={markAsDismissed}
         address={pairAddress}
       />
@@ -218,7 +220,7 @@ function PairPage({ pairAddress, history }) {
           </TYPE.body>
           {!below600 && <Search small={true} />}
         </RowBetween>
-        <WarningGrouping disabled={!dismissed && listedTokens && !(listedTokens.includes(token0?.id) && listedTokens.includes(token1?.id))}>
+        <WarningGrouping disabled={!dismissed && !isEmpty(whitelistedTokens) && !isTokenWhitelisted}>
           <DashboardWrapper>
             <AutoColumn gap="40px" style={{ marginBottom: '1.5rem' }}>
               <div
