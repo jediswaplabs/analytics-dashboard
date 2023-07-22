@@ -125,10 +125,7 @@ function SideNav({ history }) {
             {!below1080 && (
               <AutoColumn gap="1.25rem" style={{ marginTop: '1rem' }}>
                 <BasicLink to="/lp-contest">
-                  <Option
-                    activeText={history.location.pathname.split('/')[1] === 'lp-contest' ?? undefined}
-                    style={{ opacity: 1 }}
-                  >
+                  <Option activeText={history.location.pathname.split('/')[1] === 'lp-contest' ?? undefined} style={{ opacity: 1 }}>
                     <img
                       src={confettiFiatGif}
                       srcSet={confettiFiatGif + ' 1x,' + confettiFiatGif_x2 + ' 2x'}
@@ -148,9 +145,7 @@ function SideNav({ history }) {
                 <BasicLink to="/tokens">
                   <Option
                     activeText={
-                      (history.location.pathname.split('/')[1] === 'tokens' ||
-                        history.location.pathname.split('/')[1] === 'token') ??
-                      undefined
+                      (history.location.pathname.split('/')[1] === 'tokens' || history.location.pathname.split('/')[1] === 'token') ?? undefined
                     }
                   >
                     <Disc size={20} style={{ marginRight: '.75rem' }} />
@@ -160,9 +155,7 @@ function SideNav({ history }) {
                 <BasicLink to="/pairs">
                   <Option
                     activeText={
-                      (history.location.pathname.split('/')[1] === 'pairs' ||
-                        history.location.pathname.split('/')[1] === 'pair') ??
-                      undefined
+                      (history.location.pathname.split('/')[1] === 'pairs' || history.location.pathname.split('/')[1] === 'pair') ?? undefined
                     }
                   >
                     <PieChart size={20} style={{ marginRight: '.75rem' }} />
@@ -173,9 +166,7 @@ function SideNav({ history }) {
                 <BasicLink to="/accounts">
                   <Option
                     activeText={
-                      (history.location.pathname.split('/')[1] === 'accounts' ||
-                        history.location.pathname.split('/')[1] === 'account') ??
-                      undefined
+                      (history.location.pathname.split('/')[1] === 'accounts' || history.location.pathname.split('/')[1] === 'account') ?? undefined
                     }
                   >
                     <List size={20} style={{ marginRight: '.75rem' }} />
@@ -192,12 +183,12 @@ function SideNav({ history }) {
               </Link>
             </HeaderText>
             <HeaderText>
-              <Link href="https://bip.so/@meshfinance/what-is-mesh-finance-11847c/public" target="_blank">
+              <Link href="https://docs.jediswap.xyz" target="_blank">
                 Docs
               </Link>
             </HeaderText>
             <HeaderText>
-              <Link href="https://bip.so/@meshfinance/Integration-Docs-leDlt/public" target="_blank">
+              <Link href="https://docs.jediswap.xyz/for-developers/smart-contract-integration" target="_blank">
                 Tech Docs
               </Link>
             </HeaderText>
