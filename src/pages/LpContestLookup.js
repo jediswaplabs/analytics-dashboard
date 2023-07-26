@@ -120,19 +120,7 @@ function LpContestLookup() {
               content={dayjs.utc(CAMPAIGN_START_DATE_ISO).format('MMM DD, YYYY')}
               showPollingDot={false}
             />
-            <Banner
-              title={'Period left'}
-              titleIcon={<Watch size={20} />}
-              content={
-                <Countdown
-                  date={CAMPAIGN_END_DATE_ISO}
-                  renderer={({ days, hours, minutes, completed }) =>
-                    completed ? 'End' : `~ ${days} D : ${hours} H : ${minutes} M`
-                  }
-                />
-              }
-              showPollingDot={false}
-            />
+            <Banner title={'Period left'} titleIcon={<Watch size={20} />} content={'Campaign Ended'} showPollingDot={false} />
             <Banner
               title={'Last updated at'}
               titleIcon={<Box size={20} />}
