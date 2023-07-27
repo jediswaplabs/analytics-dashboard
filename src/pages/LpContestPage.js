@@ -61,24 +61,28 @@ function LpContestAccountPage({ account }) {
     const notEligibleResult = 'Not eligible for NFT'
     const isAllDataAvailable = isObject(nftRanksData) && !isEmpty(nftRanksData) && isObject(userPercentile) && !isEmpty(userPercentile)
     const isUserRankAvailable = typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0
-    if (!isAllDataAvailable) { return loadingResultStub }
-    if (!isUserRankAvailable) { return notEligibleResult }
-    const userRank = Number(userPercentile?.rank) + 1;
+    if (!isAllDataAvailable) {
+      return loadingResultStub
+    }
+    if (!isUserRankAvailable) {
+      return notEligibleResult
+    }
+    const userRank = Number(userPercentile?.rank) + 1
     const rangesAmount = Math.round((Object.keys(nftRanksData).length - 1) / 2)
 
-    let result = notEligibleResult;
+    let result = notEligibleResult
     for (let i = 1; i <= rangesAmount; i++) {
       if (i === 1 && userRank < nftRanksData[`L1P${i}Start`]) {
-        result = `L1PW`;
-        break;
+        result = `L1PW`
+        break
       }
       if (userRank <= nftRanksData[`L1P${i}End`]) {
-        result = `L1P${i}`;
-        break;
+        result = `L1P${i}`
+        break
       }
     }
-    return result;
-  }, [nftRanksData, userPercentile]);
+    return result
+  }, [nftRanksData, userPercentile])
 
   useEffect(() => {
     window.scrollTo({
@@ -119,25 +123,14 @@ function LpContestAccountPage({ account }) {
           <RowBetween>
             <span>
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <TYPE.header fontSize={24}>
-                  {starknetIdDomain ? starknetIdDomain : shortenStraknetAddress(account)}
-                </TYPE.header>
+                <TYPE.header fontSize={24}>{starknetIdDomain ? starknetIdDomain : shortenStraknetAddress(account)}</TYPE.header>
                 {isUserEligible && (
-                  <EligibilityBadgeWrapper
-                    className="eligibility-badge"
-                    data-tooltip-content="Eligible for NFT"
-                    data-tooltip-place="right"
-                  >
+                  <EligibilityBadgeWrapper className="eligibility-badge" data-tooltip-content="Eligible for NFT" data-tooltip-place="right">
                     <EligibilityBadge src={eligibilityBadgeIcon} />
                   </EligibilityBadgeWrapper>
                 )}
               </div>
-              <Link
-                lineHeight={'145.23%'}
-                href={urls.showAddress(account)}
-                target="_blank"
-                style={{ display: 'inline-block' }}
-              >
+              <Link lineHeight={'145.23%'} href={urls.showAddress(account)} target="_blank" style={{ display: 'inline-block' }}>
                 <TYPE.main fontSize={14}>View on Starkscan</TYPE.main>
               </Link>
             </span>
@@ -155,28 +148,24 @@ function LpContestAccountPage({ account }) {
               <AutoColumn gap="5px">
                 <TYPE.main>Rank</TYPE.main>
                 <TYPE.header fontSize={24}>
-                  {typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0
-                    ? userPercentile.rank + 1
-                    : '...'}
+                  {typeof userPercentile?.rank == 'number' && userPercentile?.rank >= 0 ? userPercentile.rank + 1 : '...'}
                 </TYPE.header>
               </AutoColumn>
               <AutoColumn gap="5px">
                 <TYPE.main>Eligible for NFT</TYPE.main>
-                <TYPE.header fontSize={24}>
-                  {getEligibleNftForUserRank()}
-                </TYPE.header>
+                <TYPE.header fontSize={24}>{getEligibleNftForUserRank()}</TYPE.header>
               </AutoColumn>
             </AutoRow>
           </Panel>
 
-          <TYPE.main fontSize={'1'} style={{ marginTop: '3rem' }}>
+          {/* <TYPE.main fontSize={'1'} style={{ marginTop: '3rem' }}>
             Contest points chart
           </TYPE.main>
           <PanelWrapper style={{ marginTop: '1.5rem' }}>
             <Panel style={{ gridColumn: '1' }}>
               <LpContestUserChart account={account} />
             </Panel>
-          </PanelWrapper>
+          </PanelWrapper> */}
 
           <TYPE.main fontSize={'1'} style={{ marginTop: '3rem' }}>
             Transactions
