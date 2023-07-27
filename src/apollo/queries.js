@@ -35,12 +35,7 @@ export const GET_BLOCKS = (timestamps) => {
 
 export const TOP_LPS_PER_PAIRS = gql`
   query lps($pair: String!) {
-    liquidityPositions(
-      where: { pair: $pair }
-      orderBy: "liquidity_token_balance"
-      orderByDirection: "desc"
-      first: 10
-    ) {
+    liquidityPositions(where: { pair: $pair }, orderBy: "liquidity_token_balance", orderByDirection: "desc", first: 10) {
       user {
         id
       }
@@ -208,6 +203,7 @@ export const USER_LP_CONTEST_PERCENTILE = gql`
     lpContestPercentile(where: { user: $user }) {
       percentileRank
       rank
+      contestValue
     }
   }
 `
@@ -409,13 +405,7 @@ export const PAIR_DAY_DATA_BULK = (pairs, startTimestamp) => {
 
 export const GLOBAL_CHART = gql`
   query exchangeDayDatas($startTime: Int!, $skip: Int!) {
-    exchangeDayDatas(
-      first: 1000
-      skip: $skip
-      where: { dateGt: $startTime }
-      orderBy: "date"
-      orderByDirection: "asc"
-    ) {
+    exchangeDayDatas(first: 1000, skip: $skip, where: { dateGt: $startTime }, orderBy: "date", orderByDirection: "asc") {
       id
       date
       totalVolumeUSD

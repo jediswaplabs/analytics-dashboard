@@ -49,7 +49,7 @@ function LpContestAccountPage({ account }) {
   const nftRanksData = useLpContestNftRanksData()
 
   let userPoints = useMemo(() => {
-    return userData?.length ? userData[0].contestValue : 0
+    return userPercentile?.contestValue ? userPercentile.contestValue : 0
   }, [userData])
 
   let isUserEligible = useMemo(() => {
