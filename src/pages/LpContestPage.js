@@ -50,7 +50,7 @@ function LpContestAccountPage({ account }) {
 
   let userPoints = useMemo(() => {
     return userPercentile?.contestValue ? userPercentile.contestValue : 0
-  }, [userData])
+  }, [userPercentile])
 
   let isUserEligible = useMemo(() => {
     return userData?.length ? userData[0].isEligible : false
