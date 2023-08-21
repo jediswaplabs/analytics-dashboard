@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useUserTransactions, useUserPositions } from '../contexts/User'
 import TxnList from '../components/TxnList'
 import Panel from '../components/Panel'
-import {formattedNum, shortenStraknetAddress, urls} from '../utils'
+import { formattedNum, shortenStraknetAddress, urls } from '../utils'
 import { AutoRow, RowFixed, RowBetween } from '../components/Row'
 import { AutoColumn } from '../components/Column'
 import PositionList from '../components/PositionList'
@@ -16,7 +16,7 @@ import { BasicLink } from '../components/Link'
 import { useMedia } from 'react-use'
 import Search from '../components/Search'
 import { useSavedAccounts } from '../contexts/LocalStorage'
-import UserChart from "../components/UserChart";
+import UserChart from '../components/UserChart'
 
 const AccountWrapper = styled.div`
   background-color: rgba(255, 255, 255, 0.2);
@@ -74,10 +74,7 @@ function AccountPage({ account }) {
   useEffect(() => {
     if (positions) {
       for (let i = 0; i < positions.length; i++) {
-        if (
-          FEE_WARNING_TOKENS.includes(positions[i].pair.token0.id) ||
-          FEE_WARNING_TOKENS.includes(positions[i].pair.token1.id)
-        ) {
+        if (FEE_WARNING_TOKENS.includes(positions[i].pair.token0.id) || FEE_WARNING_TOKENS.includes(positions[i].pair.token1.id)) {
           setShowWarning(true)
         }
       }
@@ -97,11 +94,7 @@ function AccountPage({ account }) {
   const positionValue = useMemo(() => {
     return dynamicPositions
       ? dynamicPositions.reduce((total, position) => {
-          return (
-            total +
-            (parseFloat(position?.liquidityTokenBalance) / parseFloat(position?.pair?.totalSupply)) *
-              position?.pair?.reserveUSD
-          )
+          return total + (parseFloat(position?.liquidityTokenBalance) / parseFloat(position?.pair?.totalSupply)) * position?.pair?.reserveUSD
         }, 0)
       : null
   }, [dynamicPositions])
@@ -145,10 +138,7 @@ function AccountPage({ account }) {
             </span>
             <AccountWrapper>
               <StyledIcon>
-                <Bookmark
-                  onClick={handleBookmarkClick}
-                  style={{ opacity: isBookmarked ? 0.8 : 0.4, cursor: 'pointer' }}
-                />
+                <Bookmark onClick={handleBookmarkClick} style={{ opacity: isBookmarked ? 0.8 : 0.4, cursor: 'pointer' }} />
               </StyledIcon>
             </AccountWrapper>
           </RowBetween>
@@ -165,15 +155,11 @@ function AccountPage({ account }) {
                   </RowBetween>
                   <RowFixed align="flex-end">
                     <TYPE.header fontSize={'24px'} lineHeight={1}>
-                      {positionValue
-                        ? formattedNum(positionValue, true)
-                        : positionValue === 0
-                        ? formattedNum(0, true)
-                        : '-'}
+                      {positionValue ? formattedNum(positionValue, true) : positionValue === 0 ? formattedNum(0, true) : '-'}
                     </TYPE.header>
                   </RowFixed>
                 </AutoColumn>
-                <AutoColumn gap="10px">
+                {/*  <AutoColumn gap="10px">
                   <RowBetween>
                     <TYPE.body>Fees Earned (Cumulative)</TYPE.body>
                     <div />
@@ -183,7 +169,7 @@ function AccountPage({ account }) {
                       {aggregateFees ? formattedNum(aggregateFees, true, true) : '-'}
                     </TYPE.header>
                   </RowFixed>
-                </AutoColumn>
+                </AutoColumn> */}
               </AutoRow>
             </Panel>
           )}
@@ -227,10 +213,10 @@ function AccountPage({ account }) {
           </TYPE.main>{' '}
           <Panel
             style={{
-              marginTop: '1.5rem'
+              marginTop: '1.5rem',
             }}
           >
-            <TxnList transactions={transactions} account={account}/>
+            <TxnList transactions={transactions} account={account} />
           </Panel>
           <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
             Wallet Stats
@@ -246,9 +232,7 @@ function AccountPage({ account }) {
                 <TYPE.main>Total Value Swapped</TYPE.main>
               </AutoColumn>
               <AutoColumn gap="8px">
-                <TYPE.header fontSize={24}>
-                  {totalSwappedUSD ? formattedNum(totalSwappedUSD * 0.003, true) : '-'}
-                </TYPE.header>
+                <TYPE.header fontSize={24}>{totalSwappedUSD ? formattedNum(totalSwappedUSD * 0.003, true) : '-'}</TYPE.header>
                 <TYPE.main>Total Fees Paid</TYPE.main>
               </AutoColumn>
               <AutoColumn gap="8px">
