@@ -151,19 +151,12 @@ function PositionList({ positions }) {
           <AutoColumn gap="8px" justify="flex-start" style={{ marginLeft: '20px' }}>
             <CustomLink to={'/pair/' + position.pair.id}>
               <TYPE.main style={{ whiteSpace: 'nowrap' }} to={'/pair/'}>
-                <FormattedName
-                  text={position.pair.token0.symbol + '-' + position.pair.token1.symbol}
-                  maxCharacters={below740 ? 10 : 18}
-                />
+                <FormattedName text={position.pair.token0.symbol + '-' + position.pair.token1.symbol} maxCharacters={below740 ? 10 : 18} />
               </TYPE.main>
             </CustomLink>
 
             <RowFixed gap="8px" justify="flex-start">
-              <Link
-                external
-                href={getPoolLink(position.pair.token0.id, position.pair.token1.id)}
-                style={{ marginRight: '.5rem' }}
-              >
+              <Link external href={getPoolLink(position.pair.token0.id, position.pair.token1.id)} style={{ marginRight: '.5rem' }}>
                 <ButtonLight style={{ padding: '4px 6px', borderRadius: '4px' }}>Add</ButtonLight>
               </Link>
               {poolOwnership > 0 && (
@@ -179,31 +172,17 @@ function PositionList({ positions }) {
             <TYPE.main>{formattedNum(valueUSD, true, true)}</TYPE.main>
             <AutoColumn gap="4px" justify="flex-end">
               <RowFixed>
-                <TYPE.small fontWeight={400}>
-                  {formattedNum(poolOwnership * parseFloat(position.pair.reserve0))}{' '}
-                </TYPE.small>
-                <FormattedName
-                  text={position.pair.token0.symbol}
-                  maxCharacters={below740 ? 10 : 18}
-                  margin={true}
-                  fontSize={'11px'}
-                />
+                <TYPE.small fontWeight={400}>{formattedNum(poolOwnership * parseFloat(position.pair.reserve0))} </TYPE.small>
+                <FormattedName text={position.pair.token0.symbol} maxCharacters={below740 ? 10 : 18} margin={true} fontSize={'11px'} />
               </RowFixed>
               <RowFixed>
-                <TYPE.small fontWeight={400}>
-                  {formattedNum(poolOwnership * parseFloat(position.pair.reserve1))}{' '}
-                </TYPE.small>
-                <FormattedName
-                  text={position.pair.token1.symbol}
-                  maxCharacters={below740 ? 10 : 18}
-                  margin={true}
-                  fontSize={'11px'}
-                />
+                <TYPE.small fontWeight={400}>{formattedNum(poolOwnership * parseFloat(position.pair.reserve1))} </TYPE.small>
+                <FormattedName text={position.pair.token1.symbol} maxCharacters={below740 ? 10 : 18} margin={true} fontSize={'11px'} />
               </RowFixed>
             </AutoColumn>
           </AutoColumn>
         </DataText>
-        {!below500 && (
+        {/* {!below500 && (
           <DataText area="return">
             <AutoColumn gap="12px" justify="flex-end">
               <TYPE.main color={'green'}>
@@ -213,41 +192,23 @@ function PositionList({ positions }) {
                 <RowFixed>
                   <TYPE.small fontWeight={400}>
                     {parseFloat(position.pair.token0.derivedETH)
-                      ? formattedNum(
-                          position?.fees.sum / (parseFloat(position.pair.token0.derivedETH) * ethPrice) / 2,
-                          false,
-                          true
-                        )
+                      ? formattedNum(position?.fees.sum / (parseFloat(position.pair.token0.derivedETH) * ethPrice) / 2, false, true)
                       : 0}{' '}
                   </TYPE.small>
-                  <FormattedName
-                    text={position.pair.token0.symbol}
-                    maxCharacters={below740 ? 10 : 18}
-                    margin={true}
-                    fontSize={'11px'}
-                  />
+                  <FormattedName text={position.pair.token0.symbol} maxCharacters={below740 ? 10 : 18} margin={true} fontSize={'11px'} />
                 </RowFixed>
                 <RowFixed>
                   <TYPE.small fontWeight={400}>
                     {parseFloat(position.pair.token1.derivedETH)
-                      ? formattedNum(
-                          position?.fees.sum / (parseFloat(position.pair.token1.derivedETH) * ethPrice) / 2,
-                          false,
-                          true
-                        )
+                      ? formattedNum(position?.fees.sum / (parseFloat(position.pair.token1.derivedETH) * ethPrice) / 2, false, true)
                       : 0}{' '}
                   </TYPE.small>
-                  <FormattedName
-                    text={position.pair.token1.symbol}
-                    maxCharacters={below740 ? 10 : 18}
-                    margin={true}
-                    fontSize={'11px'}
-                  />
+                  <FormattedName text={position.pair.token1.symbol} maxCharacters={below740 ? 10 : 18} margin={true} fontSize={'11px'} />
                 </RowFixed>
               </AutoColumn>
             </AutoColumn>
           </DataText>
-        )}
+        )} */}
       </DashGrid>
     )
   }
@@ -282,9 +243,9 @@ function PositionList({ positions }) {
         )
       })
 
-    if (!positionsSorted) {
-        return <LocalLoader/>
-    }
+  if (!positionsSorted) {
+    return <LocalLoader />
+  }
 
   return (
     <ListWrapper>
@@ -308,7 +269,7 @@ function PositionList({ positions }) {
             {below740 ? 'Value' : 'Liquidity'} {sortedColumn === SORT_FIELD.VALUE ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
-        {!below500 && (
+        {/*  {!below500 && (
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
               area="return"
@@ -321,7 +282,7 @@ function PositionList({ positions }) {
               {sortedColumn === SORT_FIELD.UNISWAP_RETURN ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
-        )}
+        )} */}
       </DashGrid>
       <Divider />
       <List p={0}>{positionsSorted}</List>
