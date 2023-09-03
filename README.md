@@ -1,20 +1,21 @@
-# Uniswap Info (V1 + V2)
+# JediSwap Analytics Dashboard
 
-[![Lint](https://github.com/Uniswap/uniswap-info/workflows/Lint/badge.svg)](https://github.com/Uniswap/uniswap-info/actions?query=workflow%3ALint)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jediswaplabs/analytics-dashboard/blob/main/LICENSE) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-Analytics site for the [Uniswap Protocol](https://uniswap.org).
+Analytics site for the [JediSwap Protocol](https://jediswap.xyz).
 
-Includes support for Uniswap V1 and V2. For Uniswap V3 info see https://github.com/Uniswap/v3-info
+## To Start Development
 
-### To Start Development
+### Installing dependencies
 
-###### Installing dependencies
+>Use node v16.20.0
+
 ```bash
 yarn
 ```
 
-###### Running locally
+### Running locally
+
 ```bash
 yarn start
 ```
