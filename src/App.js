@@ -18,6 +18,7 @@ import PinnedData from './components/PinnedData'
 import SideNav from './components/SideNav'
 import AccountLookup from './pages/AccountLookup'
 import LpContestLookup from './pages/LpContestLookup'
+import VolumeContestDashboard from './pages/VolumeContestDashboard'
 import LpContestAccountPage from './pages/LpContestPage'
 import LocalLoader from './components/LocalLoader'
 import { useLatestBlocks, useWhitelistedTokens } from './contexts/Application'
@@ -123,10 +124,10 @@ function App() {
           </WarningWrapper>
         )}
         {globalData &&
-        Object.keys(globalData).length > 0 &&
-        globalChartData &&
-        Object.keys(globalChartData).length > 0 &&
-        !isEmpty(whitelistedTokens) ? (
+          Object.keys(globalData).length > 0 &&
+          globalChartData &&
+          Object.keys(globalChartData).length > 0 &&
+          !isEmpty(whitelistedTokens) ? (
           <BrowserRouter>
             <Route component={GoogleAnalyticsReporter} />
             <Switch>
