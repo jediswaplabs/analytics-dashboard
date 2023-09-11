@@ -7,8 +7,11 @@ import {
   USER_HISTORY,
   PAIR_DAY_DATA_BULK,
   USER_LP_CONTEST_TRANSACTIONS,
+  USER_LP_CONTEST_LORD_TRANSACTIONS,
   USER_LP_CONTEST_HISTORY,
+  USER_LP_CONTEST_LORD_HISTORY,
   USER_LP_CONTEST_PERCENTILE,
+  USER_LP_CONTEST_LORD_PERCENTILE,
 } from '../apollo/queries'
 import { useTimeframe, useStartTimestamp } from './Application'
 import dayjs from 'dayjs'
@@ -22,20 +25,26 @@ dayjs.extend(utc)
 
 const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS'
 const UPDATE_LP_CONTEST_TRANSACTIONS = 'UPDATE_LP_CONTEST_TRANSACTIONS'
+const UPDATE_LP_CONTEST_LORD_TRANSACTIONS = 'UPDATE_LP_CONTEST_LORD_TRANSACTIONS'
 const UPDATE_POSITIONS = 'UPDATE_POSITIONS '
 const UPDATE_MINING_POSITIONS = 'UPDATE_MINING_POSITIONS'
 const UPDATE_USER_POSITION_HISTORY = 'UPDATE_USER_POSITION_HISTORY'
 const UPDATE_LP_CONTEST_USER_POSITION_HISTORY = 'UPDATE_LP_CONTEST_USER_POSITION_HISTORY'
 const UPDATE_LP_CONTEST_PERCENTILE = 'UPDATE_LP_CONTEST_PERCENTILE'
+const UPDATE_LP_CONTEST_LORD_USER_POSITION_HISTORY = 'UPDATE_LP_CONTEST_LORD_USER_POSITION_HISTORY'
+const UPDATE_LP_CONTEST_LORD_PERCENTILE = 'UPDATE_LP_CONTEST_LORD_PERCENTILE'
 const UPDATE_USER_PAIR_RETURNS = 'UPDATE_USER_PAIR_RETURNS'
 
 const TRANSACTIONS_KEY = 'TRANSACTIONS_KEY'
 const LP_CONTEST_TRANSACTIONS_KEY = 'LP_CONTEST_TRANSACTIONS_KEY'
+const LP_CONTEST_LORD_TRANSACTIONS_KEY = 'LP_CONTEST_LORD_TRANSACTIONS_KEY'
 const POSITIONS_KEY = 'POSITIONS_KEY'
 const MINING_POSITIONS_KEY = 'MINING_POSITIONS_KEY'
 const USER_SNAPSHOTS = 'USER_SNAPSHOTS'
 const LP_CONTEST_USER_SNAPSHOTS = 'LP_CONTEST_USER_SNAPSHOTS'
 const LP_CONTEST_PERCENTILE = 'LP_CONTEST_PERCENTILE'
+const LP_CONTEST_LORD_USER_SNAPSHOTS = 'LP_CONTEST_LORD_USER_SNAPSHOTS'
+const LP_CONTEST_LORD_PERCENTILE = 'LP_CONTEST_LORD_PERCENTILE'
 const USER_PAIR_RETURNS_KEY = 'USER_PAIR_RETURNS_KEY'
 
 const UserContext = createContext()
@@ -76,6 +85,26 @@ function reducer(state, { type, payload }) {
         },
       }
     }
+    case UPDATE_LP_CONTEST_LORD_TRANSACTIONS: {
+      const { account, transactions } = payload
+      return {
+        ...state,
+        [account]: {
+          ...state?.[account],
+          [LP_CONTEST_LORD_TRANSACTIONS_KEY]: transactions,
+        },
+      }
+    }
+    case UPDATE_LP_CONTEST_LORD_PERCENTILE: {
+      const { account, percentile } = payload
+      return {
+        ...state,
+        [account]: {
+          ...state?.[account],
+          [LP_CONTEST_LORD_PERCENTILE]: percentile,
+        },
+      }
+    }
     case UPDATE_POSITIONS: {
       const { account, positions } = payload
       return {
@@ -103,6 +132,14 @@ function reducer(state, { type, payload }) {
       return {
         ...state,
         [account]: { ...state?.[account], [LP_CONTEST_USER_SNAPSHOTS]: historyData },
+      }
+    }
+
+    case UPDATE_LP_CONTEST_LORD_USER_POSITION_HISTORY: {
+      const { account, historyData } = payload
+      return {
+        ...state,
+        [account]: { ...state?.[account], [LP_CONTEST_LORD_USER_SNAPSHOTS]: historyData },
       }
     }
 
@@ -161,6 +198,26 @@ export default function Provider({ children }) {
     })
   }, [])
 
+  const updateLpContestLordTransactions = useCallback((account, transactions) => {
+    dispatch({
+      type: UPDATE_LP_CONTEST_LORD_TRANSACTIONS,
+      payload: {
+        account,
+        transactions,
+      },
+    })
+  }, [])
+
+  const updateLpContestLordPercentile = useCallback((account, percentile) => {
+    dispatch({
+      type: UPDATE_LP_CONTEST_LORD_PERCENTILE,
+      payload: {
+        account,
+        percentile,
+      },
+    })
+  }, [])
+
   const updatePositions = useCallback((account, positions) => {
     dispatch({
       type: UPDATE_POSITIONS,
@@ -201,6 +258,16 @@ export default function Provider({ children }) {
     })
   }, [])
 
+  const updateLpContestLordUserSnapshots = useCallback((account, historyData) => {
+    dispatch({
+      type: UPDATE_LP_CONTEST_LORD_USER_POSITION_HISTORY,
+      payload: {
+        account,
+        historyData,
+      },
+    })
+  }, [])
+
   const updateUserPairReturns = useCallback((account, pairAddress, data) => {
     dispatch({
       type: UPDATE_USER_PAIR_RETURNS,
@@ -219,12 +286,15 @@ export default function Provider({ children }) {
           state,
           {
             updateTransactions,
+            updateLpContestLordTransactions,
             updateLpContestTransactions,
             updatePositions,
             updateMiningPositions,
             updateUserSnapshots,
+            updateLpContestLordUserSnapshots,
             updateLpContestUserSnapshots,
             updateUserPairReturns,
+            updateLpContestLordPercentile,
             updateLpContestPercentile,
           },
         ],
@@ -232,12 +302,15 @@ export default function Provider({ children }) {
           state,
           updateTransactions,
           updateLpContestTransactions,
+          updateLpContestLordTransactions,
           updatePositions,
           updateMiningPositions,
           updateUserSnapshots,
           updateLpContestUserSnapshots,
+          updateLpContestLordUserSnapshots,
           updateUserPairReturns,
           updateLpContestPercentile,
+          updateLpContestLordPercentile,
         ]
       )}
     >
@@ -298,6 +371,34 @@ export function useUserLpCampaignTransactions(account) {
       fetchData(account)
     }
   }, [account, transactions, updateLpContestTransactions])
+
+  return transactions || {}
+}
+
+export function useUserLpCampaignLordTransactions(account) {
+  const [state, { updateLpContestLordTransactions }] = useUserContext()
+  const transactions = state?.[account]?.[LP_CONTEST_LORD_TRANSACTIONS_KEY]
+  useEffect(() => {
+    async function fetchData(account) {
+      try {
+        let result = await jediSwapClient.query({
+          query: USER_LP_CONTEST_LORD_TRANSACTIONS,
+          variables: {
+            user: account,
+          },
+          fetchPolicy: 'no-cache',
+        })
+        if (result?.data) {
+          updateLpContestLordTransactions(account, result?.data)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (!transactions && account) {
+      fetchData(account)
+    }
+  }, [account, transactions, updateLpContestLordTransactions])
 
   return transactions || {}
 }
@@ -428,6 +529,79 @@ export function useLpContestPercentile(account) {
   return percentile
 }
 
+export function useLpContestLordUserSnapshots(account) {
+  const [state, { updateLpContestLordUserSnapshots }] = useUserContext()
+  const snapshots = state?.[account]?.[LP_CONTEST_LORD_USER_SNAPSHOTS]
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        let skip = 0
+        let allResults = []
+        let found = false
+        while (!found) {
+          const result = await jediSwapClient.query({
+            query: USER_LP_CONTEST_LORD_HISTORY,
+            variables: {
+              user: account,
+              skip,
+            },
+            fetchPolicy: 'cache-first',
+          })
+
+          const processedResult = result?.data?.lpContestBlocks
+
+          allResults = allResults.concat(processedResult)
+          if (processedResult.length < 1000) {
+            found = true
+          } else {
+            skip += 1000
+          }
+        }
+        if (allResults) {
+          updateLpContestLordUserSnapshots(account, allResults)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (!snapshots && account) {
+      fetchData()
+    }
+  }, [account, snapshots, updateLpContestLordUserSnapshots])
+
+  return snapshots
+}
+
+export function useLpContestLordPercentile(account) {
+  const [state, { updateLpContestLordPercentile }] = useUserContext()
+  const percentile = state?.[account]?.[LP_CONTEST_LORD_PERCENTILE]
+
+  useEffect(() => {
+    async function fetchData(account) {
+      try {
+        let result = await jediSwapClient.query({
+          query: USER_LP_CONTEST_LORD_PERCENTILE,
+          variables: {
+            user: account,
+          },
+          fetchPolicy: 'no-cache',
+        })
+        if (result?.data?.lpContestPercentile) {
+          updateLpContestLordPercentile(account, result.data.lpContestPercentile)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (!percentile && account) {
+      fetchData(account)
+    }
+  }, [account, percentile, updateLpContestLordPercentile])
+
+  return percentile
+}
+
 /**
  * For a given position (data about holding) and user, get the chart
  * data for the fees and liquidity over time
@@ -459,12 +633,7 @@ export function useUserPositionChart(position, account) {
 
   useEffect(() => {
     async function fetchData() {
-      let fetchedData = await getHistoricalPairReturns(
-        startDateTimestamp,
-        currentPairData,
-        pairSnapshots,
-        currentETHPrice
-      )
+      let fetchedData = await getHistoricalPairReturns(startDateTimestamp, currentPairData, pairSnapshots, currentETHPrice)
       updateUserPairReturns(account, pairAddress, fetchedData)
     }
     if (
@@ -619,8 +788,7 @@ export function useUserLiquidityChart(account) {
             return (totalUSD =
               totalUSD +
               (ownershipPerPair[dayData.pairId]
-                ? (parseFloat(ownershipPerPair[dayData.pairId].lpTokenBalance) / parseFloat(dayData.totalSupply)) *
-                  parseFloat(dayData.reserveUSD)
+                ? (parseFloat(ownershipPerPair[dayData.pairId].lpTokenBalance) / parseFloat(dayData.totalSupply)) * parseFloat(dayData.reserveUSD)
                 : 0))
           } else {
             return totalUSD
@@ -655,6 +823,26 @@ export function useLpContestUserLiquidityChart(account) {
         return {
           date: convertDateToUnixFormat(item.timestamp),
 
+          value: Number(item.contestValue).toFixed(),
+        }
+      })
+      .filter(Boolean)
+  }
+
+  return formattedHistory
+}
+
+export function useLpContestLordUserLiquidityChart(account) {
+  const history = useLpContestLordUserSnapshots(account)
+  let formattedHistory
+  if (history) {
+    formattedHistory = history
+      .map((item) => {
+        if (!(item?.timestamp && item?.contestValue)) {
+          return false
+        }
+        return {
+          date: convertDateToUnixFormat(item.timestamp),
           value: Number(item.contestValue).toFixed(),
         }
       })

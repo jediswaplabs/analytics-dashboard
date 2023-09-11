@@ -198,12 +198,31 @@ export const USER_LP_CONTEST_HISTORY = gql`
     }
   }
 `
+export const USER_LP_CONTEST_LORD_HISTORY = gql`
+  query lpContestSnapshots($user: String!, $skip: Int!) {
+    lpContestBlocks(first: 1000, skip: $skip, where: { user: $user }, orderBy: "block", orderByDirection: "desc") {
+      block
+      contestValue
+      timestamp
+      isEligible
+    }
+  }
+`
 export const USER_LP_CONTEST_PERCENTILE = gql`
   query lpContestPercentile($user: String!) {
     lpContestPercentile(where: { user: $user }) {
       percentileRank
       rank
       contestValue
+    }
+  }
+`
+
+export const USER_LP_CONTEST_LORD_PERCENTILE = gql`
+  query lpContestPercentile($user: String!) {
+    lpContestPercentile(where: { user: $user }) {
+      percentileRank
+      rank
     }
   }
 `
@@ -302,6 +321,71 @@ export const USER_TRANSACTIONS = gql`
 `
 
 export const USER_LP_CONTEST_TRANSACTIONS = gql`
+  query transactions($user: String!) {
+    mints(orderBy: "block_timestamp", orderByDirection: "desc", where: { to: $user }) {
+      id
+      transactionHash
+      timestamp
+      pair {
+        id
+        token0 {
+          id
+          symbol
+        }
+        token1 {
+          id
+          symbol
+        }
+      }
+      to
+      liquidity
+      amount0
+      amount1
+      amountUSD
+    }
+    burns(orderBy: "timestamp", orderByDirection: "desc", where: { sender: $user }) {
+      id
+      transactionHash
+      timestamp
+      pair {
+        id
+        token0 {
+          symbol
+        }
+        token1 {
+          symbol
+        }
+      }
+      sender
+      to
+      liquidity
+      amount0
+      amount1
+      amountUSD
+    }
+    swaps(orderBy: "timestamp", orderByDirection: "desc", where: { to: $user }) {
+      id
+      transactionHash
+      timestamp
+      pair {
+        token0 {
+          symbol
+        }
+        token1 {
+          symbol
+        }
+      }
+      amount0In
+      amount0Out
+      amount1In
+      amount1Out
+      amountUSD
+      to
+    }
+  }
+`
+
+export const USER_LP_CONTEST_LORD_TRANSACTIONS = gql`
   query transactions($user: String!) {
     mints(orderBy: "block_timestamp", orderByDirection: "desc", where: { to: $user }) {
       id
@@ -653,7 +737,37 @@ export const LP_CONTEST_DATA = gql`
   }
 `
 
+export const LP_CONTEST_LORD_DATA = gql`
+  query contest {
+    lpContests(orderBy: "contest_value", orderByDirection: "desc") {
+      contestValue
+      isEligible
+      user {
+        id
+      }
+      block
+    }
+  }
+`
+
 export const LP_CONTEST_NFT_RANK = gql`
+  query lpcontestnftrank {
+    lpContestNftRank {
+      L1P1Start
+      L1P1End
+      L1P2Start
+      L1P2End
+      L1P3Start
+      L1P3End
+      L1P4Start
+      L1P4End
+      L1P5Start
+      L1P5End
+    }
+  }
+`
+
+export const LP_CONTEST_LORD_NFT_RANK = gql`
   query lpcontestnftrank {
     lpContestNftRank {
       L1P1Start
@@ -802,7 +916,7 @@ export const TOKEN_DATA = (tokenAddress, block) => {
 }
 
 export const FILTERED_TRANSACTIONS = gql`
-  query ($allPairs: [String!]) {
+  query($allPairs: [String!]) {
     mints(first: 20, where: { pairIn: $allPairs }, orderBy: "timestamp", orderByDirection: "desc") {
       transactionHash
       timestamp
