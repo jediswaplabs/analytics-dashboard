@@ -227,6 +227,29 @@ function App() {
                 </LayoutWrapper>
               </Route>
 
+              <Route
+                exacts
+                strict
+                path="/volume-contest/:accountAddress"
+                render={({ match }) => {
+                  if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
+                    return (
+                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                        <VolumeContestDashboard account={match.params.accountAddress.toLowerCase()} />
+                      </LayoutWrapper>
+                    )
+                  } else {
+                    return <Redirect to="/home" />
+                  }
+                }}
+              />
+
+              <Route path="/volume-contest/">
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <VolumeContestDashboard />
+                </LayoutWrapper>
+              </Route>
+
               <Redirect to="/home" />
             </Switch>
           </BrowserRouter>

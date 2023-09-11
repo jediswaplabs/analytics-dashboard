@@ -103,7 +103,7 @@ function LpContestAccountPage({ account }) {
     if (account) {
       try {
         fetchData()
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [account])
 

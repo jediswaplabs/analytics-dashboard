@@ -11,7 +11,8 @@ import styled from 'styled-components'
 import { AutoRow, RowBetween } from '../components/Row'
 import { Banner } from '../components/Banner'
 import { Flag, Watch, Box } from 'react-feather'
-//import { useVolumeContestPlayersData } from '../contexts/LpContestData'
+import VolumeContestSearch from '../components/VolumeContestSearch'
+import { useLpContestPlayersData } from '../contexts/LpContestData'
 
 import contestFlagIcon from '../../src/assets/flag.svg'
 import { AutoColumn } from '../components/Column'
@@ -74,7 +75,19 @@ const ListOptions = styled(AutoRow)`
   }
 `
 
+const ONGOING_WEEK_START_DATE_ISO = '2023-09-17T00:00:00.000Z'
+const ONGOING_WEEK_END_DATE_ISO = '2023-09-24T07:24:00.000Z'
+
 function VolumeContestDashboard() {
+  const allPlayersData = useLpContestPlayersData()
+
+  let latestLpBlockNumber = useMemo(() => {
+    if (!allPlayersData) {
+      return null
+    }
+    const data = Object.values(allPlayersData)
+    return data?.length ? data[0].block : null
+  }, [allPlayersData])
   return (
     <PageWrapper>
       <FullWrapper>
@@ -84,6 +97,47 @@ function VolumeContestDashboard() {
           </TitleIconWrapper>
           <TYPE.largeHeader style={{ fontWeight: 700 }}>The Trade Federation Awakens</TYPE.largeHeader>
         </Title>
+        <div
+          style={{
+            borderRadius: '15px',
+            padding: '25px',
+            boxShadow: `rgb(255 255 255 / 50%) 0px 30.0211px 43.1072px -27.7118px inset,
+					      rgb(255 255 255) 0px 5.38841px 8.46749px -3.07909px inset,
+					      rgb(96 68 145 / 30%) 0px -63.1213px 52.3445px -49.2654px inset,
+					      rgb(202 172 255 / 30%) 0px 75.4377px 76.9772px -36.9491px inset,
+					      rgb(154 146 210 / 30%) 0px 3.07909px 13.8559px inset, rgb(227 222 255 / 20%) 0px 0.769772px 30.7909px inset`,
+          }}
+        >
+          <BannerGridRow>
+            <Banner
+              title={'Ongoing Week'}
+              content={`${dayjs.utc(ONGOING_WEEK_START_DATE_ISO).format('MMM DD')} - ${dayjs.utc(ONGOING_WEEK_END_DATE_ISO).format('MMM DD')}`}
+              showPollingDot={false}
+            />
+            <Banner title={'Search your wallet'} content={<VolumeContestSearch players={allPlayersData} />} showPollingDot={false} />
+          </BannerGridRow>
+
+          <LeaderboardGridRow style={{ marginTop: '25px' }}>
+            <AutoColumn>
+              <ListOptions gap="10px" style={{ marginBottom: '10px', width: 'calc(100% + 20px)' }}>
+                <RowBetween>
+                  <TYPE.main fontSize={'1.125rem'} fontWeight={700} style={{ whiteSpace: 'nowrap' }}>
+                    NFT Rewards
+                  </TYPE.main>
+                </RowBetween>
+              </ListOptions>
+              {/* <LpContestLeaderboard players={allPlayersData} /> */}
+            </AutoColumn>
+            {/* <AutoColumn gap={'20px'} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div>
+                <LpContestNftCategories />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <LpContestNftClaim style={{ flexGrow: '1' }}></LpContestNftClaim>
+              </div>
+            </AutoColumn> */}
+          </LeaderboardGridRow>
+        </div>
       </FullWrapper>
     </PageWrapper>
   )
