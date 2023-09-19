@@ -55,13 +55,7 @@ const Hint = ({ children, ...rest }) => (
 )
 
 const Address = ({ address, token, ...rest }) => (
-  <Link
-    color="button"
-    href={token ? urls.showToken(address) : urls.showAddress(address)}
-    external
-    style={{ wordBreak: 'break-all' }}
-    {...rest}
-  >
+  <Link color="button" href={token ? urls.showToken(address) : urls.showAddress(address)} external style={{ wordBreak: 'break-all' }} {...rest}>
     {address}
   </Link>
 )
@@ -81,10 +75,9 @@ const EmptyCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 200px;
   border-radius: 20px;
   color: ${({ theme }) => theme.text1};
-  height: ${({ height }) => height && height};
+  height: ${({ height }) => height ?? '200px'};
 `
 
 export const SideBar = styled.span`
@@ -123,13 +116,11 @@ export const PageWrapper = styled.div`
   flex-direction: column;
   padding-top: 36px;
   padding-bottom: 80px;
-  ${
-    '' /* box-shadow: rgb(255 255 255 / 50%) 0px 30.0211px 43.1072px -27.7118px inset,
+  ${'' /* box-shadow: rgb(255 255 255 / 50%) 0px 30.0211px 43.1072px -27.7118px inset,
     rgb(255 255 255) 0px 5.38841px 8.46749px -3.07909px inset,
     rgb(96 68 145 / 30%) 0px -63.1213px 52.3445px -49.2654px inset,
     rgb(202 172 255 / 30%) 0px 75.4377px 76.9772px -36.9491px inset,
-    rgb(154 146 210 / 30%) 0px 3.07909px 13.8559px inset, rgb(227 222 255 / 20%) 0px 0.769772px 30.7909px inset, */
-  }
+    rgb(154 146 210 / 30%) 0px 3.07909px 13.8559px inset, rgb(227 222 255 / 20%) 0px 0.769772px 30.7909px inset, */}
   @media screen and (max-width: 600px) {
     & > * {
       padding: 0 12px;

@@ -198,6 +198,7 @@ export const USER_LP_CONTEST_HISTORY = gql`
     }
   }
 `
+
 export const USER_LP_CONTEST_PERCENTILE = gql`
   query lpContestPercentile($user: String!) {
     lpContestPercentile(where: { user: $user }) {
@@ -344,6 +345,30 @@ export const USER_LP_CONTEST_TRANSACTIONS = gql`
       amount1
       amountUSD
     }
+    swaps(orderBy: "timestamp", orderByDirection: "desc", where: { to: $user }) {
+      id
+      transactionHash
+      timestamp
+      pair {
+        token0 {
+          symbol
+        }
+        token1 {
+          symbol
+        }
+      }
+      amount0In
+      amount0Out
+      amount1In
+      amount1Out
+      amountUSD
+      to
+    }
+  }
+`
+
+export const USER_VOLUME_CONTEST_TRANSACTIONS = gql`
+  query transactions($user: String!) {
     swaps(orderBy: "timestamp", orderByDirection: "desc", where: { to: $user }) {
       id
       transactionHash
@@ -653,6 +678,27 @@ export const LP_CONTEST_DATA = gql`
   }
 `
 
+export const USER_VOLUME_CONTEST_DATA = (account) => {
+  const queryString = `
+    query VolumeContest {
+      volumeContest(where: {user: "${account}", startDate: "2023-09-04"}) {
+        nftLevel
+        totalContestScore
+        totalContestVolume
+        weeks {
+          endDt
+          id
+          name
+          score
+          startDt
+          volume
+        }
+      }
+    }
+  `
+  return gql(queryString)
+}
+
 export const LP_CONTEST_NFT_RANK = gql`
   query lpcontestnftrank {
     lpContestNftRank {
@@ -802,7 +848,7 @@ export const TOKEN_DATA = (tokenAddress, block) => {
 }
 
 export const FILTERED_TRANSACTIONS = gql`
-  query ($allPairs: [String!]) {
+  query($allPairs: [String!]) {
     mints(first: 20, where: { pairIn: $allPairs }, orderBy: "timestamp", orderByDirection: "desc") {
       transactionHash
       timestamp

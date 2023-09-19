@@ -3,7 +3,7 @@ import { shade } from 'polished'
 import Vibrant from 'node-vibrant'
 import { hex } from 'wcag-contrast'
 import copy from 'copy-to-clipboard'
-import { isStarknetAddress } from '../utils'
+import { convertHexToDecimal, isStarknetAddress } from '../utils'
 import { useWhitelistedTokens } from '../contexts/Application'
 
 export function useColor(tokenAddress, token) {
@@ -98,4 +98,30 @@ export default function useInterval(callback: () => void, delay: null | number) 
     }
     return
   }, [delay])
+}
+
+export const useUserStraknetIdDomain = (account) => {
+  const [domain, setDomain] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      const convertedAddress = convertHexToDecimal(account)
+      const response = await fetch(`https://app.starknet.id/api/indexer/addr_to_domain?addr=${convertedAddress}`)
+      const processedResponse = await response.json()
+      if (processedResponse.domain) {
+        setDomain(processedResponse.domain)
+      }
+      setIsLoading(false)
+    }
+    if (account) {
+      try {
+        fetchData()
+      } catch (e) {
+        setIsLoading(false)
+      }
+    }
+  }, [account])
+
+  return [isLoading, domain]
 }

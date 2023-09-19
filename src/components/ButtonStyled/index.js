@@ -72,8 +72,29 @@ export const ButtonLight = styled(Base)`
   }
 
   :hover {
-    background-color: ${({ color, theme }) =>
-      color ? transparentize(0.8, color) : transparentize(0.8, theme.primary1)};
+    background-color: ${({ color, theme }) => (color ? transparentize(0.8, color) : transparentize(0.8, theme.primary1))};
+  }
+`
+
+export const ButtonGradient = styled(Base)`
+  background: linear-gradient(95deg, #29aafd 8%, #ff00e9 105%);
+  color: #fff;
+  transition: background-position 0.1s;
+  font-size: 16px;
+  font-weight: 750;
+  border: none;
+  white-space: nowrap;
+
+  &:hover {
+    background-position: 100%;
+  }
+
+  &[disabled] {
+    cursor: default;
+    background: rgba(196, 196, 196, 0.01);
+    box-shadow: inset 0px -63.1213px 52.3445px -49.2654px rgba(96, 68, 145, 0.3), inset 0px 75.4377px 76.9772px -36.9491px rgba(202, 172, 255, 0.3),
+      inset 0px 3.07909px 13.8559px rgba(154, 146, 210, 0.3), inset 0px 0.769772px 30.7909px rgba(227, 222, 255, 0.2);
+    overflow: hidden;
   }
 `
 
@@ -103,13 +124,17 @@ export const ButtonDark = styled(Base)`
   border-radius: 12px;
   white-space: nowrap;
 
-    ${(props) => !props.disabled && `
+  ${(props) =>
+    !props.disabled &&
+    `
           :hover {
             background-color: ${({ color, theme }) => (color ? darken(0.1, color) : darken(0.1, theme.primary1))};
           }
     `}
-    
-    ${(props) => props.disabled && `
+
+  ${(props) =>
+    props.disabled &&
+    `
         opacity: 0.5;
         cursor: default;
     `}

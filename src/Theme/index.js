@@ -18,6 +18,7 @@ const theme = (darkMode, color) => ({
   backgroundColor: darkMode ? '#252323' : '#F7F8FA',
 
   uniswapPink: darkMode ? '#FF00E9' : 'black',
+  jediGray: darkMode ? '#959595' : 'black',
 
   concreteGray: darkMode ? '#292C2F' : '#FAFAFA',
   inputBackground: darkMode ? '#1F1F1F' : '#FAFAFA',
@@ -147,8 +148,7 @@ export const ThemedBackground = styled.div`
   max-width: 100vw !important;
   height: 200vh;
   mix-blend-mode: color;
-  background: ${({ backgroundColor }) =>
-    `radial-gradient(50% 50% at 50% 50%, ${backgroundColor} 0%, rgba(255, 255, 255, 0) 100%)`};
+  background: ${({ backgroundColor }) => `radial-gradient(50% 50% at 50% 50%, ${backgroundColor} 0%, rgba(255, 255, 255, 0) 100%)`};
   position: absolute;
   top: 0px;
   left: 0px;
