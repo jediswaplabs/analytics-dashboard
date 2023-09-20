@@ -367,29 +367,34 @@ export const USER_LP_CONTEST_TRANSACTIONS = gql`
   }
 `
 
-export const USER_VOLUME_CONTEST_TRANSACTIONS = gql`
-  query transactions($user: String!) {
-    swaps(orderBy: "timestamp", orderByDirection: "desc", where: { to: $user }) {
-      id
-      transactionHash
-      timestamp
-      pair {
-        token0 {
-          symbol
+export const USER_VOLUME_CONTEST_TRANSACTIONS = ({ account, timestampGte, timestampLte }) => {
+  let queryString = `query transactions {
+    swaps(orderBy: "timestamp", orderByDirection: "desc", where: { 
+      to: "${account}", 
+      ${timestampGte && `timestampGte: ${timestampGte}, `} 
+      ${timestampLte && `timestampLte: ${timestampLte}, `} 
+    }) {
+        id
+        transactionHash
+        timestamp
+        pair {
+          token0 {
+            symbol
+          }
+          token1 {
+            symbol
+          }
         }
-        token1 {
-          symbol
-        }
+        amount0In
+        amount0Out
+        amount1In
+        amount1Out
+        amountUSD
+        to
       }
-      amount0In
-      amount0Out
-      amount1In
-      amount1Out
-      amountUSD
-      to
-    }
-  }
-`
+  }`
+  return gql(queryString)
+}
 
 export const PAIR_CHART = gql`
   query pairDayDatas($pairAddress: String!, $skip: Int!) {
@@ -678,10 +683,10 @@ export const LP_CONTEST_DATA = gql`
   }
 `
 
-export const USER_VOLUME_CONTEST_DATA = (account) => {
+export const USER_VOLUME_CONTEST_DATA = (account, startDate) => {
   const queryString = `
     query VolumeContest {
-      volumeContest(where: {user: "${account}", startDate: "2023-09-04"}) {
+      volumeContest(where: {user: "${account}", startDate: "${startDate}"}) {
         nftLevel
         totalContestScore
         totalContestVolume

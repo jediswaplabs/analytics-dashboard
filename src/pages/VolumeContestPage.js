@@ -31,6 +31,8 @@ import { useUserVolumeCampaignTransactions } from '../contexts/User'
 
 import { useUserStraknetIdDomain } from '../hooks'
 
+import { START_DATE_UTC, END_DATE_UTC } from './VolumeContestLookup'
+
 dayjs.extend(isBetween)
 
 const EligibilityBadge = styled.img``
@@ -137,10 +139,13 @@ const nftUserScoreLookup = {
   5: 'T1A5',
 }
 
+const startDateTimestamp = dayjs(START_DATE_UTC).unix()
+const endDateTimestamp = dayjs(END_DATE_UTC).unix()
+
 function VolumeContestAccountPage({ account }) {
   const [, starknetIdDomain] = useUserStraknetIdDomain(account)
   const userData = useVolumeContestUserData(account)
-  const transactions = useUserVolumeCampaignTransactions(account)
+  const transactions = useUserVolumeCampaignTransactions({ account, timestampGte: startDateTimestamp, timestampLte: endDateTimestamp })
 
   const userNftLevel = userData?.nftLevel
   const totalContestScore = userData?.totalContestScore

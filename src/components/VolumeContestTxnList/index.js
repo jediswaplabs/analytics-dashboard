@@ -350,7 +350,7 @@ function VolumeContestTxnList({ transactions, account }) {
 
           <PageButtons>
             <ArrowLeft
-              faded={page === 1}
+              faded={String(page === 1)}
               onClick={(e) => {
                 setPage(page === 1 ? page : page - 1)
               }}
@@ -359,7 +359,7 @@ function VolumeContestTxnList({ transactions, account }) {
             <TYPE.body style={{ padding: '0 20px' }}>{page + ' of ' + maxPage}</TYPE.body>
 
             <ArrowRight
-              faded={page === maxPage}
+              faded={String(page === maxPage)}
               onClick={(e) => {
                 setPage(page === maxPage ? page : page + 1)
               }}

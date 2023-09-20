@@ -327,19 +327,14 @@ export function useUserLpCampaignTransactions(account) {
   return transactions || {}
 }
 
-export function useUserVolumeCampaignTransactions(account, timestampsStart, timestampsEnd) {
+export function useUserVolumeCampaignTransactions({ account, timestampGte, timestampLte }) {
   const [state, { updateVolumeContestTransactions }] = useUserContext()
   const transactions = state?.[account]?.[VOLUME_CONTEST_TRANSACTIONS_KEY]
   useEffect(() => {
     async function fetchData(account) {
       try {
         let result = await jediSwapClient.query({
-          query: USER_VOLUME_CONTEST_TRANSACTIONS,
-          variables: {
-            user: account,
-            timestampsStart,
-            timestampsEnd,
-          },
+          query: USER_VOLUME_CONTEST_TRANSACTIONS({ account, timestampGte, timestampLte }),
           fetchPolicy: 'no-cache',
         })
         if (result?.data) {

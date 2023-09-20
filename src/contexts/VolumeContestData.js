@@ -2,9 +2,11 @@ import React, { createContext, useContext, useReducer, useMemo, useCallback, use
 
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { isEmpty } from 'lodash'
+
 import { jediSwapClient } from '../apollo/client'
 import { USER_VOLUME_CONTEST_DATA } from '../apollo/queries'
-import { isEmpty } from 'lodash'
+import { START_DATE_UTC as START_VOLUME_CONTEST_DATE } from '../pages/VolumeContestLookup'
 
 const UPDATE_PLAYER_DATA = 'UPDATE_PLAYER_DATA'
 
@@ -75,8 +77,9 @@ export function useVolumeContestUserData(account) {
   useEffect(() => {
     async function fetchData(account) {
       try {
+        const normalizedStartDate = dayjs(START_VOLUME_CONTEST_DATE).format('YYYY-MM-DD')
         let result = await jediSwapClient.query({
-          query: USER_VOLUME_CONTEST_DATA(account),
+          query: USER_VOLUME_CONTEST_DATA(account, normalizedStartDate),
           fetchPolicy: 'no-cache',
         })
         if (!isEmpty(result?.data?.volumeContest)) {

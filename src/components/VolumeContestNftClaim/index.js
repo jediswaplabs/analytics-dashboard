@@ -10,22 +10,16 @@ import 'swiper/modules/navigation/navigation.min.css'
 import 'swiper/modules/effect-coverflow/effect-coverflow.min.css'
 
 import T1A1 from './T1A1.png'
+import T1A2 from './T1A2.png'
+import T1A3 from './T1A3.png'
+import T1A4 from './T1A4.png'
+import T1A5 from './T1A5.png'
 
 import T1A1_x2 from './T1A1@x2.png'
-
-// import L1PW from './L1PW.png'
-// import L1P1 from './L1P1.png'
-// import L1P2 from './L1P2.png'
-// import L1P3 from './L1P3.png'
-// import L1P4 from './L1P4.png'
-// import L1P5 from './L1P5.png'
-//
-// import L1PW_x2 from './L1PW@x2.png'
-// import L1P1_x2 from './L1P1@x2.png'
-// import L1P2_x2 from './L1P2@x2.png'
-// import L1P3_x2 from './L1P3@x2.png'
-// import L1P4_x2 from './L1P4@x2.png'
-// import L1P5_x2 from './L1P5@x2.png'
+import T1A2_x2 from './T1A2@x2.png'
+import T1A3_x2 from './T1A3@x2.png'
+import T1A4_x2 from './T1A4@x2.png'
+import T1A5_x2 from './T1A5@x2.png'
 
 const Wrapper = styled.div`
   display: flex;
@@ -54,6 +48,7 @@ const Slider = styled.div`
     img {
       max-width: 100%;
       opacity: 0;
+      border-radius: 8px;
       transition: all 0.2s;
       filter: saturate(0%) opacity(0.3);
     }
@@ -141,16 +136,16 @@ function VolumeContestNftClaim() {
             <img src={T1A1} srcSet={T1A1 + ' 1x,' + T1A1_x2 + ' 2x'} alt={''} />
           </SwiperSlide>
           <SwiperSlide>
-            <img src={T1A1} srcSet={T1A1 + ' 1x,' + T1A1_x2 + ' 2x'} alt={''} />
+            <img src={T1A2} srcSet={T1A2 + ' 1x,' + T1A2_x2 + ' 2x'} alt={''} />
           </SwiperSlide>
           <SwiperSlide>
-            <img src={T1A1} srcSet={T1A1 + ' 1x,' + T1A1_x2 + ' 2x'} alt={''} />
+            <img src={T1A3} srcSet={T1A3 + ' 1x,' + T1A3_x2 + ' 2x'} alt={''} />
           </SwiperSlide>
           <SwiperSlide>
-            <img src={T1A1} srcSet={T1A1 + ' 1x,' + T1A1_x2 + ' 2x'} alt={''} />
+            <img src={T1A4} srcSet={T1A4 + ' 1x,' + T1A4_x2 + ' 2x'} alt={''} />
           </SwiperSlide>
           <SwiperSlide>
-            <img src={T1A1} srcSet={T1A1 + ' 1x,' + T1A1_x2 + ' 2x'} alt={''} />
+            <img src={T1A5} srcSet={T1A5 + ' 1x,' + T1A5_x2 + ' 2x'} alt={''} />
           </SwiperSlide>
           <NavigationArrowPrev ref={navigationPrevRef}>
             <Play size={30} />

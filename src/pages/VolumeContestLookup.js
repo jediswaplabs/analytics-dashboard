@@ -2,6 +2,7 @@ import React from 'react'
 import { withRouter } from 'react-router-dom'
 import dayjs from 'dayjs'
 import weekday from 'dayjs/plugin/weekday'
+import utc from 'dayjs/plugin/utc'
 import styled from 'styled-components'
 import 'feather-icons'
 
@@ -20,6 +21,7 @@ import { TYPE } from '../Theme'
 import contestFlagIcon from '../../src/assets/flag.svg'
 
 dayjs.extend(weekday)
+dayjs.extend(utc)
 
 const Title = styled.div`
   display: flex;
@@ -102,35 +104,59 @@ const NftSliderWrapper = styled.div`
   margin: 0 auto;
 `
 
-const START_DATE = dayjs('2023-09-19T00:00:00.000Z')
+const START_DATE = dayjs('2023-09-12T00:00:00.000Z')
 const END_DATE = START_DATE.add(8, 'weeks')
 const START_DATE_DAY_OF_THE_WEEK = START_DATE.weekday()
 const CURRENT_WEEK_START_DATE = dayjs().weekday(START_DATE_DAY_OF_THE_WEEK)
 const CURRENT_WEEK_END_DATE = CURRENT_WEEK_START_DATE.add(6, 'days')
-
 const HAS_CAMPAIGN_STARTED = dayjs().isAfter(dayjs.utc(START_DATE))
 const HAS_CAMPAIGN_ENDED = CURRENT_WEEK_END_DATE.isAfter(dayjs.utc(END_DATE))
 
+export const START_DATE_UTC = String(START_DATE)
+export const END_DATE_UTC = String(END_DATE)
+
 const faqItems = [
   {
-    header: 'How is the score getting calculated?',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing...',
+    header: 'How long will the contest last?',
+    content: (
+      <>
+        The contest lasts for 8 weeks, starting from <strong>{START_DATE.utc().format('MMM DD YYYY')}</strong> and ending on{' '}
+        <strong>{END_DATE.utc().format('MMM DD YYYY')}</strong>
+      </>
+    ),
   },
   {
-    header: 'When and how the NFTs can be claimed?',
-    content: 'Quisque eget luctus mi, vehicula mollis lorem...',
+    header: 'Can I still take part in the contest if I missed the first week?',
+    content: <>Yes! It’s possible to get rewarded with an NFT even by participating only for one week and gathering at least 500 contest points.</>,
   },
   {
-    header: 'How is the score getting calculated? ',
-    content: 'Suspendisse massa risus, pretium id interdum in...',
+    header: 'How are the contest points calculated?',
+    content: (
+      <>
+        Each $ in user volume is given 1 contest point. It is possible to earn a maximum of 1000 points every week for 8 weeks.{' '}
+        <i>
+          Trading liked assets (like stablecoins with stablecoins or ETH with stETH) against each other has a multiplier of 0.5, so in order to get
+          the max points for a week, users would have to trade at least $2000 in stablecoins.
+        </i>
+      </>
+    ),
   },
   {
-    header: 'How is the score getting calculated?',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing...',
+    header: 'Are all tokens part of the contest?',
+    content: <>Points can be earned only for trading between any of these tokens: USDC, USDT, DAI, ETH, WBTC, LORD and wstETH.</>,
   },
   {
-    header: 'When and how the NFTs can be claimed?',
-    content: 'Quisque eget luctus mi, vehicula mollis lorem...',
+    header: 'What are the rewards?',
+    content: (
+      <>
+        Users are rewarded with NFTs based on how many points they gather by the end of the contest.
+        <i>Minimum amount of points needed to be eligible for an NFT is 500.</i>
+      </>
+    ),
+  },
+  {
+    header: 'Will the NFT be tradable?',
+    content: <>Yes!</>,
   },
 ]
 
