@@ -75,7 +75,6 @@ const DashGridItemRow = styled(DashGrid)`
 `
 
 function VolumeContestUserScoreTable({ weeks }) {
-  const sortWeeksInDescendingOrder = (a, b) => b?.id - a?.id
   const areWeeksAvailable = !!weeks?.length
 
   const ListItem = ({ week }) => {
@@ -113,7 +112,7 @@ function VolumeContestUserScoreTable({ weeks }) {
 
   const weeksList =
     weeks?.length &&
-    weeks.sort(sortWeeksInDescendingOrder).map((week, index) => {
+    weeks.map((week, index) => {
       return <ListItem key={index} index={week.startDt} week={week} />
     })
 
