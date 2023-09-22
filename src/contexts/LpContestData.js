@@ -204,7 +204,7 @@ export function useLpContestNftRanksData() {
     if (!(ranks && Object.keys(ranks).length)) {
       fetchData()
     }
-  }, [ranks])
+  }, [ranks, updateNftRanksData])
 
   return ranks
 }

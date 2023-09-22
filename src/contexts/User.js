@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
-import { isEmpty } from 'lodash'
 import { usePairData } from './PairData'
 import { jediSwapClient } from '../apollo/client'
 import {
@@ -347,7 +346,7 @@ export function useUserVolumeCampaignTransactions({ account, timestampGte, times
     if (!transactions && account) {
       fetchData(account)
     }
-  }, [account, transactions, updateVolumeContestTransactions])
+  }, [account, transactions, updateVolumeContestTransactions, timestampGte, timestampLte])
 
   return transactions || {}
 }

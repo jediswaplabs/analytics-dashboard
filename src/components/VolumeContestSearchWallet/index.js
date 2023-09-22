@@ -124,7 +124,7 @@ function VolumeContestSearchWalletPanel({ history }) {
       }
       history.push('/volume-contest/' + checkAccountQuery)
     },
-    [isCheckAccountAddressValid, checkAccountQuery]
+    [isCheckAccountAddressValid, checkAccountQuery, history]
   )
 
   return (

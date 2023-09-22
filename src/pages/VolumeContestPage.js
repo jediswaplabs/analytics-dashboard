@@ -89,7 +89,7 @@ const VolumeContestBanner = styled(Banner)`
   background: rgba(255, 255, 255, 0.05);
 
   ${BannerTitle} {
-    font-size: 20px;
+    font-size: 18px;
   }
 `
 
@@ -151,8 +151,8 @@ function VolumeContestAccountPage({ account }) {
   const totalContestScore = userData?.totalContestScore
 
   let isUserEligible = useMemo(() => {
-    return (typeof userNftLevel == 'number' && userNftLevel) > 0 || false
-  }, [userData])
+    return (typeof userNftLevel == 'number' && userNftLevel > 0 && userNftLevel <= 5) || false
+  }, [userData, userNftLevel])
 
   const getEligibleNftForUserScore = useCallback(() => {
     const loadingResultStub = '...'
@@ -173,7 +173,7 @@ function VolumeContestAccountPage({ account }) {
     if (!isAllDataAvailable) {
       return loadingResultStub
     }
-    const currentWeek = userData.weeks.filter(findCurrentWeek).unshift()
+    const currentWeek = userData.weeks.filter(findCurrentWeek).shift()
     return currentWeek?.score ?? 0
   }, [userData])
 

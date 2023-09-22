@@ -52,7 +52,7 @@ const VolumeContestBanner = styled(Banner)`
   background: rgba(255, 255, 255, 0.05);
 
   ${BannerTitle} {
-    font-size: 20px;
+    font-size: 18px;
   }
 `
 

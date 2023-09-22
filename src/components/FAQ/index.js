@@ -1,5 +1,5 @@
 import React from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { Accordion as AccordionWrapper, AccordionItem as Item } from '@szhsin/react-accordion'
 import { ChevronDown } from 'react-feather'
 
@@ -16,7 +16,9 @@ const ItemWithChevron = ({ header, ...rest }) => (
         <span className={'chevron-wrapper'}>
           <ChevronDown />
         </span>
-        {header}
+        <TYPE.main fontWeight={700} fontSize={16}>
+          {header}
+        </TYPE.main>
       </>
     }
   />

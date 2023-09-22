@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { transparentize } from 'polished'
 import { TYPE } from '../../Theme'
 import { withRouter } from 'react-router-dom'
-import { TrendingUp, List, PieChart, Disc, Flag } from 'react-feather'
+import { TrendingUp, List, PieChart, Disc } from 'react-feather'
 import Link from '../Link'
 import { useSessionStart } from '../../contexts/Application'
 

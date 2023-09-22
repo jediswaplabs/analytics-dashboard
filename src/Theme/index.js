@@ -127,13 +127,16 @@ export const Link = styled.a.attrs({
   cursor: pointer;
   color: ${({ theme }) => theme.primary1};
   font-weight: 500;
+
   :hover {
     text-decoration: underline;
   }
+
   :focus {
     outline: none;
     text-decoration: underline;
   }
+
   :active {
     text-decoration: none;
   }
@@ -159,11 +162,17 @@ export const ThemedBackground = styled.div`
 
 export const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap');
-  html { font-family: 'DM Sans', sans-serif; }
-  @supports (font-variation-settings: normal) {
-    html { font-family: 'DM Sans', sans-serif; }
+
+  html {
+    font-family: 'DM Sans', sans-serif;
   }
-  
+
+  @supports (font-variation-settings: normal) {
+    html {
+      font-family: 'DM Sans', sans-serif;
+    }
+  }
+
   html,
   body {
     margin: 0;
@@ -173,7 +182,7 @@ export const GlobalStyle = createGlobalStyle`
     font-size: 14px;
     background-color: ${({ theme }) => theme.bg6};
   }
-  
+
   * {
     box-sizing: border-box;
   }
@@ -186,47 +195,50 @@ export const GlobalStyle = createGlobalStyle`
     }
   }
 
-  
-.three-line-legend {
-	width: 100%;
-	height: 70px;
-	position: absolute;
-	padding: 8px;
-	font-size: 12px;
-	color: #20262E;
-	background-color: rgba(255, 255, 255, 0.23);
-	text-align: left;
-	z-index: 10;
-  pointer-events: none;
-}
+  button {
+    font-family: 'DM Sans', sans-serif;
+  }
 
-.three-line-legend-dark {
-	width: 100%;
-	height: 70px;
-	position: absolute;
-	padding: 8px;
-	font-size: 12px;
-	color: white;
-	background-color: rgba(255, 255, 255, 0.23);
-	text-align: left;
-	z-index: 10;
-  pointer-events: none;
-}
-
-@media screen and (max-width: 800px) {
   .three-line-legend {
-    display: none !important;
+    width: 100%;
+    height: 70px;
+    position: absolute;
+    padding: 8px;
+    font-size: 12px;
+    color: #20262E;
+    background-color: rgba(255, 255, 255, 0.23);
+    text-align: left;
+    z-index: 10;
+    pointer-events: none;
   }
-}
 
-.tv-lightweight-charts{
-  width: 100% !important;
-  
+  .three-line-legend-dark {
+    width: 100%;
+    height: 70px;
+    position: absolute;
+    padding: 8px;
+    font-size: 12px;
+    color: white;
+    background-color: rgba(255, 255, 255, 0.23);
+    text-align: left;
+    z-index: 10;
+    pointer-events: none;
+  }
 
-  & > * {
+  @media screen and (max-width: 800px) {
+    .three-line-legend {
+      display: none !important;
+    }
+  }
+
+  .tv-lightweight-charts {
     width: 100% !important;
+
+
+    & > * {
+      width: 100% !important;
+    }
   }
-}
 
 
   html {
