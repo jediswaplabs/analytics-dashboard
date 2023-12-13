@@ -6,6 +6,7 @@ import { LP_CONTEST_DATA, LP_CONTEST_NFT_RANK } from '../apollo/queries'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { convertHexToDecimal } from '../utils'
+import { number as starknetNumberModule } from 'starknet'
 
 const UPDATE = 'UPDATE'
 const UPDATE_PLAYERS_DATA = 'UPDATE_PLAYERS_DATA'
@@ -142,7 +143,7 @@ export function Updater() {
       }
       const convertedAddressed = convertIdsToDecimal(userIds)
       try {
-        const response = await fetch('https://app.starknet.id/api/indexer/addrs_to_domains', {
+        const response = await fetch('https://api.starknet.id/addrs_to_domains', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -154,13 +155,13 @@ export function Updater() {
         const processedResponse = await response.json()
         const domains = processedResponse.reduce((acc, userData) => {
           if (userData.domain && userData.address) {
-            acc[userData.address] = userData.domain
+            acc[starknetNumberModule.cleanHex(userData.address)] = userData.domain
           }
           return acc
         }, {})
 
         payloadData.forEach((data) => {
-          data.starknetIdDomain = domains?.[convertedAddressed?.[data?.user?.id]] || '' // Здесь добавляется новое поле
+          data.starknetIdDomain = domains?.[data?.user?.id] || ''
         })
       } catch (e) {
       } finally {
