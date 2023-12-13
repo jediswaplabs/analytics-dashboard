@@ -142,7 +142,7 @@ export function Updater() {
       }
       const convertedAddressed = convertIdsToDecimal(userIds)
       try {
-        const response = await fetch('https://app.starknet.id/api/indexer/addrs_to_domains', {
+        const response = await fetch('https://api.starknet.id/addrs_to_domains', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
