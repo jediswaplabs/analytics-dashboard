@@ -767,7 +767,7 @@ export const TOKENS_HISTORICAL_BULK = (tokens, block) => {
   tokenString += ']'
   let queryString = `
   query tokens {
-    tokens(first: 50, where: {idIn: ${tokenString}}, ${block ? 'block: {number: ' + block + '}' : ''}  ) {
+    tokens(first: 500, where: {idIn: ${tokenString}}, ${block ? 'block: {number: ' + block + '}' : ''}  ) {
       id
       name
       symbol
