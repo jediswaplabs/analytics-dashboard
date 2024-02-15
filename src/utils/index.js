@@ -25,7 +25,7 @@ export const isStagingEnvironment = () => {
     return false
   }
   const host = new URL(String(window.location))?.host || ''
-  return host === 'info.staging.jediswap.xyz'
+  return host === 'info.staging.jediswap.xyz' || host === 'info.v1.staging.jediswap.xyz'
 }
 
 export const isProductionEnvironment = () => {
@@ -36,7 +36,7 @@ export const isProductionEnvironment = () => {
     return false
   }
   const host = new URL(String(window.location))?.host || ''
-  return host === 'info.jediswap.xyz'
+  return host === 'info.jediswap.xyz' || host === 'info.v1.jediswap.xyz'
 }
 
 export const zeroStarknetAddress = validateAndParseAddress()
