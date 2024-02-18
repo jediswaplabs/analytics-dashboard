@@ -8,6 +8,7 @@ import TokenDataContextProvider, { Updater as TokenDataContextUpdater } from './
 import GlobalDataContextProvider from './contexts/GlobalData'
 import PairDataContextProvider, { Updater as PairDataContextUpdater } from './contexts/PairData'
 import LpContestDataProvider, { Updater as LpContestDataContextUpdater } from './contexts/LpContestData'
+import VolumeContestDataProvider from './contexts/VolumeContestData'
 import ApplicationContextProvider from './contexts/Application'
 import UserContextProvider from './contexts/User'
 import App from './App'
@@ -24,11 +25,7 @@ if (typeof GOOGLE_ANALYTICS_ID === 'string') {
   })
   ReactGA.set({
     anonymizeIp: true,
-    customBrowserType: !isMobile
-      ? 'desktop'
-      : 'web3' in window || 'ethereum' in window
-      ? 'mobileWeb3'
-      : 'mobileRegular',
+    customBrowserType: !isMobile ? 'desktop' : 'web3' in window || 'ethereum' in window ? 'mobileWeb3' : 'mobileRegular',
   })
 } else {
   ReactGA.initialize('test', { testMode: true, debug: true })
@@ -41,9 +38,11 @@ function ContextProviders({ children }) {
         <TokenDataContextProvider>
           <GlobalDataContextProvider>
             <PairDataContextProvider>
-                <LpContestDataProvider>
-                    <UserContextProvider>{children}</UserContextProvider>
-                </LpContestDataProvider>
+              <LpContestDataProvider>
+                <VolumeContestDataProvider>
+                  <UserContextProvider>{children}</UserContextProvider>
+                </VolumeContestDataProvider>
+              </LpContestDataProvider>
             </PairDataContextProvider>
           </GlobalDataContextProvider>
         </TokenDataContextProvider>

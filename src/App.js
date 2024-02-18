@@ -3,6 +3,9 @@ import styled from 'styled-components'
 import { Route, Switch, BrowserRouter, Redirect } from 'react-router-dom'
 import { ApolloProvider } from 'react-apollo'
 import { isEmpty } from 'lodash'
+import VolumeContestLookup from './pages/VolumeContestLookup'
+import VolumeContestAccountPage from './pages/VolumeContestPage'
+
 import { jediSwapClient } from './apollo/client'
 import GlobalPage from './pages/GlobalPage'
 import TokenPage from './pages/TokenPage'
@@ -223,6 +226,29 @@ function App() {
               <Route path="/lp-contest/">
                 <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
                   <LpContestLookup />
+                </LayoutWrapper>
+              </Route>
+
+              <Route
+                exacts
+                strict
+                path="/volume-contest/:accountAddress"
+                render={({ match }) => {
+                  if (isStarknetAddress(match.params.accountAddress.toLowerCase())) {
+                    return (
+                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                        <VolumeContestAccountPage account={match.params.accountAddress.toLowerCase()} />
+                      </LayoutWrapper>
+                    )
+                  } else {
+                    return <Redirect to="/home" />
+                  }
+                }}
+              />
+
+              <Route path="/volume-contest/">
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <VolumeContestLookup />
                 </LayoutWrapper>
               </Route>
 

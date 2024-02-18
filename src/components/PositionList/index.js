@@ -108,7 +108,6 @@ const SORT_FIELD = {
 }
 
 function PositionList({ positions }) {
-  const below500 = useMedia('(max-width: 500px)')
   const below740 = useMedia('(max-width: 740px)')
 
   // pagination
@@ -134,8 +133,6 @@ function PositionList({ positions }) {
       setMaxPage(Math.floor(positions.length / ITEMS_PER_PAGE) + extraPages || 1)
     }
   }, [positions])
-
-  const [ethPrice] = useEthPrice()
 
   const ListItem = ({ position, index }) => {
     const poolOwnership = position.liquidityTokenBalance / position.pair.totalSupply

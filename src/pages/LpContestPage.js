@@ -14,7 +14,6 @@ import { BasicLink } from '../components/Link'
 
 import eligibilityBadgeIcon from '../../src/assets/starBadge.svg'
 
-import LpContestUserChart from '../components/LpContestUserChart'
 import { useLpContestNftRanksData } from '../contexts/LpContestData'
 import { isEmpty, isObject } from 'lodash'
 
@@ -24,15 +23,6 @@ const EligibilityBadgeWrapper = styled.a`
   display: flex;
   margin-left: 12px;
   cursor: help;
-`
-
-const PanelWrapper = styled.div`
-  grid-template-columns: 1fr;
-  grid-template-rows: max-content;
-  gap: 6px;
-  display: inline-grid;
-  width: 100%;
-  align-items: start;
 `
 
 const Header = styled.div``

@@ -186,7 +186,6 @@ function PairPage({ pairAddress, history }) {
 
   const [savedPairs, addPair] = useSavedPairs()
 
-  const listedTokens = useListedTokens()
   const whitelistedTokens = useWhitelistedTokens()
   const isTokenWhitelisted = !!(whitelistedTokens[token0?.id] && whitelistedTokens[token1?.id])
 
