@@ -1,15 +1,7 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
 
-import {jediSwapClient} from '../apollo/client'
-import {
-  PAIR_DATA,
-  PAIR_CHART,
-  FILTERED_TRANSACTIONS,
-  PAIRS_CURRENT,
-  PAIRS_BULK,
-  PAIRS_HISTORICAL_BULK,
-  HOURLY_PAIR_RATES,
-} from '../apollo/queries'
+import { jediSwapClient } from '../apollo/client'
+import { PAIR_DATA, PAIR_CHART, FILTERED_TRANSACTIONS, PAIRS_CURRENT, PAIRS_BULK, PAIRS_HISTORICAL_BULK, HOURLY_PAIR_RATES } from '../apollo/queries'
 
 import { useEthPrice } from './GlobalData'
 
@@ -19,10 +11,11 @@ import utc from 'dayjs/plugin/utc'
 import {
   getPercentChange,
   get2DayPercentChange,
-  isAddress,
   getBlocksFromTimestamps,
   getTimestampsForChanges,
-  splitQuery, convertDateToUnixFormat,
+  splitQuery,
+  convertDateToUnixFormat,
+  isStarknetAddress,
 } from '../utils'
 import { timeframeOptions, TRACKED_OVERRIDES_PAIRS, TRACKED_OVERRIDES_TOKENS } from '../constants'
 import { useLatestBlocks } from './Application'
@@ -38,10 +31,7 @@ dayjs.extend(utc)
 
 export function safeAccess(object, path) {
   return object
-    ? path.reduce(
-        (accumulator, currentValue) => (accumulator && accumulator[currentValue] ? accumulator[currentValue] : null),
-        object
-      )
+    ? path.reduce((accumulator, currentValue) => (accumulator && accumulator[currentValue] ? accumulator[currentValue] : null), object)
     : null
 }
 
@@ -184,10 +174,14 @@ export default function Provider({ children }) {
 
 async function getBulkPairData(pairList, ethPrice) {
   const [t1, t2, tWeek] = getTimestampsForChanges()
-  let [{ number: b1 } = {number: null}, { number: b2 } = {number: null}, { number: bWeek } = {number: null}] = await getBlocksFromTimestamps([t1, t2, tWeek])
-  b1 = b1 ?? b2 ?? bWeek;
-  b2 = b2 ?? b1 ?? bWeek;
-  bWeek = bWeek ?? b2 ?? b1;
+  let [{ number: b1 } = { number: null }, { number: b2 } = { number: null }, { number: bWeek } = { number: null }] = await getBlocksFromTimestamps([
+    t1,
+    t2,
+    tWeek,
+  ])
+  b1 = b1 ?? b2 ?? bWeek
+  b2 = b2 ?? b1 ?? bWeek
+  bWeek = bWeek ?? b2 ?? b1
 
   try {
     let current = await jediSwapClient.query({
@@ -271,9 +265,7 @@ function parseData(data, oneDayData, twoDayData, oneWeekData, ethPrice, oneDayBl
 
   const oneWeekVolumeUSD = parseFloat(oneWeekData ? data?.volumeUSD - oneWeekData?.volumeUSD : data.volumeUSD)
 
-  const oneWeekVolumeUntracked = parseFloat(
-    oneWeekData ? data?.untrackedVolumeUSD - oneWeekData?.untrackedVolumeUSD : data.untrackedVolumeUSD
-  )
+  const oneWeekVolumeUntracked = parseFloat(oneWeekData ? data?.untrackedVolumeUSD - oneWeekData?.untrackedVolumeUSD : data.untrackedVolumeUSD)
 
   // set volume properties
   data.oneDayVolumeUSD = parseFloat(oneDayVolumeUSD)
@@ -356,16 +348,15 @@ const getPairChartData = async (pairAddress) => {
       })
       skip += 1000
 
-
       data = data.concat(result.data.pairDayDatas)
 
       data = data.map((item) => {
-        item.date = convertDateToUnixFormat(item.date);
-        item.dailyVolumeToken0 = parseFloat(item.dailyVolumeToken0);
-        item.dailyVolumeToken1 = parseFloat(item.dailyVolumeToken1);
-        item.dailyVolumeUSD = parseFloat(item.dailyVolumeUSD);
-        item.reserveUSD = parseFloat(item.reserveUSD);
-        return item;
+        item.date = convertDateToUnixFormat(item.date)
+        item.dailyVolumeToken0 = parseFloat(item.dailyVolumeToken0)
+        item.dailyVolumeToken1 = parseFloat(item.dailyVolumeToken1)
+        item.dailyVolumeUSD = parseFloat(item.dailyVolumeUSD)
+        item.reserveUSD = parseFloat(item.reserveUSD)
+        return item
       })
 
       if (result.data.pairDayDatas.length < 1000) {
@@ -522,8 +513,7 @@ export function useHourlyRateData(pairAddress, timeWindow) {
   useEffect(() => {
     const currentTime = dayjs.utc()
     const windowSize = timeWindow === timeframeOptions.MONTH ? 'month' : 'week'
-    const startTime =
-      timeWindow === timeframeOptions.ALL_TIME ? 1589760000 : currentTime.subtract(1, windowSize).startOf('hour').unix()
+    const startTime = timeWindow === timeframeOptions.ALL_TIME ? 1589760000 : currentTime.subtract(1, windowSize).startOf('hour').unix()
 
     async function fetch() {
       let data = await getHourlyRateData(pairAddress, startTime, latestBlock.number)
@@ -570,12 +560,14 @@ export function useDataForList(pairList) {
         }
       })
 
-      let newPairData = unfetched?.length ? await getBulkPairData(
-        unfetched.map((pair) => {
-          return pair
-        }),
-        ethPrice
-      ) : [];
+      let newPairData = unfetched?.length
+        ? await getBulkPairData(
+            unfetched.map((pair) => {
+              return pair
+            }),
+            ethPrice
+          )
+        : []
       setFetched(newFetched.concat(newPairData))
     }
     if (ethPrice && pairList && pairList.length > 0 && !fetched && !stale) {
@@ -608,7 +600,7 @@ export function usePairData(pairAddress) {
         data && update(pairAddress, data[0])
       }
     }
-    if (!pairData && pairAddress && ethPrice && isAddress(pairAddress)) {
+    if (!pairData && pairAddress && ethPrice && isStarknetAddress(pairAddress)) {
       fetchData()
     }
   }, [pairAddress, pairData, update, ethPrice])
