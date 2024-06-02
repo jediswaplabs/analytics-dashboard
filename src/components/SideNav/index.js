@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { transparentize } from 'polished'
 import { TYPE } from '../../Theme'
 import { withRouter } from 'react-router-dom'
-import { TrendingUp, List, PieChart, Disc, Flag } from 'react-feather'
+import { TrendingUp, List, PieChart, Disc } from 'react-feather'
 import Link from '../Link'
 import { useSessionStart } from '../../contexts/Application'
 
@@ -133,6 +133,18 @@ function SideNav({ history }) {
                       style={{ marginRight: '-.1rem', marginTop: '-5px', width: '35px' }}
                     />
                     <AccentText>LP Contest</AccentText>
+                  </Option>
+                </BasicLink>
+
+                <BasicLink to="/lp-contest-lord">
+                  <Option activeText={history.location.pathname.split('/')[1] === 'lp-contest-lord' ?? undefined} style={{ opacity: 1 }}>
+                    <img
+                      src={confettiFiatGif}
+                      srcSet={confettiFiatGif + ' 1x,' + confettiFiatGif_x2 + ' 2x'}
+                      alt={''}
+                      style={{ marginRight: '-.1rem', marginTop: '-5px', width: '35px' }}
+                    />
+                    <AccentText>LP Contest Lord</AccentText>
                   </Option>
                 </BasicLink>
 
