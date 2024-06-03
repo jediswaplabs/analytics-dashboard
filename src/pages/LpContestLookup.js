@@ -2,7 +2,6 @@ import React, { useMemo } from 'react'
 import 'feather-icons'
 import { withRouter } from 'react-router-dom'
 import dayjs from 'dayjs'
-import Countdown from 'react-countdown'
 
 import { TYPE } from '../Theme'
 import { PageWrapper, FullWrapper } from '../components'

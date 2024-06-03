@@ -7,6 +7,7 @@ import {
   USER_HISTORY,
   PAIR_DAY_DATA_BULK,
   USER_LP_CONTEST_TRANSACTIONS,
+  USER_VOLUME_CONTEST_TRANSACTIONS,
   USER_LP_CONTEST_HISTORY,
   USER_LP_CONTEST_PERCENTILE,
 } from '../apollo/queries'
@@ -22,6 +23,7 @@ dayjs.extend(utc)
 
 const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS'
 const UPDATE_LP_CONTEST_TRANSACTIONS = 'UPDATE_LP_CONTEST_TRANSACTIONS'
+const UPDATE_VOLUME_CONTEST_TRANSACTIONS = 'UPDATE_VOLUME_CONTEST_TRANSACTIONS'
 const UPDATE_POSITIONS = 'UPDATE_POSITIONS '
 const UPDATE_MINING_POSITIONS = 'UPDATE_MINING_POSITIONS'
 const UPDATE_USER_POSITION_HISTORY = 'UPDATE_USER_POSITION_HISTORY'
@@ -31,6 +33,7 @@ const UPDATE_USER_PAIR_RETURNS = 'UPDATE_USER_PAIR_RETURNS'
 
 const TRANSACTIONS_KEY = 'TRANSACTIONS_KEY'
 const LP_CONTEST_TRANSACTIONS_KEY = 'LP_CONTEST_TRANSACTIONS_KEY'
+const VOLUME_CONTEST_TRANSACTIONS_KEY = 'VOLUME_CONTEST_TRANSACTIONS_KEY'
 const POSITIONS_KEY = 'POSITIONS_KEY'
 const MINING_POSITIONS_KEY = 'MINING_POSITIONS_KEY'
 const USER_SNAPSHOTS = 'USER_SNAPSHOTS'
@@ -76,6 +79,16 @@ function reducer(state, { type, payload }) {
         },
       }
     }
+    case UPDATE_VOLUME_CONTEST_TRANSACTIONS: {
+      const { account, transactions } = payload
+      return {
+        ...state,
+        [account]: {
+          ...state?.[account],
+          [VOLUME_CONTEST_TRANSACTIONS_KEY]: transactions,
+        },
+      }
+    }
     case UPDATE_POSITIONS: {
       const { account, positions } = payload
       return {
@@ -105,7 +118,6 @@ function reducer(state, { type, payload }) {
         [account]: { ...state?.[account], [LP_CONTEST_USER_SNAPSHOTS]: historyData },
       }
     }
-
     case UPDATE_USER_PAIR_RETURNS: {
       const { account, pairAddress, data } = payload
       return {
@@ -157,6 +169,16 @@ export default function Provider({ children }) {
       payload: {
         account,
         percentile,
+      },
+    })
+  }, [])
+
+  const updateVolumeContestTransactions = useCallback((account, transactions) => {
+    dispatch({
+      type: UPDATE_VOLUME_CONTEST_TRANSACTIONS,
+      payload: {
+        account,
+        transactions,
       },
     })
   }, [])
@@ -219,6 +241,7 @@ export default function Provider({ children }) {
           state,
           {
             updateTransactions,
+            updateVolumeContestTransactions,
             updateLpContestTransactions,
             updatePositions,
             updateMiningPositions,
@@ -232,6 +255,7 @@ export default function Provider({ children }) {
           state,
           updateTransactions,
           updateLpContestTransactions,
+          updateVolumeContestTransactions,
           updatePositions,
           updateMiningPositions,
           updateUserSnapshots,
@@ -298,6 +322,31 @@ export function useUserLpCampaignTransactions(account) {
       fetchData(account)
     }
   }, [account, transactions, updateLpContestTransactions])
+
+  return transactions || {}
+}
+
+export function useUserVolumeCampaignTransactions({ account, timestampGte, timestampLte }) {
+  const [state, { updateVolumeContestTransactions }] = useUserContext()
+  const transactions = state?.[account]?.[VOLUME_CONTEST_TRANSACTIONS_KEY]
+  useEffect(() => {
+    async function fetchData(account) {
+      try {
+        let result = await jediSwapClient.query({
+          query: USER_VOLUME_CONTEST_TRANSACTIONS({ account, timestampGte, timestampLte }),
+          fetchPolicy: 'no-cache',
+        })
+        if (result?.data) {
+          updateVolumeContestTransactions(account, result?.data)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (!transactions && account) {
+      fetchData(account)
+    }
+  }, [account, transactions, updateVolumeContestTransactions, timestampGte, timestampLte])
 
   return transactions || {}
 }
@@ -459,12 +508,7 @@ export function useUserPositionChart(position, account) {
 
   useEffect(() => {
     async function fetchData() {
-      let fetchedData = await getHistoricalPairReturns(
-        startDateTimestamp,
-        currentPairData,
-        pairSnapshots,
-        currentETHPrice
-      )
+      let fetchedData = await getHistoricalPairReturns(startDateTimestamp, currentPairData, pairSnapshots, currentETHPrice)
       updateUserPairReturns(account, pairAddress, fetchedData)
     }
     if (
@@ -619,8 +663,7 @@ export function useUserLiquidityChart(account) {
             return (totalUSD =
               totalUSD +
               (ownershipPerPair[dayData.pairId]
-                ? (parseFloat(ownershipPerPair[dayData.pairId].lpTokenBalance) / parseFloat(dayData.totalSupply)) *
-                  parseFloat(dayData.reserveUSD)
+                ? (parseFloat(ownershipPerPair[dayData.pairId].lpTokenBalance) / parseFloat(dayData.totalSupply)) * parseFloat(dayData.reserveUSD)
                 : 0))
           } else {
             return totalUSD

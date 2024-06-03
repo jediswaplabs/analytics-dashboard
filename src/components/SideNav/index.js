@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { transparentize } from 'polished'
 import { TYPE } from '../../Theme'
 import { withRouter } from 'react-router-dom'
-import { TrendingUp, List, PieChart, Disc, Flag } from 'react-feather'
+import { TrendingUp, List, PieChart, Disc } from 'react-feather'
 import Link from '../Link'
 import { useSessionStart } from '../../contexts/Application'
 
@@ -124,15 +124,27 @@ function SideNav({ history }) {
             <Title />
             {!below1080 && (
               <AutoColumn gap="1.25rem" style={{ marginTop: '1rem' }}>
-                <BasicLink to="/lp-contest">
-                  <Option activeText={history.location.pathname.split('/')[1] === 'lp-contest' ?? undefined} style={{ opacity: 1 }}>
+                {/*<BasicLink to="/lp-contest">*/}
+                {/*  <Option activeText={history.location.pathname.split('/')[1] === 'lp-contest' ?? undefined} style={{ opacity: 1 }}>*/}
+                {/*    <img*/}
+                {/*      src={confettiFiatGif}*/}
+                {/*      srcSet={confettiFiatGif + ' 1x,' + confettiFiatGif_x2 + ' 2x'}*/}
+                {/*      alt={''}*/}
+                {/*      style={{ marginRight: '-.1rem', marginTop: '-5px', width: '35px' }}*/}
+                {/*    />*/}
+                {/*    <AccentText>LP Contest</AccentText>*/}
+                {/*  </Option>*/}
+                {/*</BasicLink>*/}
+
+                <BasicLink to="/volume-contest">
+                  <Option activeText={history.location.pathname.split('/')[1] === 'volume-contest' ?? undefined} style={{ opacity: 1 }}>
                     <img
                       src={confettiFiatGif}
                       srcSet={confettiFiatGif + ' 1x,' + confettiFiatGif_x2 + ' 2x'}
                       alt={''}
                       style={{ marginRight: '-.1rem', marginTop: '-5px', width: '35px' }}
                     />
-                    <AccentText>LP Contest</AccentText>
+                    <AccentText>Volume Contest</AccentText>
                   </Option>
                 </BasicLink>
 
