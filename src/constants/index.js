@@ -20,7 +20,8 @@ export const timeframeOptions = {
 }
 
 // token list urls to fetch tokens from - use for warnings on tokens and pairs
-export const SUPPORTED_LIST_URLS__NO_ENS = [getDefaultTokensListUrl(), 'https://cloudflare-ipfs.com/ipns/tokens.jediswap.xyz/']
+// export const SUPPORTED_LIST_URLS__NO_ENS = [getDefaultTokensListUrl(), 'https://cloudflare-ipfs.com/ipns/tokens.jediswap.xyz/']
+export const SUPPORTED_LIST_URLS__NO_ENS = [getDefaultTokensListUrl()]
 
 export const DEFAULT_TOKENS_WHITELIST = {
   '0xda114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3': {
