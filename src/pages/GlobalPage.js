@@ -69,7 +69,7 @@ function GlobalPage() {
     <PageWrapper>
       <ThemedBackground backgroundColor={transparentize(0.6, '#ff007a')} />
       <ContentWrapper>
-        <TYPE.largeHeader>Dashboard</TYPE.largeHeader>
+        <TYPE.largeHeader>Dashboard.</TYPE.largeHeader>
         <Search />
         <div
           style={{
